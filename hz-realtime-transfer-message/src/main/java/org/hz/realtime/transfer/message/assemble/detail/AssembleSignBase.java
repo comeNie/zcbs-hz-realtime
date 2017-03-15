@@ -1,5 +1,7 @@
 package org.hz.realtime.transfer.message.assemble.detail;
 
+import org.hz.realtime.common.exception.HZQSZXException;
+
 import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
 
 public interface AssembleSignBase {
@@ -10,5 +12,5 @@ public interface AssembleSignBase {
      * @param bean
      * @return
      */
-    public String signatureElement(MessageBean bean);
+    public String signatureElement(MessageBean bean) throws HZQSZXException;
 }
