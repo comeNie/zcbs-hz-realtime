@@ -1,4 +1,4 @@
-package org.hz.realtime.common.sequence.utils.secret;
+package org.hz.realtime.common.utils.secret;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

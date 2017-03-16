@@ -1,4 +1,4 @@
-package org.hz.realtime.common.sequence.utils.secret;
+package org.hz.realtime.common.utils.secret;
 
 public final class PrintUtils {
 	private final static char[] HEX = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };

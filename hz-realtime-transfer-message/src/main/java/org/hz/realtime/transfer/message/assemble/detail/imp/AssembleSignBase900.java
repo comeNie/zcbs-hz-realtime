@@ -4,7 +4,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.hz.realtime.common.enums.ErrorCodeHZ;
 import org.hz.realtime.common.exception.HZQSZXException;
-import org.hz.realtime.common.sequence.utils.secret.RSAUtils;
+import org.hz.realtime.common.utils.secret.RSAUtils;
 import org.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
 import org.hz.realtime.transfer.message.util.ParamsUtil;
 import org.slf4j.Logger;

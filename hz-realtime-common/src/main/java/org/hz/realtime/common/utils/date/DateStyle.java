@@ -1,4 +1,4 @@
-package org.hz.realtime.common.sequence.utils.date;
+package org.hz.realtime.common.utils.date;
 
 public enum  DateStyle {
 	MM_DD("MM-dd"),  

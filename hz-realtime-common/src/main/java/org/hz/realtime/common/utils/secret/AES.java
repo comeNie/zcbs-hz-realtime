@@ -1,4 +1,4 @@
-package org.hz.realtime.common.sequence.utils.secret;
+package org.hz.realtime.common.utils.secret;
 
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;

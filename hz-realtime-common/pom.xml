@@ -13,6 +13,9 @@
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<rocketmq.version>3.2.6</rocketmq.version>
+		<springframework.version>4.2.0.RELEASE</springframework.version>
+		<hibernate.version>4.2.0.Final</hibernate.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -36,7 +39,6 @@
 			<artifactId>spring-test</artifactId>
 			<version>${springframework.version}</version>
 		</dependency>
-
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -91,6 +93,17 @@
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.rocketmq</groupId>
+			<artifactId>rocketmq-client</artifactId>
+			<version>${rocketmq.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.alibaba.rocketmq</groupId>
+			<artifactId>rocketmq-all</artifactId>
+			<version>${rocketmq.version}</version>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 			<groupId>com.zlebank.zplatform</groupId>

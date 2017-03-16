@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.hz.realtime.common.sequence.utils.date;
+package org.hz.realtime.common.utils.date;
 
 import java.text.DateFormatSymbols;
 import java.text.ParseException;
