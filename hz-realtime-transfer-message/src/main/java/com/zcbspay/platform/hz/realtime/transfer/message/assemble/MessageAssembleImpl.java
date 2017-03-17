@@ -60,10 +60,6 @@ public class MessageAssembleImpl implements MessageAssemble {
                 // 业务状态查询报文（CMS316）
                 signature = assembleSignBase316.signatureElement(bean);
             }
-            else if (messageType == MessageTypeEnum.CMS900) {
-                // 通用处理确认报文（CMS900）
-                signature = assembleSignBase900.signatureElement(bean);
-            }
             else if (messageType == MessageTypeEnum.CMS991) {
                 // 通讯探测报文（CMS991）
                 signature = assembleSignBase991.signatureElement(bean);
