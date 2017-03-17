@@ -6,22 +6,12 @@ import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.SendResult;
 
 public interface MessageSend {
 
-	/**
-	 * 发送报文至第三方
-	 * @param messageBean
-	 * @return
-	 */
-	public SendResult sendMessage(MessageBean messageBean);
-
     /**
-     * 查询结果
-     * @param msgId
+     * 发送报文至第三方
+     * 
+     * @param messageBean
      * @return
      */
-    public ResultBean queryReturnResult(String msgId);
-    
-    /**
-     * 关闭生产者
-     */
-    public void closeProducer();
+    public void sendMessage(MessageBean messageBean);
+
 }
