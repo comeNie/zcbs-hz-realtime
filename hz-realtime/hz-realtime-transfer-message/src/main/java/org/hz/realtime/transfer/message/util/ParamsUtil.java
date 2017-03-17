@@ -3,9 +3,10 @@ package org.hz.realtime.transfer.message.util;
 import java.util.ResourceBundle;
 
 import org.apache.commons.lang.math.NumberUtils;
-import org.hz.realtime.common.utils.date.DateUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
 
 /**
  * 定时加载properties文件参数

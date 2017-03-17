@@ -2,10 +2,11 @@ package org.hz.realtime.transfer.message.assemble.detail.imp;
 
 import javax.annotation.Resource;
 
-import org.hz.realtime.common.sequence.SerialNumberService;
 import org.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import org.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
 import org.springframework.stereotype.Service;
+
+import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
 
 @Service("assembleMsgHeadBase")
 public class AssembleBaseImpl implements AssembleMsgHeadBase {

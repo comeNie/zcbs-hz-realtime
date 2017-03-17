@@ -2,7 +2,6 @@ package org.hz.realtime.transfer.message.assemble;
 
 import javax.annotation.Resource;
 
-import org.hz.realtime.common.exception.HZQSZXException;
 import org.hz.realtime.transfer.message.api.assemble.MessageAssemble;
 import org.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import org.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
@@ -12,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zcbspay.platform.hz.realtime.common.exception.HZQSZXException;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS316Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS991Bean;

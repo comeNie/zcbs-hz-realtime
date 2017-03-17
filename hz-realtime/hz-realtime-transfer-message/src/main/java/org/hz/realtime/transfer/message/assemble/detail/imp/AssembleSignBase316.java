@@ -2,9 +2,6 @@ package org.hz.realtime.transfer.message.assemble.detail.imp;
 
 import java.io.UnsupportedEncodingException;
 
-import org.hz.realtime.common.enums.ErrorCodeHZ;
-import org.hz.realtime.common.exception.HZQSZXException;
-import org.hz.realtime.common.utils.secret.RSAUtils;
 import org.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
 import org.hz.realtime.transfer.message.util.ParamsUtil;
 import org.slf4j.Logger;
@@ -12,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zcbspay.platform.hz.realtime.common.enums.ErrorCodeHZ;
+import com.zcbspay.platform.hz.realtime.common.exception.HZQSZXException;
+import com.zcbspay.platform.hz.realtime.common.utils.secret.RSAUtils;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS316Bean;
 import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
 

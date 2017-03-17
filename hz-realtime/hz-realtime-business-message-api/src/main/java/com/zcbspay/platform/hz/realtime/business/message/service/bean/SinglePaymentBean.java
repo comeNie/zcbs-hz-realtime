@@ -69,6 +69,10 @@ public class SinglePaymentBean implements Serializable {
     
     private String txnseqno;
 
+    /**
+     * 摘要
+     */
+    private String summary;
    
 
     
@@ -174,5 +178,13 @@ public class SinglePaymentBean implements Serializable {
     public void setTxnseqno(String txnseqno) {
         this.txnseqno = txnseqno;
     }
+
+	public String getSummary() {
+		return summary;
+	}
+
+	public void setSummary(String summary) {
+		this.summary = summary;
+	}
 
 }
