@@ -69,10 +69,13 @@ public class SingleCollectionChargesBean implements Serializable{
 	
 	private String txnseqno;
 	
+
 	/**
 	 * 摘要
 	 */
 	private String summary;
+	
+	
 	
 	
 	

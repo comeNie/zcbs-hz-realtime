@@ -69,10 +69,14 @@ public class SinglePaymentBean implements Serializable {
     
     private String txnseqno;
 
+
     /**
      * 摘要
      */
     private String summary;
+   
+
+
    
 
     

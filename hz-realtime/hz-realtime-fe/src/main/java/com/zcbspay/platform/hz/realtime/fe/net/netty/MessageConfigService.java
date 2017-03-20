@@ -68,75 +68,7 @@ public class MessageConfigService {
     private void refresh() {
         // TODO
         // 读取参数功能自行实现
-        String canRunStr = (String) configParams.get("CAN_RUN");// 是否允许运行标识
-        if ("false".equalsIgnoreCase(canRunStr)) {
-            canRun = false;
-        }
-        else {
-            canRun = true;
-        }
-        configParams.put("CAN_RUN", String.valueOf(canRun));
-        String hostName = StringUtils.trimToNull((String) configParams.get("HOST_NAME"));// 主机名称
-        if (hostName == null) {
-            configParams.put("HOST_NAME", "未知");
-        }
-        String hostAddress = StringUtils.trimToNull((String) configParams.get("HOST_ADDRESS"));// 主机地址
-        if (hostAddress == null) {
-            configParams.put("HOST_ADDRESS", Constant.getInstance().getCmbc_withholding_ip());
-        }
-
-        String hostPort = StringUtils.trimToNull((String) configParams.get("HOST_PORT"));// 主机端口
-        if (hostPort == null) {
-            configParams.put("HOST_PORT", Constant.getInstance().getCmbc_withholding_port() + "");
-        }
-        String charset = StringUtils.trimToNull((String) configParams.get("CHARSET"));// 字符集
-        if (charset == null) {
-            configParams.put("CHARSET", "UTF-8");
-        }
-        int headLength = NumberUtils.toInt((String) configParams.get("HEAD_LENGTH"), 8);// 报文头长度
-        configParams.put("HEAD_LENGTH", String.valueOf(headLength));
-        int companyCodeLength = NumberUtils.toInt((String) configParams.get("COMPANY_CODE_LENGTH"), 8);// 合作方编码长度
-        configParams.put("COMPANY_CODE_LENGTH", String.valueOf(companyCodeLength));
-        int messageCodeLength = NumberUtils.toInt((String) configParams.get("MESSAGE_CODE_LENGTH"), 8);// 报文码长度
-        configParams.put("MESSAGE_CODE_LENGTH", String.valueOf(messageCodeLength));
-        int signCodeLength = NumberUtils.toInt((String) configParams.get("SIGN_CODE_LENGTH"), 4);// 签名编码长度
-        configParams.put("SIGN_CODE_LENGTH", String.valueOf(signCodeLength));
-
-        String heartbeatMessage = StringUtils.trimToNull((String) configParams.get("HEARTBEAT_MESSAGE"));// 心跳报文
-        if (heartbeatMessage == null) {
-            configParams.put("HEARTBEAT_MESSAGE", StringUtils.leftPad("", headLength, "0"));
-        }
-        String companyCode = StringUtils.trimToNull((String) configParams.get("COMPANY_CODE"));// 合作方编码
-        if (companyCode == null) {
-            // configParams.put("COMPANY_CODE", "CS");
-            configParams.put("COMPANY_CODE", Constant.getInstance().getCmbc_merid());
-        }
-        String tranMessageCode = StringUtils.trimToNull((String) configParams.get("MESSAGE_CODE_TRAN"));// 报文码:代付交易
-        if (tranMessageCode == null) {
-            configParams.put("MESSAGE_CODE_TRAN", Constant.WITHHOLDING);
-        }
-        String queryMessageCode = StringUtils.trimToNull((String) configParams.get("MESSAGE_CODE_QUERY"));// 报文码:查询交易
-        if (queryMessageCode == null) {
-            configParams.put("MESSAGE_CODE_TRAN_QUERY", Constant.WITHHOLDINGQUERY);
-        }
-
-        String realNameMessageCode = StringUtils.trimToNull((String) configParams.get("MESSAGE_CODE_REALNAME"));// 报文码:代付交易
-        if (realNameMessageCode == null) {
-            configParams.put("MESSAGE_CODE_REALNAME", Constant.REALNAMEAUTH);
-        }
-        String queryRealNameMessageCode = StringUtils.trimToNull((String) configParams.get("MESSAGE_CODE_REALNAME_QUERY"));// 报文码:查询交易
-        if (queryRealNameMessageCode == null) {
-            configParams.put("MESSAGE_CODE_REALNAME_QUERY", Constant.REALNAMEAUTHQUERY);
-        }
-
-        String whiteListMessageCode = StringUtils.trimToNull((String) configParams.get("MESSAGE_CODE_WHITELIST"));// 报文码:代付交易
-        if (whiteListMessageCode == null) {
-            configParams.put("MESSAGE_CODE_WHITELIST", Constant.WHITELIST);
-        }
-        String queryWhiteListMessageCode = StringUtils.trimToNull((String) configParams.get("MESSAGE_CODE_WHITELIST_QUERY"));// 报文码:查询交易
-        if (queryWhiteListMessageCode == null) {
-            configParams.put("MESSAGE_CODE_WHITELIST_QUERY", Constant.WHITELISTQUERY);
-        }
+       
 
         // 报文由xStream进行配置
         /*
@@ -181,6 +113,37 @@ public class MessageConfigService {
          * logger.error("无法加载本地私银[{}]", new Object[] { publicKeyPath });
          * logger.error(e.getMessage(), e); } }
          */
+
+        // 读取参数功能自行实现
+        String canRunStr = (String) configParams.get("CAN_RUN");// 是否允许运行标识
+        if ("false".equalsIgnoreCase(canRunStr)) {
+            canRun = false;
+        }
+        else {
+            canRun = true;
+        }
+        configParams.put("CAN_RUN", String.valueOf(canRun));
+        String hostName = StringUtils.trimToNull((String) configParams.get("HOST_NAME"));// 主机名称
+        if (hostName == null) {
+            configParams.put("HOST_NAME", "未知");
+        }
+        String hostAddress = StringUtils.trimToNull((String) configParams.get("HOST_ADDRESS"));// 主机地址
+        if (hostAddress == null) {
+            configParams.put("HOST_ADDRESS", Constant.getInstance().getHzqszx_ip());
+        }
+        String hostPort = StringUtils.trimToNull((String) configParams.get("HOST_PORT"));// 主机端口
+        if (hostPort == null) {
+            configParams.put("HOST_PORT", Constant.getInstance().getHzqszx_port() + "");
+        }
+        String headLength = StringUtils.trimToNull((String) configParams.get("HEAD_LENGTH"));// 报文头长度
+        if (headLength == null) {
+            configParams.put("HEAD_LENGTH", Constant.getInstance().getHeadLength() + "");
+        }
+        String charset = StringUtils.trimToNull((String) configParams.get("CHARSET"));// 字符集
+        if (charset == null) {
+            configParams.put("CHARSET", "UTF-8");
+        }
+
     }
 
     /**

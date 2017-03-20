@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.application.dao.OrderPaymentSingleDAO;
-import com.zcbspay.platform.hz.realtime.application.pojo.OrderCollectSingleDO;
 import com.zcbspay.platform.hz.realtime.application.pojo.OrderPaymentSingleDO;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 @Repository

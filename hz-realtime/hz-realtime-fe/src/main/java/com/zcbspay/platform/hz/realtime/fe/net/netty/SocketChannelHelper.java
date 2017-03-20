@@ -38,8 +38,8 @@ public class SocketChannelHelper {
     private byte[] receivedBytes;
 
     private final MessageConfigService messageConfigService;
-    private final MessageHandler messageHandler;
 
+    
     /**
      * @return the socketKey
      */
@@ -95,8 +95,6 @@ public class SocketChannelHelper {
     private SocketChannelHelper() {
         messageConfigService = new MessageConfigService();
         messageConfigService.init();
-        messageHandler = new MessageHandler();
-        messageHandler.setMessageConfigService(messageConfigService);
     }
 
     /**
@@ -104,13 +102,6 @@ public class SocketChannelHelper {
      */
     public MessageConfigService getMessageConfigService() {
         return messageConfigService;
-    }
-
-    /**
-     * @return the messageHandler
-     */
-    public MessageHandler getMessageHandler() {
-        return messageHandler;
     }
 
 }
