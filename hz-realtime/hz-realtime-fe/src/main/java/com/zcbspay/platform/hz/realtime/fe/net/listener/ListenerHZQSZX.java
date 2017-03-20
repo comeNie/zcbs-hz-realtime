@@ -12,26 +12,23 @@ import com.alibaba.rocketmq.client.consumer.listener.MessageListenerConcurrently
 import com.zcbspay.platform.hz.realtime.fe.net.netty.SocketChannelHelper;
 
 /**
- * 民生代扣渠道消费者
+ * 杭州清算中心回调Server服务启动监听器
  *
- * @author guojia
+ * @author alanma
  * @version
  * @date 2016年10月14日 上午10:43:24
  * @since
  */
 @Service
-public class CNAPSCollectConsumer implements ApplicationListener<ContextRefreshedEvent> {
+public class ListenerHZQSZX implements ApplicationListener<ContextRefreshedEvent> {
 
-    private static final Logger log = LoggerFactory.getLogger(CNAPSCollectConsumer.class);
-    @Autowired
-    @Qualifier("cnapsCollectListener")
-    private MessageListenerConcurrently simpleOrderListener;
+    private static final Logger log = LoggerFactory.getLogger(ListenerHZQSZX.class);
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (event.getApplicationContext().getParent() == null) {
             SocketChannelHelper.getInstance();
-            log.info("CNAPSCollectConsumer onApplicationEvent netty server is started~~~~~~");
+            log.info("ListenerHZQSZX onApplicationEvent netty server is started~~~~~~");
         }
     }
 
