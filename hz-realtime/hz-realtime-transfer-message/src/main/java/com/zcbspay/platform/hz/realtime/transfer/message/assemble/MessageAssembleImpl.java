@@ -7,16 +7,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.common.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.common.exception.HZQSZXException;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS316Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS991Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT384Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
-import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAssemble;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
 

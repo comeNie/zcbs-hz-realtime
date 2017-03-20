@@ -17,7 +17,6 @@ public class SinglePaymentBean implements Serializable {
      */
     private static final long serialVersionUID = 4676821653551544847L;
 
-    
     /**
      * 明细流水号
      */
@@ -66,12 +65,11 @@ public class SinglePaymentBean implements Serializable {
      * 合同（协议）号
      */
     private String endToEndIdentification;
-    
+
     private String txnseqno;
 
-   
+    private String summary;
 
-    
     public String getTxId() {
         return txId;
     }
@@ -152,7 +150,6 @@ public class SinglePaymentBean implements Serializable {
         this.amount = amount;
     }
 
-   
     public String getPurposeCode() {
         return purposeCode;
     }
@@ -168,11 +165,21 @@ public class SinglePaymentBean implements Serializable {
     public void setEndToEndIdentification(String endToEndIdentification) {
         this.endToEndIdentification = endToEndIdentification;
     }
+
     public String getTxnseqno() {
         return txnseqno;
     }
+
     public void setTxnseqno(String txnseqno) {
         this.txnseqno = txnseqno;
+    }
+
+    public String getSummary() {
+        return summary;
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
     }
 
 }

@@ -8,12 +8,12 @@ import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessag
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.common.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
-import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAssemble;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 
 public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 

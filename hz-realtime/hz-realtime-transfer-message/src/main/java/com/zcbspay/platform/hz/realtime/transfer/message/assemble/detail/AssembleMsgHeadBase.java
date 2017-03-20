@@ -1,6 +1,6 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail;
 
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 
 public interface AssembleMsgHeadBase {
 

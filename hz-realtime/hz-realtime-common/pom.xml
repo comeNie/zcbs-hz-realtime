@@ -106,11 +106,6 @@
 			<type>pom</type>
 		</dependency>
 		<dependency>
-			<groupId>com.zlebank.zplatform</groupId>
-			<artifactId>zplatform-trade-acc-api</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
 			<groupId>com.alibaba</groupId>
 			<artifactId>dubbo</artifactId>
 			<version>2.5.3</version>

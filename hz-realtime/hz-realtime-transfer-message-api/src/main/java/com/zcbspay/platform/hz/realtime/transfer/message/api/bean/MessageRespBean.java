@@ -1,4 +1,4 @@
-package com.zcbspay.platform.hz.realtime.common.bean;
+package com.zcbspay.platform.hz.realtime.transfer.message.api.bean;
 
 import java.io.Serializable;
 

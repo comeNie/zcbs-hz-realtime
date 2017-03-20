@@ -1,7 +1,7 @@
 package com.zcbspay.platform.hz.realtime.business.message.service;
 
+import com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
-import com.zcbspay.platform.hz.realtime.common.bean.MessageRespBean;
 
 /**
  * 业务报文接收器

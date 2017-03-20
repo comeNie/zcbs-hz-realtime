@@ -11,7 +11,7 @@ import com.zcbspay.platform.hz.realtime.common.enums.ErrorCodeHZ;
 import com.zcbspay.platform.hz.realtime.common.exception.HZQSZXException;
 import com.zcbspay.platform.hz.realtime.common.utils.secret.RSAUtils;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
-import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
 import com.zcbspay.platform.hz.realtime.transfer.message.util.ParamsUtil;
 

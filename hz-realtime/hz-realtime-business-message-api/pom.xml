@@ -22,10 +22,5 @@
 			<version>3.8.1</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.zcbspay.platform</groupId>
-			<artifactId>hz-realtime-common</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 </project>

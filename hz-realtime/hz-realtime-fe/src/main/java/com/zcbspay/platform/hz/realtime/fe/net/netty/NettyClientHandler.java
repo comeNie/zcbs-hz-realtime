@@ -11,13 +11,14 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
-import com.zcbspay.platform.hz.realtime.common.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.common.constant.Constant;
-import com.zcbspay.platform.hz.realtime.common.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.common.utils.secret.CryptoUtil;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.unpack.MessageUnpack;
 
 /**
@@ -101,30 +102,32 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<byte[]> {
         // 解析报文
         MessageRespBean messageRespBean = messageUnpack.unpack(bytes);
         String businessType = messageRespBean.getMessageHeaderBean().getBusinessType();
+        com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean respbean = new com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean();
+        BeanUtils.copyProperties(messageRespBean, respbean);
         ResultBean resultBean = null;
         if (MessageTypeEnum.CMT385.value().equals(businessType)) {
             // 实时代收业务回执报文（CMT385）
-            resultBean = businessMessageReceiver.realTimeCollectionChargesReceipt(messageRespBean);
+            resultBean = businessMessageReceiver.realTimeCollectionChargesReceipt(respbean);
         }
         else if (MessageTypeEnum.CMT387.value().equals(businessType)) {
             // 实时代收业务回执报文（CMT387）
-            resultBean = businessMessageReceiver.realTimePaymentReceipt(messageRespBean);
+            resultBean = businessMessageReceiver.realTimePaymentReceipt(respbean);
         }
         else if (MessageTypeEnum.CMS317.value().equals(businessType)) {
             // 业务状态查询应答报文（CMS317）
-            resultBean = businessMessageReceiver.busStaQryResp(messageRespBean);
+            resultBean = businessMessageReceiver.busStaQryResp(respbean);
         }
         else if (MessageTypeEnum.CMS900.value().equals(businessType)) {
             // 通用处理确认报文（CMS900）
-            resultBean = businessMessageReceiver.commProcAfrmResp(messageRespBean);
+            resultBean = businessMessageReceiver.commProcAfrmResp(respbean);
         }
         else if (MessageTypeEnum.CMS911.value().equals(businessType)) {
             // 报文丢弃通知报文（CMS911）
-            resultBean = businessMessageReceiver.discardMessage(messageRespBean);
+            resultBean = businessMessageReceiver.discardMessage(respbean);
         }
         else if (MessageTypeEnum.CMS992.value().equals(businessType)) {
             // 探测回应报文（CMS992）
-            resultBean = businessMessageReceiver.detectResponse(messageRespBean);
+            resultBean = businessMessageReceiver.detectResponse(respbean);
         }
         byte[] clearBytes = (byte[]) resultBean.getResultObj();
         socketHelper.setReceivedBytes(clearBytes);

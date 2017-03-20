@@ -1,7 +1,8 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.api.assemble;
 
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
+
 
 /**
  * 报文组装接口 1.生成报文头 2.生成数字签名域 3.组装报文
