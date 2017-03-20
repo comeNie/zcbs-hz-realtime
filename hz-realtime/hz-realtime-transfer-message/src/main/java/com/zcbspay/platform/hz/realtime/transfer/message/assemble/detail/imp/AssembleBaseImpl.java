@@ -4,8 +4,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Service;
 
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
 import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
 
 @Service("assembleMsgHeadBase")

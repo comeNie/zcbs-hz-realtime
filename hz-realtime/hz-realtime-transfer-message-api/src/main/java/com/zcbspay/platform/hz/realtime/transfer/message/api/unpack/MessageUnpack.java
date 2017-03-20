@@ -1,5 +1,9 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.api.unpack;
 
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
+
+
+
 
 /**
  * 报文解析

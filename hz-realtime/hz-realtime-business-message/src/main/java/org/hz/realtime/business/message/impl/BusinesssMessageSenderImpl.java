@@ -8,12 +8,12 @@ import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessag
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.common.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
-import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAssemble;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 
 public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
@@ -28,13 +28,13 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         // CMT384报文组装
         MessageHeaderBean beanHead = RealTimeCollAss.realtimeCollMsgHeaderReq(collectionChargesBean);
         MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
-       /* String message = messageAssemble.assemble(beanHead, beanBody);
+        String message = messageAssemble.assemble(beanHead, beanBody);
         // 记录报文流水信息
         
         // 发送报文
         MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
         messageSendHZ.sendMessage(messageBean);
-*/
+
         return new ResultBean("SUCCESS");
     }
 

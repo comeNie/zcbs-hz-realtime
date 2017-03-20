@@ -1,7 +1,7 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail;
 
 import com.zcbspay.platform.hz.realtime.common.exception.HZQSZXException;
-import com.zcbspay.platform.hz.realtime.message.common.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 
 public interface AssembleSignBase {
 

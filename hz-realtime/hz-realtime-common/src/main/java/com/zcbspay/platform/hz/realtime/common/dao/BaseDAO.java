@@ -1,6 +1,7 @@
 package com.zcbspay.platform.hz.realtime.common.dao;
 
 
+
 /**
  * 
  * 基础数据库连接层DAO
@@ -30,4 +31,5 @@ public interface BaseDAO<T> {
      * @return
      */
     public void saveEntity(T t);
+	
 }

@@ -1,8 +1,6 @@
 package com.zcbspay.platform.hz.realtime.message.bean.fe.service;
 
-
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
-
 
 public interface MessageSend {
 
@@ -13,6 +11,5 @@ public interface MessageSend {
      * @return
      */
     public void sendMessage(MessageBeanStr messageBean);
-
 
 }

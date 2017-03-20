@@ -1,6 +1,7 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.api.assemble;
 
-
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 
 
 /**
@@ -36,7 +37,4 @@ public interface MessageAssemble {
      * @return
      */
     public String assemble(MessageHeaderBean beanHead, MessageBean beanBody);
-
-
-	
 }

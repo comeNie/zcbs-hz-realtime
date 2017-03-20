@@ -1,6 +1,5 @@
 package com.zcbspay.platform.hz.realtime.fe.send;
 
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -13,6 +12,7 @@ import com.zcbspay.platform.hz.realtime.fe.net.netty.NettyClientBootstrap;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.SocketChannelHelper;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.SendResult;
 
 @Service("messageSendHZ")
 public class MessageSendImpl implements MessageSend {
@@ -46,5 +46,4 @@ public class MessageSendImpl implements MessageSend {
         }
         executors.shutdown();
     }
-
 }

@@ -24,7 +24,6 @@ import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
  */
 public class Constant {
 
-
     private static final Logger log = LoggerFactory.getLogger(Constant.class);
 
     private String hzqszx_ip;

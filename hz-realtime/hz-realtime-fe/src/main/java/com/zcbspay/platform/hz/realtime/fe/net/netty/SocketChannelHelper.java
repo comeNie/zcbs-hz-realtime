@@ -39,7 +39,6 @@ public class SocketChannelHelper {
 
     private final MessageConfigService messageConfigService;
 
-    
     /**
      * @return the socketKey
      */

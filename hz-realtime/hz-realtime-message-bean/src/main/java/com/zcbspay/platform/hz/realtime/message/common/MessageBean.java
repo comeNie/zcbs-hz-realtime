@@ -1,5 +1,6 @@
 package com.zcbspay.platform.hz.realtime.message.common;
 
+import com.zcbspay.platform.hz.realtime.common.enums.MessageTypeEnum;
 
 public class MessageBean {
 

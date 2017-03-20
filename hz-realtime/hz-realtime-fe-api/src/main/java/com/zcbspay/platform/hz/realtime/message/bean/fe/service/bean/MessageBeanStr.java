@@ -1,5 +1,7 @@
 package com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean;
 
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
+
 
 public class MessageBeanStr {
 

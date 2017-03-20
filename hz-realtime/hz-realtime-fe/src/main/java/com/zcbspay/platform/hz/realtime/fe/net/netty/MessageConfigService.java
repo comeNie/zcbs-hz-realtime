@@ -66,54 +66,6 @@ public class MessageConfigService {
      * 刷新参数
      */
     private void refresh() {
-        // TODO
-        // 读取参数功能自行实现
-       
-
-        // 报文由xStream进行配置
-        /*
-         * String reqPath = StringUtils.trimToNull((String)
-         * configParams.get("MSG_CFG_PATH_REQ"));// 请求报文配置路径 if (reqPath ==
-         * null) { configParams.put("MSG_CFG_PATH_REQ",
-         * "classpath:msg-cfg-req.xml"); } String resPath =
-         * StringUtils.trimToNull((String)
-         * configParams.get("MSG_CFG_PATH_RES"));// 应答报文配置路径 if (resPath ==
-         * null) { configParams.put("MSG_CFG_PATH_RES",
-         * "classpath:msg-cfg-res.xml"); }
-         */
-
-        // 秘钥加密和证联现有秘钥加密方式一样，使用现有秘钥加密方式
-        /*
-         * String classpathKey = "classpath:"; String publicKeyPath =
-         * StringUtils.trimToNull((String)
-         * configParams.get("PUBLIC_KEY_PATH"));// 银行公钥路径 if (publicKeyPath ==
-         * null) { publicKeyPath = "classpath:bank_rsa_public_key_2048.pem"; }
-         * if (publicKeyPath != null) { try { InputStream inputStream = null; if
-         * (publicKeyPath.startsWith(classpathKey)) { inputStream =
-         * this.getClass
-         * ().getClassLoader().getResourceAsStream(publicKeyPath.substring
-         * (classpathKey.length())); } else { inputStream = new
-         * FileInputStream(publicKeyPath); } PublicKey publicKey =
-         * CryptoUtil.getPublicKey(inputStream, "RSA");
-         * configParams.put("PUBLIC_KEY", publicKey); } catch (Exception e) {
-         * logger.error("无法加载银行公钥[{}]", new Object[] { publicKeyPath });
-         * logger.error(e.getMessage(), e); } } String privateKeyPath =
-         * StringUtils.trimToNull((String)
-         * configParams.get("PRIVATE_KEY_PATH"));// 合作方私钥路径 if (privateKeyPath
-         * == null) { privateKeyPath =
-         * "classpath:company_rsa_private_key_2048.pem"; } if (publicKeyPath !=
-         * null) { try { InputStream inputStream = null; if
-         * (privateKeyPath.startsWith(classpathKey)) { inputStream =
-         * this.getClass
-         * ().getClassLoader().getResourceAsStream(privateKeyPath.substring
-         * (classpathKey.length())); } else { inputStream = new
-         * FileInputStream(privateKeyPath); } PrivateKey privateKey =
-         * CryptoUtil.getPrivateKey(inputStream, "RSA");
-         * configParams.put("PRIVATE_KEY", privateKey); } catch (Exception e) {
-         * logger.error("无法加载本地私银[{}]", new Object[] { publicKeyPath });
-         * logger.error(e.getMessage(), e); } }
-         */
-
         // 读取参数功能自行实现
         String canRunStr = (String) configParams.get("CAN_RUN");// 是否允许运行标识
         if ("false".equalsIgnoreCase(canRunStr)) {
@@ -143,7 +95,6 @@ public class MessageConfigService {
         if (charset == null) {
             configParams.put("CHARSET", "UTF-8");
         }
-
     }
 
     /**

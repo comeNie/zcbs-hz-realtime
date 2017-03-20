@@ -1,8 +1,8 @@
 package org.hz.realtime.business.message.assembly;
 
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
-import com.zcbspay.platform.hz.realtime.common.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 
 /**
  * 批量代收业务报文组装类 Class Description
