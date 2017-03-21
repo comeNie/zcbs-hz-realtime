@@ -2,10 +2,12 @@ package org.hz.realtime.business.message.dao.impl;
 
 import javax.annotation.Resource;
 
+import org.hz.realtime.business.message.bean.RealTimeCollRespBean;
 import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import org.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +15,7 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleColl
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
 
+@Repository
 public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollectSingleLogDO> implements TChnCollectSingleLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TChnCollectSingleLogDAOImpl.class);
@@ -36,8 +39,16 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         chnCollectSingleLog.setPurposeproprietary(collectionChargesBean.getPurposeCode());
         chnCollectSingleLog.setEndtoendidentification(collectionChargesBean.getEndToEndIdentification());
         chnCollectSingleLog.setSummary(collectionChargesBean.getSummary());
+        chnCollectSingleLog.setTxnseqno(collectionChargesBean.getTxnseqno());
         saveEntity(chnCollectSingleLog);
         return chnCollectSingleLog;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public TChnCollectSingleLogDO updateRealCollectLog(RealTimeCollRespBean realTimeCollRespBean) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

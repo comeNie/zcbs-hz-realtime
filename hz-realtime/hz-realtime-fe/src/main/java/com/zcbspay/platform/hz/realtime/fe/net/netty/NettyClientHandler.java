@@ -47,6 +47,7 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<byte[]> {
      */
     @Override
     protected synchronized void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
+        logger.info("enter NettyClientHandler.channelRead0 ~~~");
         SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
         String hostName = socketChannelHelper.getMessageConfigService().getString("HOST_NAME");// 主机名称
         String hostAddress = socketChannelHelper.getMessageConfigService().getString("HOST_ADDRESS");// 主机名称
