@@ -9,7 +9,7 @@ import com.zcbspay.platform.hz.realtime.common.dao.BaseDAO;
 public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO> {
 
     /**
-     * 保存实时代付流水信息
+     * 保存实时代收流水信息
      * 
      * @param collectionChargesBean
      * @return
@@ -17,7 +17,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
     public TChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean);
 
     /**
-     * 更新实时代付流水信息
+     * 更新实时代收流水信息
      * 
      * @param collectionChargesBean
      * @return

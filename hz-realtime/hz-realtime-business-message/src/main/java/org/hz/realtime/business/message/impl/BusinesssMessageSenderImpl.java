@@ -3,7 +3,9 @@ package org.hz.realtime.business.message.impl;
 import javax.annotation.Resource;
 
 import org.hz.realtime.business.message.assembly.RealTimeCollAss;
+import org.hz.realtime.business.message.assembly.RealTimePayAss;
 import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
+import org.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import org.hz.realtime.business.message.enums.ReturnInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +28,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private MessageAssemble messageAssemble;
     @Autowired
     private TChnCollectSingleLogDAO tChnCollectSingleLogDAO;
+    @Autowired
+    private TChnPaymentSingleLogDAO tChnPaymentSingleLogDAO;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
@@ -43,8 +47,15 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     @Override
     public ResultBean realTimePayment(SinglePaymentBean paymentBean) {
-        // TODO Auto-generated method stub
-        return null;
+        // CMT386报文组装
+        MessageHeaderBean beanHead = RealTimePayAss.realtimeCollMsgHeaderReq(paymentBean);
+        MessageBean beanBody = RealTimePayAss.realtimeCollMsgBodyReq(paymentBean);
+        String message = messageAssemble.assemble(beanHead, beanBody);
+        // 记录报文流水信息
+        tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean);
+        MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
+        messageSendHZ.sendMessage(messageBean);
+        return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
     @Override
