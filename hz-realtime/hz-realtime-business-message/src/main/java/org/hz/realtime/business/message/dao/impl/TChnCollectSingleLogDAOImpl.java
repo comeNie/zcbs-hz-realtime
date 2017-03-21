@@ -47,7 +47,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public TChnCollectSingleLogDO updateRealCollectLog(RealTimeCollRespBean realTimeCollRespBean) {
-        // TODO Auto-generated method stub
+        // TODO mxwtodo
         return null;
     }
 

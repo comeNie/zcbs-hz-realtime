@@ -3,6 +3,7 @@ package org.hz.realtime.business.message.dao.impl;
 import javax.annotation.Resource;
 
 import org.hz.realtime.business.message.bean.RealTimeCollRespBean;
+import org.hz.realtime.business.message.bean.RealTimePayRespBean;
 import org.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import org.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import org.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
@@ -46,8 +47,9 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
     }
 
     @Override
-    public TChnCollectSingleLogDO updateRealPaymentLog(RealTimeCollRespBean realTimeCollRespBean) {
-        // TODO Auto-generated method stub
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public TChnPaymentSingleLogDO updateRealPaymentLog(RealTimePayRespBean realTimePayRespBean) {
+        // TODO mxwtodo
         return null;
     }
 

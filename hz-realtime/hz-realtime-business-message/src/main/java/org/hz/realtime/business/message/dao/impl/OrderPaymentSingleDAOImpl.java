@@ -68,4 +68,17 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
         OrderPaymentSingleDO uniqueResult = (OrderPaymentSingleDO) criteria.uniqueResult();
         return uniqueResult;
     }
+
+    @Override
+    public void updateOrderToFailByTn(String tn) {
+        String hql = "update OrderPaymentSingleDO set status = ? where tn = ? ";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, "03");
+        query.setString(1, tn);
+        int rows = query.executeUpdate();
+        log.info("updateOrderToFail() effect rows:" + rows);
+
+    }
+
 }

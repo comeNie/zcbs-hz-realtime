@@ -1,7 +1,6 @@
 package org.hz.realtime.business.message.dao;
 
-import org.hz.realtime.business.message.bean.RealTimeCollRespBean;
-import org.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
+import org.hz.realtime.business.message.bean.RealTimePayRespBean;
 import org.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
@@ -23,6 +22,6 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<TChnPaymentSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO updateRealPaymentLog(RealTimeCollRespBean realTimeCollRespBean);
+    public TChnPaymentSingleLogDO updateRealPaymentLog(RealTimePayRespBean realTimePayRespBean);
 
 }
