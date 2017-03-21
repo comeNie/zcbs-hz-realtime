@@ -1,13 +1,3 @@
-/* 
- * RedisSerialNumberServiceImpl.java  
- * 
- * version TODO
- *
- * 2016年9月12日 
- * 
- * Copyright (c) 2016,zlebank.All rights reserved.
- * 
- */
 package com.zcbspay.platform.hz.realtime.common.sequence.impl;
 
 import java.text.DecimalFormat;
@@ -34,7 +24,10 @@ public class RedisSerialNumberServiceImpl implements SerialNumberService {
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
-    private static final String HZ_COM_REF_ID_KEY = "SEQUENCE:CMBCSERIALNO";
+    private static final String HZ_COM_REF_ID_KEY = "SEQUENCE:HZCOMUREFID";
+    private static final String DB_PRIMARY_KEY = "SEQUENCE:DBPRIMARYKEY";
+    private static final String HZ_MESSAGE_ID = "SEQUENCE:HZMESSAGEID";
+    private static final String HZ_TRAN_IDDEN = "SEQUENCE:HZTRANIDDEN";
 
     public String formateSequence(String key) {
         ValueOperations<String, String> opsForValue = redisTemplate.opsForValue();
@@ -54,4 +47,21 @@ public class RedisSerialNumberServiceImpl implements SerialNumberService {
         return seqNo;
     }
 
+    @Override
+    public Long generateDBPrimaryKey() {
+        String seqNo = formateSequence(DB_PRIMARY_KEY);
+        return Long.parseLong(seqNo.substring(4, 16));
+    }
+
+    @Override
+    public String generateHZMsgId() {
+        String seqNo = formateSequence(HZ_MESSAGE_ID);
+        return seqNo;
+    }
+
+    @Override
+    public String generateTranIden() {
+        String seqNo = formateSequence(HZ_TRAN_IDDEN);
+        return seqNo;
+    }
 }

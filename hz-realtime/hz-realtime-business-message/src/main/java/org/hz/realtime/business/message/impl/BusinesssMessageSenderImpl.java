@@ -3,6 +3,9 @@ package org.hz.realtime.business.message.impl;
 import javax.annotation.Resource;
 
 import org.hz.realtime.business.message.assembly.RealTimeCollAss;
+import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
+import org.hz.realtime.business.message.enums.ReturnInfo;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
@@ -21,21 +24,21 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private MessageSend messageSendHZ;
     @Resource
     private MessageAssemble messageAssemble;
+    @Autowired
+    private TChnCollectSingleLogDAO tChnCollectSingleLogDAO;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
-
         // CMT384报文组装
         MessageHeaderBean beanHead = RealTimeCollAss.realtimeCollMsgHeaderReq(collectionChargesBean);
         MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
         String message = messageAssemble.assemble(beanHead, beanBody);
         // 记录报文流水信息
-        
+        tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean);
         // 发送报文
         MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
         messageSendHZ.sendMessage(messageBean);
-
-        return new ResultBean("SUCCESS");
+        return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
     @Override
