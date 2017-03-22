@@ -39,7 +39,7 @@ public interface BusinesssMessageSender {
      * @param messageTypeEnum 原交易业务类型编码（代付/代扣）
      * @return
      */
-    public ResultBean queryTrade(String txnseqno, MessageTypeEnum messageTypeEnum);
+    public ResultBean queryTrade(String txnseqno);
 
     /**
      * 链路探测

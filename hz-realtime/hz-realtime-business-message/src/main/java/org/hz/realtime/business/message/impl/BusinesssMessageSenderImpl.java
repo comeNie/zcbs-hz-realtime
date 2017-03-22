@@ -7,6 +7,7 @@ import org.hz.realtime.business.message.assembly.RealTimeCollAss;
 import org.hz.realtime.business.message.assembly.RealTimePayAss;
 import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import org.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
+import org.hz.realtime.business.message.enums.BusinessType;
 import org.hz.realtime.business.message.enums.OrgCode;
 import org.hz.realtime.business.message.enums.ReturnInfo;
 import org.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
@@ -22,7 +23,6 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaym
 import com.zcbspay.platform.hz.realtime.common.enums.ErrorCodeHZ;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT384Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
-import com.zcbspay.platform.hz.realtime.message.bean.OrgnlMsgIdBean;
 import com.zcbspay.platform.hz.realtime.message.bean.OrgnlTxBean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
@@ -86,10 +86,12 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     }
 
     @Override
-    public ResultBean queryTrade(String txnseqno, com.zcbspay.platform.hz.realtime.business.message.service.enums.MessageTypeEnum messageTypeEnum) {
+    public ResultBean queryTrade(String txnseqno) {
+        // TODO mxwtodo txsn_log
+        String businessType = null;
         // 查询原交易获取原报文三要素
         OrgnlTxBean orgMsgIde = null;
-        if (com.zcbspay.platform.hz.realtime.business.message.service.enums.MessageTypeEnum.CMT384.equals(messageTypeEnum)) {
+        if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
             // 实时代收原交易
             TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
             if (collSingle == null) {
@@ -98,7 +100,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), collSingle.getTxid(), MessageTypeEnum.CMT384.value());
         }
-        else if (com.zcbspay.platform.hz.realtime.business.message.service.enums.MessageTypeEnum.CMT386.equals(messageTypeEnum)) {
+        else if (BusinessType.REAL_TIME_PAY.getValue().equals(businessType)) {
             // 实时代付原交易
             TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
             if (paySingle == null) {
