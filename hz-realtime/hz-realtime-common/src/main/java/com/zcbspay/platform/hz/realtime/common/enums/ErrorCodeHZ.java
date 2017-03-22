@@ -3,6 +3,8 @@ package com.zcbspay.platform.hz.realtime.common.enums;
 public enum ErrorCodeHZ {
 
 	SIGN_FAILED("THZ001", "报文体加签失败"),
+	NONE_RECORD("THZ002", "交易流水号无对应代收/代付记录"),
+	REPEAT_REQUEST("THZ003", "交易重复，拒绝本次请求")
 	;
 
 	private String value;

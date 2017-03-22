@@ -24,7 +24,17 @@ public class OrgnlTxBean implements Serializable{
 	 */
 	@JSONField(name="OrgnlMsgType")
 	private String orgnlMsgType;
-	public String getOrgnlSender() {
+	
+	public OrgnlTxBean() {
+        super();
+    }
+    public OrgnlTxBean(String orgnlSender, String orgnlTxId, String orgnlMsgType) {
+        super();
+        this.orgnlSender = orgnlSender;
+        this.orgnlTxId = orgnlTxId;
+        this.orgnlMsgType = orgnlMsgType;
+    }
+    public String getOrgnlSender() {
 		return orgnlSender;
 	}
 	public void setOrgnlSender(String orgnlSender) {

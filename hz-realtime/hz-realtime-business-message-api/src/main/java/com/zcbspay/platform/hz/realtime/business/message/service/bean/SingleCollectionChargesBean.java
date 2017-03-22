@@ -69,7 +69,7 @@ public class SingleCollectionChargesBean implements Serializable {
     private String txnseqno;
 
     private String summary;
-
+   
     public String getTxId() {
         return txId;
     }

@@ -1,7 +1,5 @@
 package org.hz.realtime.business.message.impl;
 
-import org.hz.realtime.business.message.bean.RealTimeCollRespBean;
-import org.hz.realtime.business.message.bean.RealTimePayRespBean;
 import org.hz.realtime.business.message.dao.OrderCollectSingleDAO;
 import org.hz.realtime.business.message.dao.OrderPaymentSingleDAO;
 import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
@@ -16,6 +14,10 @@ import com.alibaba.fastjson.JSONObject;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
+import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
+import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 
 public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
 
@@ -31,10 +33,10 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
     @Override
     public ResultBean realTimeCollectionChargesReceipt(MessageRespBean messageRespBean) {
         // 更新流水记录
-        RealTimeCollRespBean realTimeCollRespBean = JSONObject.parseObject(messageRespBean.getMsgBody(), RealTimeCollRespBean.class);
-        TChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(realTimeCollRespBean);
+        CMT385Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT385Bean.class);
+        TChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(bean);
         // 更新订单状态
-        if (BusStat.SUCCESS.getValue().equals(realTimeCollRespBean.getRspnInf().getSts())) {
+        if (BusStat.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
             orderCollectSingleDAO.updateOrderToSuccessByTn(chnCollectSingleLogDO.getTxnseqno());
         }
         else {
@@ -46,7 +48,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
     @Override
     public ResultBean realTimePaymentReceipt(MessageRespBean messageRespBean) {
         // 更新流水记录
-        RealTimePayRespBean realTimePayRespBean = JSONObject.parseObject(messageRespBean.getMsgBody(), RealTimePayRespBean.class);
+        CMT387Bean realTimePayRespBean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT387Bean.class);
         TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(realTimePayRespBean);
         // 更新订单状态
         if (BusStat.SUCCESS.getValue().equals(realTimePayRespBean.getRspnInf().getSts())) {
@@ -60,8 +62,16 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
 
     @Override
     public ResultBean discardMessage(MessageRespBean messageRespBean) {
-        // TODO Auto-generated method stub
-        return null;
+        ResultBean resultBean = null;
+        CMS317Bean realTimePayRespBean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMS317Bean.class);
+        String orgMsgType = realTimePayRespBean.getOrgnlTx().getOrgnlMsgType();
+        if (MessageTypeEnum.CMT384.value().equals(orgMsgType)) {
+            resultBean = realTimeCollectionChargesReceipt(messageRespBean);
+        }
+        else if (MessageTypeEnum.CMT386.value().equals(orgMsgType)) {
+            resultBean = realTimePaymentReceipt(messageRespBean);
+        }
+        return resultBean;
     }
 
     @Override
