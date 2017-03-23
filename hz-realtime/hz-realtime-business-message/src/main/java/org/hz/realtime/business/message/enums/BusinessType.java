@@ -1,9 +1,8 @@
 package org.hz.realtime.business.message.enums;
 
 public enum BusinessType {
-    // TODO todomxw
-    REAL_TIME_COLL("XXXX", "实时代收"),
-    REAL_TIME_PAY("", "实时代付"), ;
+    REAL_TIME_COLL("11000002", "实时代收"), 
+    REAL_TIME_PAY("70000002", "实时代付"), ;
 
     private String value;
     private final String displayName;

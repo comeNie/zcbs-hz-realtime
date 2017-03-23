@@ -51,13 +51,4 @@ public class RealTimeCollAss {
         return msgBean;
     }
 
-    public static MessageHeaderBean realtimeCollMsgHeaderReq(SingleCollectionChargesBean collectionChargesBean) {
-        MessageHeaderBean header = new MessageHeaderBean();
-        header.setBusinessType(MessageTypeEnum.CMT384.value());
-        header.setSender(OrgCode.ZCBS.getValue());
-        header.setReciever(OrgCode.HZQSZX.getValue());
-        header.setSendTime(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
-        return header;
-    }
-
 }

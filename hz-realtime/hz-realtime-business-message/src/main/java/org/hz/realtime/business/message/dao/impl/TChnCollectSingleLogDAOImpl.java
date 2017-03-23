@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.annotation.Resource;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import org.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import org.slf4j.Logger;
@@ -18,6 +19,8 @@ import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
 
 @Repository
@@ -29,7 +32,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public TChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId) {
+    public TChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId) {
         // 记录实时代收流水(T_CHN_COLLECT_SINGLE_LOG)
         TChnCollectSingleLogDO chnCollectSingleLog = new TChnCollectSingleLogDO();
         chnCollectSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
@@ -45,6 +48,8 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         chnCollectSingleLog.setEndtoendidentification(collectionChargesBean.getEndToEndIdentification());
         chnCollectSingleLog.setSummary(collectionChargesBean.getSummary());
         chnCollectSingleLog.setTxnseqno(collectionChargesBean.getTxnseqno());
+        // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
+        chnCollectSingleLog.setNotes(comRefId);
         saveEntity(chnCollectSingleLog);
         return chnCollectSingleLog;
     }
@@ -72,6 +77,34 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
         return (TChnCollectSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    public void updateRealCollectLogCommResp(CMS900Bean bean) {
+        String hql = "update TChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? where msgid=?";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, bean.getMsgId());
+        query.setString(1, bean.getRspnInf().getSts());
+        query.setString(2, bean.getRspnInf().getRjctcd());
+        query.setString(3, bean.getRspnInf().getRjctinf());
+        query.setString(4, bean.getOrgnlMsgId().getOrgnlMsgId());
+        int rows = query.executeUpdate();
+        logger.info("updateRealCollectLogCommResp() effect rows:" + rows);
+    }
+
+    @Override
+    public void updateRealCollectLogDiscard(CMS911Bean bean) {
+        String hql = "update TChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, bean.getMsgId());
+        query.setString(1, bean.getDscrdInf().getRjctCd());
+        query.setString(2, bean.getDscrdInf().getRjctInf());
+        query.setString(3, bean.getDscrdInf().getRefId());
+        int rows = query.executeUpdate();
+        logger.info("updateRealCollectLogDiscard() effect rows:" + rows);
+
     }
 
 }

@@ -3,15 +3,19 @@ package org.hz.realtime.business.message.impl;
 import javax.annotation.Resource;
 
 import org.hz.realtime.business.message.assembly.BusStatQryAss;
+import org.hz.realtime.business.message.assembly.ComuDetecAss;
+import org.hz.realtime.business.message.assembly.MsgHeadAss;
 import org.hz.realtime.business.message.assembly.RealTimeCollAss;
 import org.hz.realtime.business.message.assembly.RealTimePayAss;
 import org.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import org.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
+import org.hz.realtime.business.message.dao.TxnsLogDAO;
 import org.hz.realtime.business.message.enums.BusinessType;
 import org.hz.realtime.business.message.enums.OrgCode;
 import org.hz.realtime.business.message.enums.ReturnInfo;
 import org.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import org.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
+import org.hz.realtime.business.message.pojo.TTxnsLogDO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,7 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
 import com.zcbspay.platform.hz.realtime.common.enums.ErrorCodeHZ;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS991Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT384Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.OrgnlTxBean;
@@ -43,6 +48,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private TChnCollectSingleLogDAO tChnCollectSingleLogDAO;
     @Autowired
     private TChnPaymentSingleLogDAO tChnPaymentSingleLogDAO;
+    @Autowired
+    private TxnsLogDAO txnsLogDAO;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
@@ -53,12 +60,12 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             return new ResultBean(ErrorCodeHZ.REPEAT_REQUEST.getValue(), ErrorCodeHZ.REPEAT_REQUEST.getDisplayName());
         }
         // CMT384报文组装
-        MessageHeaderBean beanHead = RealTimeCollAss.realtimeCollMsgHeaderReq(collectionChargesBean);
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
         MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
         String message = messageAssemble.assemble(beanHead, beanBody);
         // 记录报文流水信息
         CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
-        tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId());
+        tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
         // 发送报文
         MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
         messageSendHZ.sendMessage(messageBean);
@@ -74,12 +81,12 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             return new ResultBean(ErrorCodeHZ.REPEAT_REQUEST.getValue(), ErrorCodeHZ.REPEAT_REQUEST.getDisplayName());
         }
         // CMT386报文组装
-        MessageHeaderBean beanHead = RealTimePayAss.realtimePayMsgHeaderReq(paymentBean);
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
         MessageBean beanBody = RealTimePayAss.realtimePayMsgBodyReq(paymentBean);
         String message = messageAssemble.assemble(beanHead, beanBody);
         // 记录报文流水信息
         CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
-        tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId());
+        tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
         MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
         messageSendHZ.sendMessage(messageBean);
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
@@ -87,8 +94,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     @Override
     public ResultBean queryTrade(String txnseqno) {
-        // TODO mxwtodo txsn_log
-        String businessType = null;
+        TTxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
+        String businessType = txnsLogDO.getBusitype();
         // 查询原交易获取原报文三要素
         OrgnlTxBean orgMsgIde = null;
         if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
@@ -110,7 +117,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), paySingle.getTxid(), MessageTypeEnum.CMT386.value());
         }
         // CMS316报文组装
-        MessageHeaderBean beanHead = BusStatQryAss.busStatusQryMsgHeaderReq();
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
         MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
         String message = messageAssemble.assemble(beanHead, beanBody);
         // 记录报文流水信息
@@ -121,8 +128,14 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     @Override
     public ResultBean check() {
-        // TODO Auto-generated method stub
-        return null;
+        // CMS991报文组装
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
+        MessageBean beanBody = ComuDetecAss.communicateDetecMsgBodyReq();
+        String message = messageAssemble.assemble(beanHead, beanBody);
+        // 发送报文
+        MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS991);
+        messageSendHZ.sendMessage(messageBean);
+        return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
 }

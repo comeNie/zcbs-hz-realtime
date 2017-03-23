@@ -51,14 +51,4 @@ public class RealTimePayAss {
         return msgBean;
     }
 
-    public static MessageHeaderBean realtimePayMsgHeaderReq(SinglePaymentBean paymentBean) {
-        MessageHeaderBean header = new MessageHeaderBean();
-        header.setBusinessType(MessageTypeEnum.CMT386.value());
-        // TODO 机构号是否与清算行号一致？
-        header.setSender(OrgCode.ZCBS.getValue());
-        header.setReciever(OrgCode.HZQSZX.getValue());
-        header.setSendTime(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
-        return header;
-    }
-
 }

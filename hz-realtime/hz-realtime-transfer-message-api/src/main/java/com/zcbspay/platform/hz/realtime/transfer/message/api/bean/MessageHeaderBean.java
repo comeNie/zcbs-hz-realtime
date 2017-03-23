@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 /**
  * 报文头
+ * 
  * @author AlanMa
  *
  */
@@ -20,6 +21,8 @@ public class MessageHeaderBean implements Serializable {
     private String reciever;
     // 报文发送时间
     private String sendTime;
+    // 通信级参考号
+    private String comRefId;
 
     public String getBusinessType() {
         return businessType;
@@ -61,9 +64,18 @@ public class MessageHeaderBean implements Serializable {
         this.msgBodyLength = msgBodyLength;
     }
 
+    public String getComRefId() {
+        return comRefId;
+    }
+
+    public void setComRefId(String comRefId) {
+        this.comRefId = comRefId;
+    }
+
     @Override
     public String toString() {
-        return "MessageHeaderBean [msgBodyLength=" + msgBodyLength + ", businessType=" + businessType + ", sender=" + sender + ", reciever=" + reciever + ", sendTime=" + sendTime + "]";
+        return "MessageHeaderBean [msgBodyLength=" + msgBodyLength + ", businessType=" + businessType + ", sender=" + sender + ", reciever=" + reciever + ", sendTime=" + sendTime + ", comRefId="
+                + comRefId + "]";
     }
 
 }

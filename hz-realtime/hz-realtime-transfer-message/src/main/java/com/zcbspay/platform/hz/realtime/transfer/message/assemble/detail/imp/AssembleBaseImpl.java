@@ -11,9 +11,6 @@ import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.Assembl
 @Service("assembleMsgHeadBase")
 public class AssembleBaseImpl implements AssembleMsgHeadBase {
 
-    @Resource
-    private SerialNumberService redisSerialNumberService;
-
     @Override
     public String createMessageHead(MessageHeaderBean beanHead) {
         // 报文头
@@ -27,7 +24,7 @@ public class AssembleBaseImpl implements AssembleMsgHeadBase {
         // 报文接收人 20 10
         String receiver = beanHead.getReciever();
         // 通信参考号 30 16
-        String msgRefId = redisSerialNumberService.generateHZComuRefId();
+        String msgRefId = beanHead.getComRefId();
         // 报文发送时间 46 14
         String sendTime = beanHead.getSendTime();
         // 报文体格式 60 1
