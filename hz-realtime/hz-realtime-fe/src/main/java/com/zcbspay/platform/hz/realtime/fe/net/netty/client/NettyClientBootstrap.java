@@ -1,4 +1,4 @@
-package com.zcbspay.platform.hz.realtime.fe.net.netty;
+package com.zcbspay.platform.hz.realtime.fe.net.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;

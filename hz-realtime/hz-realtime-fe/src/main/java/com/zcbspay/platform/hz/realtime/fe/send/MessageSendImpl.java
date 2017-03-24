@@ -8,8 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.zcbspay.platform.hz.realtime.common.constant.Constant;
-import com.zcbspay.platform.hz.realtime.fe.net.netty.NettyClientBootstrap;
-import com.zcbspay.platform.hz.realtime.fe.net.netty.SocketChannelHelper;
+import com.zcbspay.platform.hz.realtime.fe.net.netty.client.NettyClientBootstrap;
+import com.zcbspay.platform.hz.realtime.fe.net.netty.client.SocketChannelHelper;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.SendResult;

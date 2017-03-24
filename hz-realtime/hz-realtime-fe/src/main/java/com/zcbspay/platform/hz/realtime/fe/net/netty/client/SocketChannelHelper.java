@@ -8,7 +8,7 @@
  * Copyright (c) 2016,zlebank.All rights reserved.
  * 
  */
-package com.zcbspay.platform.hz.realtime.fe.net.netty;
+package com.zcbspay.platform.hz.realtime.fe.net.netty.client;
 
 import java.util.Date;
 
