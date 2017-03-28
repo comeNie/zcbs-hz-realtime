@@ -36,7 +36,7 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAss
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 
-@Service
+@Service("businesssMessageSender")
 public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     private static final Logger logger = LoggerFactory.getLogger(BusinesssMessageSenderImpl.class);

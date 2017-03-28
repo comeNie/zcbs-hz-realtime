@@ -41,6 +41,10 @@ public class SocketServerHZImpl implements SocketServer {
 
     private Map<ChannelOption<?>, Object> channelOptions;
 
+    public SocketServerHZImpl() {
+        super();
+    }
+
     public SocketServerHZImpl(int port) {
         this.port = port;
         this.startTime = null;

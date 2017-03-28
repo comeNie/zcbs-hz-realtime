@@ -3,7 +3,6 @@ package com.zcbspay.platform.hz.realtime.business.message.service;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
-import com.zcbspay.platform.hz.realtime.business.message.service.enums.MessageTypeEnum;
 
 /**
  * 

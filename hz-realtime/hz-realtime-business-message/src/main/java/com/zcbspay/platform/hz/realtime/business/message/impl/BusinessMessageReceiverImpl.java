@@ -28,7 +28,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.RspnInfBean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 
-@Service
+@Service("businessMessageReceiver")
 public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
 
     private static final Logger logger = LoggerFactory.getLogger(BusinessMessageReceiverImpl.class);
