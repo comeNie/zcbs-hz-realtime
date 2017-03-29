@@ -7,7 +7,7 @@
 		ref="tradeFeeService" retries="0" version="1.0" timeout="60000"/> -->
 	<dubbo:annotation package="com.zcbspay.platform.hz.realtime.business.message" />
 
-	<import resource="classpath*:/dubbo-provider.xml" />
-	<import resource="classpath*:/dubbo-consumer.xml" />
+	<dubbo:service interface="com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender" ref="businesssMessageSender" retries="0" version="1.0" timeout="60000"/>
+
 	
 </beans>

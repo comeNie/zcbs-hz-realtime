@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
 	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
-	<!-- <dubbo:service interface="com.zcbspay.platform.payment.fee.service.TradeFeeService" ref="tradeFeeService" retries="0" version="1.0" timeout="60000"/> -->
-	<dubbo:annotation package="com.zcbspay.platform.hz.realtime.transfer.message"/>
-	
-	<import resource="classpath*:/dubbo-provider.xml" />
-	<import resource="classpath*:/dubbo-consumer.xml" />
-	
+	<!-- <dubbo:service interface="com.zcbspay.platform.payment.fee.service.TradeFeeService" 
+		ref="tradeFeeService" retries="0" version="1.0" timeout="60000"/> -->
+	<dubbo:annotation package="com.zcbspay.platform.hz.realtime.transfer.message" />
+
+	<dubbo:service
+		interface="com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAssemble"
+		ref="messageAssemble" retries="0" version="1.0" timeout="60000" />
+	<dubbo:service
+		interface="com.zcbspay.platform.hz.realtime.transfer.message.api.unpack.MessageUnpack"
+		ref="messageUnpack" retries="0" version="1.0" timeout="60000" />
+
 </beans>

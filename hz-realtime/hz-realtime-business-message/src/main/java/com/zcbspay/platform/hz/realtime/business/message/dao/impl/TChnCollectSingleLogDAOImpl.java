@@ -27,7 +27,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
 public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollectSingleLogDO> implements TChnCollectSingleLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TChnCollectSingleLogDAOImpl.class);
-    @Resource
+    @Resource(name = "redisSerialNumberService")
     private SerialNumberService redisSerialNumberService;
 
     @Override

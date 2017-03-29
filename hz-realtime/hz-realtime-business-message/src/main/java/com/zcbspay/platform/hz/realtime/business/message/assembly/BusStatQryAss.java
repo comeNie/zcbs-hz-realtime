@@ -18,7 +18,7 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEn
  */
 public class BusStatQryAss {
 
-    @Resource
+    @Resource(name="redisSerialNumberService")
     private static SerialNumberService redisSerialNumberService;
 
     public static MessageBean busStatusQryMsgBodyReq(OrgnlTxBean orgMsgIde) {

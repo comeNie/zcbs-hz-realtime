@@ -27,15 +27,13 @@ public class MessageAssembleImpl implements MessageAssemble {
 
     @Resource
     private AssembleMsgHeadBase assembleMsgHeadBase;
-    @Resource
+    @Resource(name = "assembleSignBase384")
     private AssembleSignBase assembleSignBase384;
-    @Resource
+    @Resource(name = "assembleSignBase386")
     private AssembleSignBase assembleSignBase386;
-    @Resource
+    @Resource(name = "assembleSignBase316")
     private AssembleSignBase assembleSignBase316;
-    @Resource
-    private AssembleSignBase assembleSignBase900;
-    @Resource
+    @Resource(name = "assembleSignBase991")
     private AssembleSignBase assembleSignBase991;
 
     @Override

@@ -19,7 +19,7 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEn
  */
 public class RealTimeCollAss {
 
-    @Resource
+    @Resource(name="redisSerialNumberService")
     private static SerialNumberService redisSerialNumberService;
 
     public static MessageBean realtimeCollMsgBodyReq(SingleCollectionChargesBean collectionChargesBean) {

@@ -13,7 +13,7 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEn
 
 public class MsgHeadAss {
 
-    @Resource
+    @Resource(name="redisSerialNumberService")
     private static SerialNumberService redisSerialNumberService;
 
     public static MessageHeaderBean commMsgHeaderReq() {

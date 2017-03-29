@@ -23,11 +23,11 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
 
-@Repository
+@Repository()
 public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymentSingleLogDO> implements TChnPaymentSingleLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TChnPaymentSingleLogDAOImpl.class);
-    @Resource
+    @Resource(name="redisSerialNumberService")
     private SerialNumberService redisSerialNumberService;
 
     @Override

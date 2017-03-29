@@ -41,11 +41,11 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     private static final Logger logger = LoggerFactory.getLogger(BusinesssMessageSenderImpl.class);
 
-    @Resource
+    @com.alibaba.dubbo.config.annotation.Reference(version = "1.0")
     private MessageSend messageSendHZ;
-    @Resource
+    @com.alibaba.dubbo.config.annotation.Reference(version = "1.0")
     private MessageAssemble messageAssemble;
-    @Autowired  
+    @Autowired
     private TChnCollectSingleLogDAO tChnCollectSingleLogDAO;
     @Autowired
     private TChnPaymentSingleLogDAO tChnPaymentSingleLogDAO;
