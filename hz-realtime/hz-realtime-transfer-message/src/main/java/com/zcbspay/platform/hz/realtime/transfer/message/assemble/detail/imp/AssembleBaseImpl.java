@@ -13,7 +13,7 @@ public class AssembleBaseImpl implements AssembleMsgHeadBase {
         // 报文头
         StringBuffer msgHeader = new StringBuffer();
         // 报文长度 0 4
-        String msgLength = beanHead.getMsgBodyLength();
+        String msgLength = String.format("%04d", beanHead.getMsgBodyLength());
         // 业务类型 4 6
         String optType = beanHead.getBusinessType();
         // 报文发起人 10 10
