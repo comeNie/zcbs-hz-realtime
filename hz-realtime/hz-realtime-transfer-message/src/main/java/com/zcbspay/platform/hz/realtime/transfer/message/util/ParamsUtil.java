@@ -19,9 +19,23 @@ public class ParamsUtil {
     private static final Logger log = LoggerFactory.getLogger(ParamsUtil.class);
 
     /**
-     * ZCBS——HZ私钥
+     * ZCBS私钥
      */
     private String privateKey;
+    
+    /**
+     * HZQSZX公钥
+     */
+    private String publicKeyHZQSZX;
+
+    /**
+     * 报文头长度
+     */
+    private int msgHeaderLength;
+    /**
+     * 数字签名域长度
+     */
+    private int msgSignLength;
 
     /*
      * 工具运行参数
@@ -64,20 +78,46 @@ public class ParamsUtil {
     public void refresh() {
         RESOURCE = ResourceBundle.getBundle("hzqszx_params");
         privateKey = RESOURCE.getString("privateKey");
+        publicKeyHZQSZX = RESOURCE.getString("publicKeyHZQSZX");
+        msgHeaderLength = Integer.parseInt(RESOURCE.getString("msgHeaderLength"));
+        msgSignLength = Integer.parseInt(RESOURCE.getString("msgSignLength"));
 
         canRun = true;
         refresh_interval = RESOURCE.getString("refresh_interval");
     }
 
-    
     public String getPrivateKey() {
         return privateKey;
     }
 
-    
     public void setPrivateKey(String privateKey) {
         this.privateKey = privateKey;
     }
 
-   
+    public int getMsgHeaderLength() {
+        return msgHeaderLength;
+    }
+
+    public void setMsgHeaderLength(int msgHeaderLength) {
+        this.msgHeaderLength = msgHeaderLength;
+    }
+
+    public int getMsgSignLength() {
+        return msgSignLength;
+    }
+
+    public void setMsgSignLength(int msgSignLength) {
+        this.msgSignLength = msgSignLength;
+    }
+
+    
+    public String getPublicKeyHZQSZX() {
+        return publicKeyHZQSZX;
+    }
+
+    
+    public void setPublicKeyHZQSZX(String publicKeyHZQSZX) {
+        this.publicKeyHZQSZX = publicKeyHZQSZX;
+    }
+
 }

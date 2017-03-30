@@ -1,9 +1,7 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.api.unpack;
 
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
-
-
-
+import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 
 /**
  * 报文解析
@@ -15,12 +13,12 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBea
  */
 public interface MessageUnpack {
 
-
     /**
      * 解析回执报文
+     * 
      * @param msgInfo
      * @return
      */
-    public MessageRespBean unpack(byte[] msgInfo);
+    public MessageRespBean unpack(byte[] msgInfo) throws HZRealTransferException;
 
 }
