@@ -1,9 +1,12 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.api.bean;
 
+import java.io.Serializable;
+
 import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEnum;
 
+public class MessageBean implements Serializable {
 
-public class MessageBean {
+    private static final long serialVersionUID = -307701236779309629L;
 
     private MessageTypeEnum messageTypeEnum;
 
@@ -39,5 +42,11 @@ public class MessageBean {
         this.messageBean = messageBean;
         this.messageTypeEnum = messageTypeEnum;
     }
+
+    @Override
+    public String toString() {
+        return "MessageBean [messageTypeEnum=" + messageTypeEnum + ", messageBean=" + messageBean + "]";
+    }
+    
 
 }

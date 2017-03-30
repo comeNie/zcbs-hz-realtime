@@ -8,7 +8,7 @@
  * Copyright (c) 2016,zlebank.All rights reserved.
  * 
  */
-package com.zcbspay.platform.hz.realtime.common.sequence;
+package com.zcbspay.platform.hz.realtime.business.message.sequence;
 
 /**
  * Class Description

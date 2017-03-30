@@ -14,9 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
-import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
@@ -72,6 +72,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     }
 
     @Override
+    @Transactional(readOnly = true)
     public TChnCollectSingleLogDO getCollSingleByTxnseqno(String txnseqno) {
         String hql = "from TChnCollectSingleLogDO where txnseqno=?";
         Query query = getSession().createQuery(hql);
@@ -80,6 +81,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealCollectLogCommResp(CMS900Bean bean) {
         String hql = "update TChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? where msgid=?";
         Session session = getSession();
@@ -94,6 +96,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealCollectLogDiscard(CMS911Bean bean) {
         String hql = "update TChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
         Session session = getSession();

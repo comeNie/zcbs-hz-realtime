@@ -2,7 +2,12 @@ package com.zcbspay.platform.hz.realtime.business.message.assembly;
 
 import javax.annotation.Resource;
 
-import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Service;
+
+import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS316Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.OrgnlTxBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
@@ -16,9 +21,14 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEn
  * @date 2017年3月6日 上午9:52:07
  * @since
  */
-public class BusStatQryAss {
+@Service
+public class BusStatQryAss implements InitializingBean {
 
-    @Resource(name="redisSerialNumberService")
+    private static final Logger logger = LoggerFactory.getLogger(BusStatQryAss.class);
+
+    @Resource(name = "redisSerialNumberService")
+    private SerialNumberService redisSerialNumberServiceBean;
+
     private static SerialNumberService redisSerialNumberService;
 
     public static MessageBean busStatusQryMsgBodyReq(OrgnlTxBean orgMsgIde) {
@@ -29,6 +39,12 @@ public class BusStatQryAss {
         bean.setOrgnlTx(orgMsgIde);
         msgBean.setMessageBean(bean);
         return msgBean;
+    }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+        logger.info("[enter afterPropertiesSet~~~]");
+        BusStatQryAss.redisSerialNumberService = redisSerialNumberServiceBean;
     }
 
 }

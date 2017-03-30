@@ -44,7 +44,7 @@ public class OrderCollectSingleDAOImpl extends HibernateBaseDAOImpl<OrderCollect
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(readOnly = true)
     public OrderCollectSingleDO getCollectSingleOrderByTN(String tn) {
         Criteria criteria = getSession().createCriteria(OrderCollectSingleDO.class);
         criteria.add(Restrictions.eq("tn", tn));

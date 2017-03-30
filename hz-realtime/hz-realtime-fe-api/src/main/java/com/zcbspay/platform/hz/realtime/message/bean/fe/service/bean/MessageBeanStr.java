@@ -1,10 +1,12 @@
 package com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean;
 
+import java.io.Serializable;
+
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 
+public class MessageBeanStr implements Serializable {
 
-public class MessageBeanStr {
-
+    private static final long serialVersionUID = -7572376438853746664L;
     /**
      * 要发送报文
      */
@@ -39,5 +41,12 @@ public class MessageBeanStr {
     public void setMessageType(MessageTypeEnum messageType) {
         this.messageType = messageType;
     }
+
+    @Override
+    public String toString() {
+        return "MessageBeanStr [sendMsg=" + sendMsg + ", messageType=" + messageType + "]";
+    }
+    
+    
 
 }

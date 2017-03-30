@@ -61,7 +61,7 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(readOnly = true)
     public OrderPaymentSingleDO getPaymentSingleOrderByTN(String tn) {
         Criteria criteria = getSession().createCriteria(OrderPaymentSingleDO.class);
         criteria.add(Restrictions.eq("tn", tn));
@@ -70,6 +70,7 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateOrderToFailByTn(String tn) {
         String hql = "update OrderPaymentSingleDO set status = ? where tn = ? ";
         Session session = getSession();

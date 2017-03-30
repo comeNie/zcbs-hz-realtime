@@ -1,4 +1,4 @@
-package com.zcbspay.platform.hz.realtime.common.sequence.impl;
+package com.zcbspay.platform.hz.realtime.business.message.sequence.impl;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -9,7 +9,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 
-import com.zcbspay.platform.hz.realtime.common.sequence.SerialNumberService;
+import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 
 /**
  * Class Description

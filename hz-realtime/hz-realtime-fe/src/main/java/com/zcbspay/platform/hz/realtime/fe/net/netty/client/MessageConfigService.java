@@ -9,7 +9,7 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.zcbspay.platform.hz.realtime.common.constant.Constant;
+import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
 
 /**
  * <strong>Title : MessageConfigService</strong><br>
@@ -81,15 +81,15 @@ public class MessageConfigService {
         }
         String hostAddress = StringUtils.trimToNull((String) configParams.get("HOST_ADDRESS"));// 主机地址
         if (hostAddress == null) {
-            configParams.put("HOST_ADDRESS", Constant.getInstance().getHzqszx_ip());
+            configParams.put("HOST_ADDRESS", ParamsUtil.getInstance().getHzqszx_ip());
         }
         String hostPort = StringUtils.trimToNull((String) configParams.get("HOST_PORT"));// 主机端口
         if (hostPort == null) {
-            configParams.put("HOST_PORT", Constant.getInstance().getHzqszx_port() + "");
+            configParams.put("HOST_PORT", ParamsUtil.getInstance().getHzqszx_port() + "");
         }
         String headLength = StringUtils.trimToNull((String) configParams.get("HEAD_LENGTH"));// 报文头长度
         if (headLength == null) {
-            configParams.put("HEAD_LENGTH", Constant.getInstance().getHeadLength() + "");
+            configParams.put("HEAD_LENGTH", ParamsUtil.getInstance().getHead_length() + "");
         }
         String charset = StringUtils.trimToNull((String) configParams.get("CHARSET"));// 字符集
         if (charset == null) {

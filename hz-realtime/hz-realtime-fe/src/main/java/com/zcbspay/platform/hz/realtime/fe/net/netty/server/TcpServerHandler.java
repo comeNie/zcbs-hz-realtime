@@ -15,9 +15,9 @@ import org.springframework.beans.BeanUtils;
 
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
-import com.zcbspay.platform.hz.realtime.common.constant.Constant;
 import com.zcbspay.platform.hz.realtime.common.utils.secret.CryptoUtil;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.client.SocketChannelHelper;
+import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.unpack.MessageUnpack;
@@ -38,7 +38,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<byte[]> {
         SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
         String hostName = socketChannelHelper.getMessageConfigService().getString("HOST_NAME");// 主机名称
         String hostAddress = socketChannelHelper.getMessageConfigService().getString("HOST_ADDRESS");// 主机名称
-        int hostPort = socketChannelHelper.getMessageConfigService().getInt("HOST_PORT", Integer.parseInt(Constant.getInstance().getHzqszx_port()));// 主机端口
+        int hostPort = socketChannelHelper.getMessageConfigService().getInt("HOST_PORT", Integer.parseInt(ParamsUtil.getInstance().getHzqszx_port()));// 主机端口
         String charset = socketChannelHelper.getMessageConfigService().getString("CHARSET");// 字符集
         int headLength = socketChannelHelper.getMessageConfigService().getInt("HEAD_LENGTH", 6);// 报文头长度位数
         int maxSingleLength = socketChannelHelper.getMessageConfigService().getInt("MAX_SINGLE_LENGTH", 200 * 1024);// 单个报文最大长度，单位：字节

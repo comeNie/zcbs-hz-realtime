@@ -2,7 +2,7 @@ package com.zcbspay.platform.hz.realtime.transfer.message.api.assemble;
 
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
-
+import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 
 /**
  * 报文组装接口 1.生成报文头 2.生成数字签名域 3.组装报文
@@ -28,7 +28,7 @@ public interface MessageAssemble {
      * @param bean
      * @return
      */
-    public String signature(MessageBean bean);
+    public String signature(MessageBean bean) throws HZRealTransferException;
 
     /**
      * 组装报文方法，返回报文字符串 报文格式：报文头+数字签名+报文体
@@ -36,5 +36,5 @@ public interface MessageAssemble {
      * @param bean
      * @return
      */
-    public String assemble(MessageHeaderBean beanHead, MessageBean beanBody);
+    public String assemble(MessageHeaderBean beanHead, MessageBean beanBody) throws HZRealTransferException;
 }

@@ -3,7 +3,7 @@ package com.zcbspay.platform.hz.realtime.business.message.enums;
 public enum OrgCode {
 
     ZCBS("XXXXXXXXXX", "中创标石机构号"),
-    HZQSZX("XXXXXXXXXX", "杭州清算中心机构号"), ;
+    HZQSZX("YYYYYYYYYY", "杭州清算中心机构号"), ;
 
     private String value;
     private final String displayName;

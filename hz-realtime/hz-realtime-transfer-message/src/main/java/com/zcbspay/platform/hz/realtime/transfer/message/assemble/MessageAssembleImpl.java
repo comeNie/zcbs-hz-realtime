@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zcbspay.platform.hz.realtime.common.exception.HZQSZXException;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS316Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS991Bean;
@@ -17,6 +16,7 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAss
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEnum;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
 
@@ -42,35 +42,30 @@ public class MessageAssembleImpl implements MessageAssemble {
     }
 
     @Override
-    public String signature(MessageBean bean) {
+    public String signature(MessageBean bean) throws HZRealTransferException {
         MessageTypeEnum messageType = bean.getMessageTypeEnum();
         String signature = null;
-        try {
-            if (messageType == MessageTypeEnum.CMT384) {
-                // 实时代收业务报文（CMT384）
-                signature = assembleSignBase384.signatureElement(bean);
-            }
-            else if (messageType == MessageTypeEnum.CMT386) {
-                // 实时代付业务报文(CMT386)
-                signature = assembleSignBase386.signatureElement(bean);
-            }
-            else if (messageType == MessageTypeEnum.CMS316) {
-                // 业务状态查询报文（CMS316）
-                signature = assembleSignBase316.signatureElement(bean);
-            }
-            else if (messageType == MessageTypeEnum.CMS991) {
-                // 通讯探测报文（CMS991）
-                signature = assembleSignBase991.signatureElement(bean);
-            }
+        if (messageType == MessageTypeEnum.CMT384) {
+            // 实时代收业务报文（CMT384）
+            signature = assembleSignBase384.signatureElement(bean);
         }
-        catch (HZQSZXException e) {
-            logger.error(e.getErrCode() + e.getErrMsg());
+        else if (messageType == MessageTypeEnum.CMT386) {
+            // 实时代付业务报文(CMT386)
+            signature = assembleSignBase386.signatureElement(bean);
+        }
+        else if (messageType == MessageTypeEnum.CMS316) {
+            // 业务状态查询报文（CMS316）
+            signature = assembleSignBase316.signatureElement(bean);
+        }
+        else if (messageType == MessageTypeEnum.CMS991) {
+            // 通讯探测报文（CMS991）
+            signature = assembleSignBase991.signatureElement(bean);
         }
         return signature;
     }
 
     @Override
-    public String assemble(MessageHeaderBean beanHead, MessageBean bean) {
+    public String assemble(MessageHeaderBean beanHead, MessageBean bean) throws HZRealTransferException {
         // 报文完整信息
         String msgAll = null;
         // 报文头信息

@@ -20,6 +20,7 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
     private static final Logger logger = LoggerFactory.getLogger(TxnsLogDAOImpl.class);
 
     @Override
+    @Transactional(readOnly = true)
     public TTxnsLogDO getTxnsLogByTxnseqno(String txnseqno) {
         Criteria criteria = getSession().createCriteria(TTxnsLogDO.class);
         criteria.add(Restrictions.eq("txnseqno", txnseqno));
