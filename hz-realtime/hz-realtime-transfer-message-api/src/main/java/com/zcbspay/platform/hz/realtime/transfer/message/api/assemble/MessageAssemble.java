@@ -28,7 +28,7 @@ public interface MessageAssemble {
      * @param bean
      * @return
      */
-    public String signature(MessageBean bean) throws HZRealTransferException;
+    public byte[] signature(MessageBean bean) throws HZRealTransferException;
 
     /**
      * 组装报文方法，返回报文字符串 报文格式：报文头+数字签名+报文体
@@ -36,5 +36,5 @@ public interface MessageAssemble {
      * @param bean
      * @return
      */
-    public String assemble(MessageHeaderBean beanHead, MessageBean beanBody) throws HZRealTransferException;
+    public byte[] assemble(MessageHeaderBean beanHead, MessageBean beanBody) throws HZRealTransferException;
 }

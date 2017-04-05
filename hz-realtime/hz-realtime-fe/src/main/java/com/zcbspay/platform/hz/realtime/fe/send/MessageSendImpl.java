@@ -21,7 +21,8 @@ public class MessageSendImpl implements MessageSend {
 
     @Override
     public void sendMessage(MessageBeanStr messageBean) {
-        sendMsg = messageBean.getSendMsg().getBytes();
+        sendMsg = messageBean.getSendMsgBytes();
+        logger.info("[sendMsg length is~~~]:"+sendMsg.length);
         int reqPoolSize = 1;
         // 初始化线程池
         ExecutorService executors = Executors.newFixedThreadPool(reqPoolSize);
@@ -40,7 +41,6 @@ public class MessageSendImpl implements MessageSend {
                     catch (Exception e) {
                         logger.error(e.getMessage(), e);
                         // TODO todomxw 更新流水记录失败信息
-                        
                     }
                 }
             });

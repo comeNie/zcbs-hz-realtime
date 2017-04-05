@@ -55,7 +55,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public TChnCollectSingleLogDO updateRealCollectLog(CMT385Bean realTimeCollRespBean) {
         String hql = "from TChnCollectSingleLogDO where msgId=?";
         Query query = getSession().createQuery(hql);
@@ -96,7 +96,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealCollectLogDiscard(CMS911Bean bean) {
         String hql = "update TChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
         Session session = getSession();

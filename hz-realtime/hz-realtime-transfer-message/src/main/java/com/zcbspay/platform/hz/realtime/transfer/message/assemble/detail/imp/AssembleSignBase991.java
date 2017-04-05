@@ -21,12 +21,12 @@ public class AssembleSignBase991 implements AssembleSignBase {
     Logger logger = LoggerFactory.getLogger(AssembleSignBase384.class);
 
     @Override
-    public String signatureElement(MessageBean bean) throws HZRealTransferException {
-        String signature = null;
+    public byte[] signatureElement(MessageBean bean) throws HZRealTransferException {
+        byte[] signature = null;
         CMS991Bean msgBodyBean = (CMS991Bean) bean.getMessageBean();
         String msgBody = JSONObject.toJSONString(msgBodyBean);
         try {
-            signature = RSAUtils.sign(msgBody.getBytes("utf-8"), ParamsUtil.getInstance().getPrivateKey());
+            signature = RSAUtils.signBytes(msgBody.getBytes("utf-8"), ParamsUtil.getInstance().getPrivateKey());
         }
         catch (UnsupportedEncodingException e) {
             logger.error("msgbody sign failed:UnsupportedEncodingException", e);

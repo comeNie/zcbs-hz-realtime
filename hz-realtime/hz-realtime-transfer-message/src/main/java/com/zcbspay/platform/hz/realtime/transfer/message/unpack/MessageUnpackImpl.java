@@ -1,11 +1,11 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.unpack;
 
-import org.apache.commons.lang.ArrayUtils;
+import java.io.UnsupportedEncodingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.zcbspay.platform.hz.realtime.common.utils.secret.CryptoUtil;
 import com.zcbspay.platform.hz.realtime.common.utils.secret.RSAUtils;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
@@ -20,30 +20,34 @@ public class MessageUnpackImpl implements MessageUnpack {
     private static final Logger logger = LoggerFactory.getLogger(MessageUnpackImpl.class);
 
     @Override
-    public MessageRespBean unpack(byte[] msgInfo) throws HZRealTransferException {
-
+    public MessageRespBean unpack(byte[] headInfo, byte[] signInfo, byte[] bodyInfo) throws HZRealTransferException {
+        String charset = "UTF-8";
         MessageRespBean respBean = null;
+        String msgHeaderStr = null;
+        String msgSignStr = null;
+        String msgBodyStr = null;
+        try {
+            msgHeaderStr = new String(headInfo, charset);
+            logger.info("[msgHeaderStr is ]:" + msgHeaderStr);
 
-        byte[] msgHeader = ArrayUtils.subarray(msgInfo, 0, ParamsUtil.getInstance().getMsgHeaderLength());
-        String msgHeaderStr = CryptoUtil.bytes2string(msgHeader, 16);
-        logger.info("[msgHeaderStr is ]:" + msgHeaderStr);
+            msgSignStr = new String(signInfo, charset);
+            logger.info("[msgSignStr is ]:" + msgSignStr);
 
-        byte[] msgSign = ArrayUtils.subarray(msgInfo, ParamsUtil.getInstance().getMsgHeaderLength(), ParamsUtil.getInstance().getMsgHeaderLength() + ParamsUtil.getInstance().getMsgSignLength());
-        String msgSignStr = CryptoUtil.bytes2string(msgSign, 16);
-        logger.info("[msgSignStr is ]:" + msgSignStr);
+            msgBodyStr = new String(bodyInfo, charset);
+            logger.info("[msgBodyStr is ]:" + msgBodyStr);
 
-        int subBegin = ParamsUtil.getInstance().getMsgHeaderLength() + ParamsUtil.getInstance().getMsgSignLength();
-        int subEnd = msgInfo.length - subBegin;
-        byte[] msgBody = ArrayUtils.subarray(msgInfo, subBegin, subEnd);
-        String msgBodyStr = CryptoUtil.bytes2string(msgSign, 16);
+            checkSignature(signInfo, bodyInfo);
+            logger.info("[pass sign verification~~~]");
+
+            MessageHeaderBean headerBean = getMessageHeaderBean(msgHeaderStr);
+            respBean = new MessageRespBean();
+            respBean.setMessageHeaderBean(headerBean);
+            respBean.setMsgBody(msgBodyStr);
+        }
+        catch (UnsupportedEncodingException e) {
+            logger.error("byte to string exception~~~", e);
+        }
         logger.info("[msgBodyStr is ]:" + msgBodyStr);
-
-        checkSignature(msgSignStr, msgBody);
-
-        MessageHeaderBean headerBean = getMessageHeaderBean(msgHeaderStr);
-        respBean = new MessageRespBean();
-        respBean.setMessageHeaderBean(headerBean);
-        respBean.setMsgBody(msgBodyStr);
 
         return respBean;
     }
@@ -55,9 +59,9 @@ public class MessageUnpackImpl implements MessageUnpack {
      * @param msgBodyStr
      * @throws HZRealTransferException
      */
-    private void checkSignature(String msgSignStr, byte[] msgBody) throws HZRealTransferException {
+    private void checkSignature(byte[] msgSign, byte[] msgBody) throws HZRealTransferException {
         try {
-            if (!RSAUtils.verify(msgBody, ParamsUtil.getInstance().getPrivateKey(), msgSignStr)) {
+            if (!RSAUtils.verifyBytes(msgBody, ParamsUtil.getInstance().getPublicKeyHZQSZX(), msgSign)) {
                 logger.error("【response message check sign failed】");
                 throw new HZRealTransferException(ErrorCodeHZ.CHECK_SIGN_FAIL);
             }
@@ -70,16 +74,17 @@ public class MessageUnpackImpl implements MessageUnpack {
 
     /**
      * 获取报文头对象
+     * 
      * @param msgHeaderStr
      * @return
      */
     private MessageHeaderBean getMessageHeaderBean(String msgHeaderStr) {
         MessageHeaderBean headerBean = new MessageHeaderBean();
-        headerBean.setBusinessType(msgHeaderStr.substring(4, 6));
-        headerBean.setSender(msgHeaderStr.substring(10, 10));
-        headerBean.setReciever(msgHeaderStr.substring(20, 10));
-        headerBean.setComRefId(msgHeaderStr.substring(30, 16));
-        headerBean.setSendTime(msgHeaderStr.substring(46, 14));
+        headerBean.setBusinessType(msgHeaderStr.substring(4, 10));
+        headerBean.setSender(msgHeaderStr.substring(10, 20));
+        headerBean.setReciever(msgHeaderStr.substring(20, 30));
+        headerBean.setComRefId(msgHeaderStr.substring(30, 46));
+        headerBean.setSendTime(msgHeaderStr.substring(46, 60));
         logger.info("[MessageHeaderBean is ]:" + headerBean);
         return headerBean;
     }

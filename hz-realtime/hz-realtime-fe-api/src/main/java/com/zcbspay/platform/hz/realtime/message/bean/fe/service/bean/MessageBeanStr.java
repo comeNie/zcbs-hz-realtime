@@ -12,6 +12,10 @@ public class MessageBeanStr implements Serializable {
      */
     private String sendMsg;
     /**
+     * 要发送报文
+     */
+    private byte[] sendMsgBytes;
+    /**
      * 报文类型
      */
     private MessageTypeEnum messageType;
@@ -23,6 +27,12 @@ public class MessageBeanStr implements Serializable {
     public MessageBeanStr(String sendMsg, MessageTypeEnum messageType) {
         super();
         this.sendMsg = sendMsg;
+        this.messageType = messageType;
+    }
+
+    public MessageBeanStr(byte[] sendMsgBytes, MessageTypeEnum messageType) {
+        super();
+        this.sendMsgBytes = sendMsgBytes;
         this.messageType = messageType;
     }
 
@@ -46,7 +56,13 @@ public class MessageBeanStr implements Serializable {
     public String toString() {
         return "MessageBeanStr [sendMsg=" + sendMsg + ", messageType=" + messageType + "]";
     }
-    
-    
+
+    public byte[] getSendMsgBytes() {
+        return sendMsgBytes;
+    }
+
+    public void setSendMsgBytes(byte[] sendMsgBytes) {
+        this.sendMsgBytes = sendMsgBytes;
+    }
 
 }

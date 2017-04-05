@@ -1,5 +1,7 @@
 package com.zcbspay.platform.hz.realtime.business.message.impl;
 
+import java.io.UnsupportedEncodingException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,11 +62,11 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             return new ResultBean(ErrorCodeHZ.REPEAT_REQUEST.getValue(), ErrorCodeHZ.REPEAT_REQUEST.getDisplayName());
         }
         // CMT384报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value());
         logger.info("[beanHead is]:" + beanHead);
         MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
         logger.info("[beanBody is]:" + beanBody);
-        String message = null;
+        byte[] message = null;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
         }
@@ -72,7 +74,12 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
-        logger.info("[assembled message is]:" + message);
+        try {
+            logger.info("[assembled message is]:" + new String(message, "utf-8"));
+        }
+        catch (UnsupportedEncodingException e) {
+            logger.error("byte to string exception~~~");
+        }
         // 记录报文流水信息
         CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
         tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
@@ -93,9 +100,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             return new ResultBean(ErrorCodeHZ.REPEAT_REQUEST.getValue(), ErrorCodeHZ.REPEAT_REQUEST.getDisplayName());
         }
         // CMT386报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value());
         MessageBean beanBody = RealTimePayAss.realtimePayMsgBodyReq(paymentBean);
-        String message;
+        byte[] message;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
         }
@@ -136,9 +143,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), paySingle.getTxid(), MessageTypeEnum.CMT386.value());
         }
         // CMS316报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value());
         MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
-        String message;
+        byte[] message;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
         }
@@ -155,9 +162,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     @Override
     public ResultBean check() {
         // CMS991报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq();
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS991.value());
         MessageBean beanBody = ComuDetecAss.communicateDetecMsgBodyReq();
-        String message;
+        byte[] message;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
         }

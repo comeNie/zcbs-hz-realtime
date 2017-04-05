@@ -6,6 +6,7 @@ public enum ErrorCodeHZ {
 	NONE_RECORD("THZ002", "交易流水号无对应代收/代付记录"),
 	REPEAT_REQUEST("THZ003", "交易重复，拒绝本次请求"),
 	CHECK_SIGN_FAIL("THZ004", "应答报文验签失败"),
+	BYTE_PARSE_FAIL("THZ005", "字符转换异常"),
 	;
 
 	private String value;

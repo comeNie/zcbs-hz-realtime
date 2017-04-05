@@ -32,13 +32,13 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateTxnsLog(TTxnsLogDO txnsLog) {
         update(txnsLog);
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateTxnsLogRespInfo(TTxnsLogDO txnsLog) {
         String hql = "update TTxnsLogDO set payretcode = ? , payretinfo = ? ,accsettledate=? where txnseqno=?";
         Session session = getSession();

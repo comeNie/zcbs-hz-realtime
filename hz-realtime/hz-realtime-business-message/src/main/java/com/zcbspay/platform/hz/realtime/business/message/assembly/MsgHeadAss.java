@@ -14,7 +14,6 @@ import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberSe
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEnum;
 
 @Service
 public class MsgHeadAss implements InitializingBean {
@@ -26,9 +25,9 @@ public class MsgHeadAss implements InitializingBean {
     @Resource(name = "redisSerialNumberService")
     private SerialNumberService redisSerialNumberServiceBean;
 
-    public static MessageHeaderBean commMsgHeaderReq() {
+    public static MessageHeaderBean commMsgHeaderReq(String businessType) {
         MessageHeaderBean header = new MessageHeaderBean();
-        header.setBusinessType(MessageTypeEnum.CMS316.value());
+        header.setBusinessType(businessType);
         header.setSender(OrgCode.ZCBS.getValue());
         header.setReciever(OrgCode.HZQSZX.getValue());
         header.setSendTime(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));

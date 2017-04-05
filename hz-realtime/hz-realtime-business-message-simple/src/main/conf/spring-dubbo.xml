@@ -9,5 +9,5 @@
 
 	<dubbo:service interface="com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender" ref="businesssMessageSender" retries="0" version="1.0" timeout="60000"/>
 
-	
+	<dubbo:service interface="com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver" ref="businessMessageReceiver" retries="0" version="1.0" timeout="60000"/>
 </beans>

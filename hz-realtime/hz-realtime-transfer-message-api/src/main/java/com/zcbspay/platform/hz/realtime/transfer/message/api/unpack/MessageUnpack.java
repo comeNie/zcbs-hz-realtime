@@ -19,6 +19,6 @@ public interface MessageUnpack {
      * @param msgInfo
      * @return
      */
-    public MessageRespBean unpack(byte[] msgInfo) throws HZRealTransferException;
+    public MessageRespBean unpack(byte[] headInfo, byte[] signInfo, byte[] bodyInfo) throws HZRealTransferException;
 
 }

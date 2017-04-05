@@ -11,5 +11,5 @@ public interface AssembleSignBase {
      * @param bean
      * @return
      */
-    public String signatureElement(MessageBean bean) throws HZRealTransferException;
+    public byte[] signatureElement(MessageBean bean) throws HZRealTransferException;
 }

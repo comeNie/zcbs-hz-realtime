@@ -14,6 +14,7 @@ import javax.persistence.Table;
 @Table(name = "T_CHN_PAYMENT_SINGLE_LOG", schema = "PDTT")
 public class TChnPaymentSingleLogDO implements java.io.Serializable {
 
+    private static final long serialVersionUID = -260074883064603049L;
     private long tid;
     private String msgid;
     private String receivetype;
