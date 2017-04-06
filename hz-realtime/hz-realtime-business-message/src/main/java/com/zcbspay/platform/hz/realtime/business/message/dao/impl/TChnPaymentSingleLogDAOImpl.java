@@ -116,4 +116,11 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
         logger.info("updateRealPaymentLogDiscard() effect rows:" + rows);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TChnPaymentSingleLogDO getPaySingleByTid(long tid) {
+        TChnPaymentSingleLogDO tChnPaymentSingleLogDO = (TChnPaymentSingleLogDO) getSession().get(TChnPaymentSingleLogDO.class, tid);
+        return tChnPaymentSingleLogDO;
+    }
+
 }

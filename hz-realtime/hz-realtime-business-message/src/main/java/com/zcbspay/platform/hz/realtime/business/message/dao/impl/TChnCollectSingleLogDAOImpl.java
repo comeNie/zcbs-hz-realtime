@@ -116,4 +116,11 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
 
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TChnCollectSingleLogDO getCollSingleByTid(long tid) {
+        TChnCollectSingleLogDO tChnCollectSingleLogDO = (TChnCollectSingleLogDO) getSession().get(TChnCollectSingleLogDO.class, tid);
+        return tChnCollectSingleLogDO;
+    }
+
 }

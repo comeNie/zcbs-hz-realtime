@@ -1,12 +1,14 @@
 package com.zcbspay.platform.hz.realtime.business.message.impl;
 
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.alibaba.druid.util.StringUtils;
 import com.zcbspay.platform.hz.realtime.business.message.assembly.BusStatQryAss;
 import com.zcbspay.platform.hz.realtime.business.message.assembly.ComuDetecAss;
 import com.zcbspay.platform.hz.realtime.business.message.assembly.MsgHeadAss;
@@ -22,6 +24,7 @@ import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleL
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender;
+import com.zcbspay.platform.hz.realtime.business.message.service.bean.BusinessRsltBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
@@ -55,6 +58,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
+        ResultBean resultBean = null;
         // 交易判重
         TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(collectionChargesBean.getTxnseqno());
         if (record != null) {
@@ -69,30 +73,31 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         byte[] message = null;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
+            logger.info("[assembled message is]:" + new String(message, "utf-8"));
+            // 记录报文流水信息
+            CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
+            TChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
+            logger.info("[saveRealCollectLog successful]");
+            // 发送报文
+            MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
+            messageSend.sendMessage(messageBean);
+            logger.info("[sendMessage successful]");
+            // 轮训查询通用应答结果
+            resultBean = cycleQuerySynRsp(collDo.getMsgid(), collDo.getTxnseqno(), MessageTypeEnum.CMT384.value(), collDo.getTid());
         }
         catch (HZRealTransferException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
-        try {
-            logger.info("[assembled message is]:" + new String(message, "utf-8"));
-        }
         catch (UnsupportedEncodingException e) {
             logger.error("byte to string exception~~~");
         }
-        // 记录报文流水信息
-        CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
-        tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
-        logger.info("[saveRealCollectLog successful]");
-        // 发送报文
-        MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
-        messageSend.sendMessage(messageBean);
-        logger.info("[sendMessage successful]");
-        return new ResultBean(ReturnInfo.SUCCESS.getValue());
+        return resultBean;
     }
 
     @Override
     public ResultBean realTimePayment(SinglePaymentBean paymentBean) {
+        ResultBean resultBean = null;
         // 交易判重
         TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(paymentBean.getTxnseqno());
         if (record != null) {
@@ -105,17 +110,19 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         byte[] message;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
+            // 记录报文流水信息
+            CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
+            TChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
+            MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
+            messageSend.sendMessage(messageBean);
+            // 轮训查询通用应答结果
+            resultBean = cycleQuerySynRsp(payDo.getMsgid(), payDo.getTxnseqno(), MessageTypeEnum.CMT384.value(), payDo.getTid());
         }
         catch (HZRealTransferException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
-        // 记录报文流水信息
-        CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
-        tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
-        MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
-        messageSend.sendMessage(messageBean);
-        return new ResultBean(ReturnInfo.SUCCESS.getValue());
+        return resultBean;
     }
 
     @Override
@@ -178,4 +185,61 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
+    /**
+     * 轮训查询同步应答结果，时间以2的幂次递增，不超过40s
+     * 
+     * @param mye
+     * 
+     * @param orderId
+     * @param transTm
+     * @return
+     * @throws UnionPayException
+     */
+    private ResultBean cycleQuerySynRsp(String msgid, String txnseqno, String msgType, long tid) throws HZRealTransferException {
+        ResultBean resultBean = null;
+        BusinessRsltBean businessRsltBean = null;
+        TChnCollectSingleLogDO resultColl = null;
+        TChnPaymentSingleLogDO resultPay = null;
+        String status = null;
+        int time = 2000;
+        int cycTimes = 1;
+        try {
+            do {
+                TimeUnit.MILLISECONDS.sleep(time);
+                if (MessageTypeEnum.CMT384.value().equals(msgType)) {
+                    resultColl = tChnCollectSingleLogDAO.getCollSingleByTid(tid);
+                    status = resultColl.getComstatus();
+                }
+                if (MessageTypeEnum.CMT386.value().equals(msgType)) {
+                    resultPay = tChnPaymentSingleLogDAO.getPaySingleByTid(tid);
+                    status = resultPay.getComstatus();
+                }
+                time = 2 * time;
+                if (++cycTimes > 4) {
+                    break;
+                }
+            } while (StringUtils.isEmpty(status));
+        }
+        catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            throw new HZRealTransferException(ErrorCodeHZ.INTERRUPT_EXP.getValue(), ErrorCodeHZ.INTERRUPT_EXP.getDisplayName());
+        }
+        if (!StringUtils.isEmpty(status)) {
+            businessRsltBean = new BusinessRsltBean();
+            businessRsltBean.setMsgid(msgid);
+            businessRsltBean.setTxnseqno(txnseqno);
+            if (MessageTypeEnum.CMT384.value().equals(msgType)) {
+                businessRsltBean.setCommRspSts(resultColl.getComstatus());
+                businessRsltBean.setCommRspCode(resultColl.getComrejectcode());
+                businessRsltBean.setCommRspInfo(resultColl.getComrejectinformation());
+            }
+            if (MessageTypeEnum.CMT386.value().equals(msgType)) {
+                businessRsltBean.setCommRspSts(resultPay.getComstatus());
+                businessRsltBean.setCommRspCode(resultPay.getComrejectcode());
+                businessRsltBean.setCommRspInfo(resultPay.getComrejectinformation());
+            }
+            resultBean = new ResultBean(businessRsltBean);
+        }
+        return resultBean;
+    }
 }

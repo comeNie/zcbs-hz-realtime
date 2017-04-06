@@ -42,4 +42,6 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<TChnPaymentSingleLogDO>
 
     public void updateRealPaymentLogDiscard(CMS911Bean bean);
 
+    public TChnPaymentSingleLogDO getPaySingleByTid(long tid);
+
 }
