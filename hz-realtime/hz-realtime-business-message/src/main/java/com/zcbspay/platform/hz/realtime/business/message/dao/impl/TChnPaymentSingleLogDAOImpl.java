@@ -19,15 +19,16 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaym
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
+import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
 
-@Repository()
+@Repository
 public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymentSingleLogDO> implements TChnPaymentSingleLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TChnPaymentSingleLogDAOImpl.class);
-    @Resource(name="redisSerialNumberService")
+    @Resource(name = "redisSerialNumberService")
     private SerialNumberService redisSerialNumberService;
 
     @Override
@@ -38,8 +39,11 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
         chnPaymentSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
         chnPaymentSingleLog.setMsgid(msgId);
         chnPaymentSingleLog.setTxid(paymentBean.getTxId());
+        chnPaymentSingleLog.setTransdate(DateUtil.getCurrentDate());
+        chnPaymentSingleLog.setTranstime(DateUtil.getCurrentTime());
         chnPaymentSingleLog.setDebtorname(paymentBean.getDebtorName());
         chnPaymentSingleLog.setDebtoraccountno(paymentBean.getDebtorAccountNo());
+        chnPaymentSingleLog.setDebtorbranchcode(paymentBean.getDebtorBranchCode());
         chnPaymentSingleLog.setCreditorbranchcode(paymentBean.getCreditorBranchCode());
         chnPaymentSingleLog.setCreditorname(paymentBean.getCreditorName());
         chnPaymentSingleLog.setCreditoraccountno(paymentBean.getCreditorAccountNo());
@@ -47,6 +51,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
         chnPaymentSingleLog.setPurposeproprietary(paymentBean.getPurposeCode());
         chnPaymentSingleLog.setEndtoendidentification(paymentBean.getEndToEndIdentification());
         chnPaymentSingleLog.setTxnseqno(paymentBean.getTxnseqno());
+        chnPaymentSingleLog.setRemarks(paymentBean.getSummary());
         // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
         chnPaymentSingleLog.setNotes(comRefId);
         saveEntity(chnPaymentSingleLog);
@@ -57,14 +62,14 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public TChnPaymentSingleLogDO updateRealPaymentLog(CMT387Bean realTimePayRespBean) {
-        String hql = "from TChnPaymentSingleLogDAO where msgId=?";
+        String hql = "from TChnPaymentSingleLogDO where msgId=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, realTimePayRespBean.getOrgnlMsgId().getOrgnlMsgId());
         TChnPaymentSingleLogDO paymentSingle = (TChnPaymentSingleLogDO) query.uniqueResult();
         paymentSingle.setRspmsgid(realTimePayRespBean.getMsgId());
         paymentSingle.setRspstatus(realTimePayRespBean.getRspnInf().getSts());
         paymentSingle.setRsprejectcode(realTimePayRespBean.getRspnInf().getRjctcd());
-        paymentSingle.setRsprejectinformation(realTimePayRespBean.getRspnInf().getNetgdt());
+        paymentSingle.setRsprejectinformation(realTimePayRespBean.getRspnInf().getRjctinf());
         paymentSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         paymentSingle.setNettingdate(realTimePayRespBean.getRspnInf().getNetgdt());
         TChnPaymentSingleLogDO retDo = update(paymentSingle);
@@ -81,16 +86,17 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealPaymentLogCommResp(CMS900Bean bean) {
-        String hql = "update TChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? where msgid=?";
+        String hql = "update TChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
         query.setString(1, bean.getRspnInf().getSts());
         query.setString(2, bean.getRspnInf().getRjctcd());
         query.setString(3, bean.getRspnInf().getRjctinf());
-        query.setString(4, bean.getOrgnlMsgId().getOrgnlMsgId());
+        query.setString(4, DateUtil.getCurrentDateTime());
+        query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
         int rows = query.executeUpdate();
         logger.info("updateRealPaymentLogCommResp() effect rows:" + rows);
 

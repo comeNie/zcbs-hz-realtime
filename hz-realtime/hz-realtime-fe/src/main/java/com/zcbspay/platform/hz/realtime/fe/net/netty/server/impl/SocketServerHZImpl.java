@@ -46,6 +46,7 @@ public class SocketServerHZImpl implements SocketServer {
     }
 
     public SocketServerHZImpl(int port) {
+        logger.info("【construct SocketServerHZImpl~~~】");
         this.port = port;
         this.startTime = null;
         channelGroup = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
@@ -64,6 +65,7 @@ public class SocketServerHZImpl implements SocketServer {
 
     @Override
     public void run() {
+        logger.info("【method of SocketServer which is called run is processing~~~】");
         try {
             this.startTime = new Date();
 
@@ -80,6 +82,7 @@ public class SocketServerHZImpl implements SocketServer {
 
     @Override
     public void shutdown() {
+        logger.info("【method of SocketServer which is called shutdown is processing~~~】");
         if (channelGroup != null) {
             final ChannelGroupFuture f = channelGroup.close().awaitUninterruptibly();
             f.addListener(ChannelFutureListener.CLOSE);

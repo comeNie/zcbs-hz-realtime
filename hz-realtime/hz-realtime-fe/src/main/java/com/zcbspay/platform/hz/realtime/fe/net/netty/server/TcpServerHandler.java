@@ -5,24 +5,18 @@ import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.io.ByteArrayInputStream;
 
-import javax.annotation.Resource;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
-import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.common.utils.SpringContext;
-import com.zcbspay.platform.hz.realtime.common.utils.secret.CryptoUtil;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.client.SocketChannelHelper;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.remote.RemoteAdapter;
 import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
-import com.zcbspay.platform.hz.realtime.transfer.message.api.unpack.MessageUnpack;
 
 /**
  * Server端接收异步应答
@@ -39,7 +33,7 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<byte[]> {
     @Override
     public void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
 
-        logger.info("~~~ZCBS socket received message is:", msg);
+        logger.info("enter socket server channelRead0 ~~~");
         SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
         String hostName = socketChannelHelper.getMessageConfigService().getString("HOST_NAME");// 主机名称
         String hostAddress = socketChannelHelper.getMessageConfigService().getString("HOST_ADDRESS");// 主机名称
@@ -76,7 +70,9 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<byte[]> {
             }
         }
         String headAllLength = new String(ArrayUtils.subarray(bytes, 0, msgAllLengthIndex), charset);
+        logger.info("【headAllLength str is】：" + headAllLength);
         int bodyLength = NumberUtils.toInt(headAllLength) - (headLength - msgAllLengthIndex) - signLength;
+        logger.info("【bodyLength is】：" + bodyLength);
         if (bodyLength <= 0 || bodyLength > maxSingleLength * 1024) {
             logger.error("连接[{} --> {}-{}:{}]出现脏数据，自动断链：{}", new Object[] { socketHelper.getSocketKey(), hostName, hostAddress, hostPort, new String(bytes, charset) });
             return;
@@ -135,7 +131,6 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<byte[]> {
         }
         byte[] bodyBytes = ArrayUtils.subarray(bytes, headLength + signLength, headLength + signLength + bodyLength);
         logger.info("本地[{}] <-- 对端[{}-{}:{}] ## {}", new Object[] { socketHelper.getSocketKey(), hostName, hostAddress, hostPort, new String(bodyBytes, charset) });
-
         // 解析报文
         MessageRespBean messageRespBean = null;
         try {
@@ -150,22 +145,19 @@ public class TcpServerHandler extends SimpleChannelInboundHandler<byte[]> {
         String businessType = messageRespBean.getMessageHeaderBean().getBusinessType();
         com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean respbean = new com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean();
         BeanUtils.copyProperties(messageRespBean, respbean);
-        ResultBean resultBean = null;
 
         if (MessageTypeEnum.CMT385.value().equals(businessType)) {
             // 实时代收业务回执报文（CMT385）
-            resultBean = remoteAdapterHZ.realTimeCollectionChargesReceipt(respbean);
+            remoteAdapterHZ.realTimeCollectionChargesReceipt(respbean);
         }
         else if (MessageTypeEnum.CMT387.value().equals(businessType)) {
             // 实时代收业务回执报文（CMT387）
-            resultBean = remoteAdapterHZ.realTimePaymentReceipt(respbean);
+            remoteAdapterHZ.realTimePaymentReceipt(respbean);
         }
         else if (MessageTypeEnum.CMS317.value().equals(businessType)) {
             // 业务状态查询应答报文（CMS317）
-            resultBean = remoteAdapterHZ.busStaQryResp(respbean);
+            remoteAdapterHZ.busStaQryResp(respbean);
         }
-        byte[] clearBytes = (byte[]) resultBean.getResultObj();
-        socketHelper.setReceivedBytes(clearBytes);
     }
 
     @Override

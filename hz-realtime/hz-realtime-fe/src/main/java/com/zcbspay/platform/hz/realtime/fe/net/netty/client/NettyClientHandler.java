@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
-import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.common.utils.SpringContext;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.remote.RemoteAdapter;
 import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;

@@ -19,6 +19,7 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleColl
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
+import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
@@ -38,8 +39,11 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         chnCollectSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
         chnCollectSingleLog.setMsgid(msgId);
         chnCollectSingleLog.setTxid(collectionChargesBean.getTxId());
+        chnCollectSingleLog.setTransdate(DateUtil.getCurrentDate());
+        chnCollectSingleLog.setTranstime(DateUtil.getCurrentTime());
         chnCollectSingleLog.setDebtorname(collectionChargesBean.getDebtorName());
         chnCollectSingleLog.setDebtoraccountno(collectionChargesBean.getDebtorAccountNo());
+        chnCollectSingleLog.setDebtorbranchcode(collectionChargesBean.getDebtorBranchCode());
         chnCollectSingleLog.setCreditorbranchcode(collectionChargesBean.getCreditorBranchCode());
         chnCollectSingleLog.setCreditorname(collectionChargesBean.getCreditorName());
         chnCollectSingleLog.setCreditoraccountno(collectionChargesBean.getCreditorAccountNo());
@@ -50,6 +54,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         chnCollectSingleLog.setTxnseqno(collectionChargesBean.getTxnseqno());
         // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
         chnCollectSingleLog.setNotes(comRefId);
+
         saveEntity(chnCollectSingleLog);
         return chnCollectSingleLog;
     }
@@ -83,14 +88,15 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealCollectLogCommResp(CMS900Bean bean) {
-        String hql = "update TChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? where msgid=?";
+        String hql = "update TChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
         query.setString(1, bean.getRspnInf().getSts());
         query.setString(2, bean.getRspnInf().getRjctcd());
         query.setString(3, bean.getRspnInf().getRjctinf());
-        query.setString(4, bean.getOrgnlMsgId().getOrgnlMsgId());
+        query.setString(4, DateUtil.getCurrentDateTime());
+        query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
         int rows = query.executeUpdate();
         logger.info("updateRealCollectLogCommResp() effect rows:" + rows);
     }

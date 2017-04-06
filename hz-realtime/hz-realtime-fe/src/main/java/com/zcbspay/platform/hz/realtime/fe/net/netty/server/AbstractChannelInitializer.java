@@ -25,7 +25,7 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Sock
 
 	public AbstractChannelInitializer() {
 		this.timeout = 120;
-		this.charset = Charset.forName("GBK");
+		this.charset = Charset.forName("UTF-8");
 		this.failFast = true;
 		this.byteOrder = ByteOrder.LITTLE_ENDIAN;
 	}
