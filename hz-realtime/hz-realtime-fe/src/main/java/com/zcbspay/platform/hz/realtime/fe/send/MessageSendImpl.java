@@ -60,7 +60,7 @@ public class MessageSendImpl implements MessageSend {
                             SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
                             String hostAddress = socketChannelHelper.getMessageConfigService().getString("HOST_ADDRESS", ParamsUtil.getInstance().getHzqszx_ip());// 主机名称
                             int hostPort = socketChannelHelper.getMessageConfigService().getInt("HOST_PORT", Integer.parseInt(ParamsUtil.getInstance().getHzqszx_port()));// 主机端口
-                            NettyClientBootstrap bootstrap = NettyClientBootstrap.getInstance(hostAddress, hostPort);
+                            NettyClientBootstrap bootstrap = new NettyClientBootstrap(hostPort, hostAddress);
                             bootstrap.sendMessage(sendMsg);
                         }
                         catch (Exception e) {

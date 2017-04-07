@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zcbspay.platform.hz.realtime.business.message.BaseTest;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 
 public class TestDao extends BaseTest {
@@ -13,11 +14,13 @@ public class TestDao extends BaseTest {
     private TChnCollectSingleLogDAO tChnCollectSingleLogDAO;
     @Autowired
     private TChnPaymentSingleLogDAO tChnPaymentSingleLogDAO;
+    @Autowired
+    private TxnsLogDAO txnsLogDAO;
 
     @Test
     public void testAll() {
         long currentTime = System.currentTimeMillis();
-        updateRealPaymentLogCommResp();
+        getTxnsLogByTxnseqno();
         System.out.println("excute time:" + (System.currentTimeMillis() - currentTime));
     }
 
@@ -34,4 +37,8 @@ public class TestDao extends BaseTest {
         tChnPaymentSingleLogDAO.updateRealPaymentLogCommResp(bean);
     }
 
+    private void getTxnsLogByTxnseqno() {
+        TTxnsLogDO tTxnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno("1604209900054111");
+        System.out.println("~~~~~~~~:" + JSONObject.toJSONString(tTxnsLogDO));
+    }
 }

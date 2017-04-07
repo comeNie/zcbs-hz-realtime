@@ -6,6 +6,8 @@ public enum ErrorCodeHZ {
 	NONE_RECORD("THZ002", "交易流水号无对应代收/代付记录"),
 	REPEAT_REQUEST("THZ003", "交易重复，拒绝本次请求"),
 	INTERRUPT_EXP("THZ004", "线程异常中断"),
+	NONE_MAIN_REC("THZ005", "交易流水号无对应主流水记录"),
+	UNKNOWN_BT("THZ006", "未知业务类型（非实时代收付）"),
 	;
 
 	private String value;

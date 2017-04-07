@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +28,8 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.BusinessRs
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
+import com.zcbspay.platform.hz.realtime.business.message.service.bean.TChnCollectSingleLogVO;
+import com.zcbspay.platform.hz.realtime.business.message.service.bean.TChnPaymentSingleLogVO;
 import com.zcbspay.platform.hz.realtime.common.enums.ErrorCodeHZ;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT384Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
@@ -137,37 +140,79 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     public ResultBean queryTrade(String txnseqno) {
         ResultBean resultBean = null;
         TTxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
-        String businessType = txnsLogDO.getBusitype();
-        // 查询原交易获取原报文三要素
-        OrgnlTxBean orgMsgIde = null;
-        if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
-            // 实时代收原交易
-            TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
-            if (collSingle == null) {
-                logger.error("cann't find record by txnseqno : " + txnseqno);
-                return new ResultBean(ErrorCodeHZ.NONE_RECORD.getValue(), ErrorCodeHZ.NONE_RECORD.getDisplayName());
-            }
-            orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), collSingle.getTxid(), MessageTypeEnum.CMT384.value());
+        String businessType = null;
+        if (txnsLogDO != null) {
+            businessType = txnsLogDO.getBusicode();
         }
-        else if (BusinessType.REAL_TIME_PAY.getValue().equals(businessType)) {
-            // 实时代付原交易
-            TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
-            if (paySingle == null) {
-                logger.error("cann't find record by txnseqno : " + txnseqno);
-                return new ResultBean(ErrorCodeHZ.NONE_RECORD.getValue(), ErrorCodeHZ.NONE_RECORD.getDisplayName());
-            }
-            orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), paySingle.getTxid(), MessageTypeEnum.CMT386.value());
+        else {
+            logger.error("【cann't find TxnsLog record by txnseqno】: " + txnseqno);
+            return new ResultBean(ErrorCodeHZ.NONE_MAIN_REC.getValue(), ErrorCodeHZ.NONE_MAIN_REC.getDisplayName());
         }
-        // CMS316报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value());
-        MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
-        byte[] message;
         try {
-            message = messageAssemble.assemble(beanHead, beanBody);
-            // 记录报文流水信息
-            MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
-            messageSend.sendMessage(messageBean);
-            // TODO mxwtodo 轮训查询结果
+            // 查询原交易获取原报文三要素
+            OrgnlTxBean orgMsgIde = null;
+            if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
+                // 实时代收原交易
+                TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
+                if (collSingle == null) {
+                    logger.error("cann't find record by txnseqno : " + txnseqno);
+                    return new ResultBean(ErrorCodeHZ.NONE_RECORD.getValue(), ErrorCodeHZ.NONE_RECORD.getDisplayName());
+                }
+                if (!StringUtils.isEmpty(collSingle.getRspstatus())) {
+                    // 原交易已收到业务应答
+                    TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
+                    BeanUtils.copyProperties(collSingle, vo);
+                    return new ResultBean(vo);
+                }
+                else {
+                    // 发送CMS316报文同步查询信息
+                    orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), collSingle.getTxid(), MessageTypeEnum.CMT384.value());
+                    // CMS316报文组装
+                    MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value());
+                    MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
+                    byte[] message = messageAssemble.assemble(beanHead, beanBody);
+                    MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
+                    messageSend.sendMessage(messageBean);
+                    // 轮训查询结果
+                    resultBean = cycleQueryBusRsp(collSingle.getMsgid(), txnseqno, MessageTypeEnum.CMT384.value(), collSingle.getTid());
+                    TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
+                    BeanUtils.copyProperties(collSingle, vo);
+                    return resultBean == null ? new ResultBean(vo) : resultBean;
+                }
+            }
+            else if (BusinessType.REAL_TIME_PAY.getValue().equals(businessType)) {
+                // 实时代付原交易
+                TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
+                if (paySingle == null) {
+                    logger.error("cann't find record by txnseqno : " + txnseqno);
+                    return new ResultBean(ErrorCodeHZ.NONE_RECORD.getValue(), ErrorCodeHZ.NONE_RECORD.getDisplayName());
+                }
+                if (!StringUtils.isEmpty(paySingle.getRspstatus())) {
+                    // 原交易已收到业务应答
+                    TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
+                    BeanUtils.copyProperties(paySingle, vo);
+                    return new ResultBean(vo);
+                }
+                else {
+                    // 发送CMS316报文同步查询信息
+                    orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), paySingle.getTxid(), MessageTypeEnum.CMT386.value());
+                    // CMS316报文组装
+                    MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value());
+                    MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
+                    byte[] message = messageAssemble.assemble(beanHead, beanBody);
+                    MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
+                    messageSend.sendMessage(messageBean);
+                    // 轮训查询结果
+                    resultBean = cycleQueryBusRsp(paySingle.getMsgid(), txnseqno, MessageTypeEnum.CMT384.value(), paySingle.getTid());
+                    TChnPaymentSingleLogVO vo = new TChnPaymentSingleLogVO();
+                    BeanUtils.copyProperties(paySingle, vo);
+                    return resultBean == null ? new ResultBean(vo) : resultBean;
+                }
+            }
+            else {
+                logger.error("【unknown businessType】: " + businessType);
+                return new ResultBean(ErrorCodeHZ.UNKNOWN_BT.getValue(), ErrorCodeHZ.UNKNOWN_BT.getDisplayName());
+            }
         }
         catch (HZRealTransferException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
@@ -243,6 +288,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     break;
                 }
             } while (StringUtils.isEmpty(status));
+            logger.info("【finish loop query~】");
         }
         catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
@@ -263,6 +309,60 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 businessRsltBean.setCommRspInfo(resultPay.getComrejectinformation());
             }
             resultBean = new ResultBean(businessRsltBean);
+        }
+        return resultBean;
+    }
+
+    /**
+     * 轮训查询异步业务应答结果，时间以2的幂次递增，不超过40s
+     * 
+     * @param mye
+     * 
+     * @param orderId
+     * @param transTm
+     * @return
+     * @throws UnionPayException
+     */
+    private ResultBean cycleQueryBusRsp(String msgid, String txnseqno, String msgType, long tid) throws HZRealTransferException {
+        ResultBean resultBean = null;
+        TChnCollectSingleLogDO resultColl = null;
+        TChnPaymentSingleLogDO resultPay = null;
+        String status = null;
+        int time = 2000;
+        int cycTimes = 1;
+        try {
+            do {
+                TimeUnit.MILLISECONDS.sleep(time);
+                if (MessageTypeEnum.CMT384.value().equals(msgType)) {
+                    resultColl = tChnCollectSingleLogDAO.getCollSingleByTid(tid);
+                    status = resultColl.getRspstatus();
+                }
+                if (MessageTypeEnum.CMT386.value().equals(msgType)) {
+                    resultPay = tChnPaymentSingleLogDAO.getPaySingleByTid(tid);
+                    status = resultPay.getRspstatus();
+                }
+                time = 2 * time;
+                if (++cycTimes > 4) {
+                    break;
+                }
+            } while (StringUtils.isEmpty(status));
+            logger.info("【finish loop query~】");
+        }
+        catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            throw new HZRealTransferException(ErrorCodeHZ.INTERRUPT_EXP.getValue(), ErrorCodeHZ.INTERRUPT_EXP.getDisplayName());
+        }
+        if (!StringUtils.isEmpty(status)) {
+            if (MessageTypeEnum.CMT384.value().equals(msgType)) {
+                TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
+                BeanUtils.copyProperties(resultPay, vo);
+                resultBean = new ResultBean(vo);
+            }
+            if (MessageTypeEnum.CMT386.value().equals(msgType)) {
+                TChnPaymentSingleLogVO vo = new TChnPaymentSingleLogVO();
+                BeanUtils.copyProperties(resultPay, vo);
+                resultBean = new ResultBean(vo);
+            }
         }
         return resultBean;
     }
