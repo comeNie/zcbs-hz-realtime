@@ -32,7 +32,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     private SerialNumberService redisSerialNumberService;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public TChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId) {
         // 记录实时代收流水(T_CHN_COLLECT_SINGLE_LOG)
         TChnCollectSingleLogDO chnCollectSingleLog = new TChnCollectSingleLogDO();

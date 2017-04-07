@@ -1,23 +1,14 @@
-/* 
- * BaseException.java  
- * 
- * version TODO
- *
- * 2015年9月6日 
- * 
- * Copyright (c) 2015,zlebank.All rights reserved.
- * 
- */
-package com.zcbspay.platform.hz.realtime.transfer.message.api.exception;
+package com.zcbspay.platform.hz.realtime.message.bean.fe.service.exception;
 
-import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.ErrorCodeFeHZ;
 
 /**
  * 杭州清算中心渠道，支付渠道封装的异常信息
+ * 
  * @author AlanMa
  *
  */
-public class HZRealTransferException extends Exception {
+public class HZRealFeException extends Exception {
 
     private static final long serialVersionUID = 8564355573270250157L;
 
@@ -25,23 +16,23 @@ public class HZRealTransferException extends Exception {
 
     private String errMsg;
 
-    public HZRealTransferException() {
+    public HZRealFeException() {
         super();
     }
 
-    public HZRealTransferException(String errCode, String errMsg) {
+    public HZRealFeException(String errCode, String errMsg) {
         super(errCode + errMsg);
         this.errCode = errCode;
         this.errMsg = errMsg;
     }
 
-    public HZRealTransferException(String errCode) {
-        super(errCode + ErrorCodeTransHZ.parseOf(errCode).getDisplayName());
+    public HZRealFeException(String errCode) {
+        super(errCode + ErrorCodeFeHZ.parseOf(errCode).getDisplayName());
         this.errCode = errCode;
-        this.errMsg = ErrorCodeTransHZ.parseOf(errCode).getDisplayName();
+        this.errMsg = ErrorCodeFeHZ.parseOf(errCode).getDisplayName();
     }
 
-    public HZRealTransferException(ErrorCodeTransHZ errorCode) {
+    public HZRealFeException(ErrorCodeFeHZ errorCode) {
         super(errorCode.getValue() + errorCode.getDisplayName());
         this.errCode = errorCode.getValue();
         this.errMsg = errorCode.getDisplayName();

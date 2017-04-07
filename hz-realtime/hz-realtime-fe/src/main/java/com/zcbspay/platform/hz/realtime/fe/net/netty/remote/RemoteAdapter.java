@@ -61,12 +61,4 @@ public interface RemoteAdapter {
      */
     public ResultBean commProcAfrmResp(MessageRespBean messageRespBean);
 
-    /**
-     * 探测回应报文
-     * 
-     * @param messageRespBean
-     * @return
-     */
-    public ResultBean detectResponse(MessageRespBean messageRespBean);
-
 }

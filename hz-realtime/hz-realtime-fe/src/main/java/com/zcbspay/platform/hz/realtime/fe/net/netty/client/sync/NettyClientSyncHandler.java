@@ -1,7 +1,8 @@
-package com.zcbspay.platform.hz.realtime.fe.net.netty.client;
+package com.zcbspay.platform.hz.realtime.fe.net.netty.client.sync;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.io.ByteArrayInputStream;
 
@@ -11,33 +12,60 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 
+import com.alibaba.fastjson.JSONObject;
 import com.zcbspay.platform.hz.realtime.common.utils.SpringContext;
+import com.zcbspay.platform.hz.realtime.fe.net.netty.client.SocketChannelHelper;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.remote.RemoteAdapter;
 import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS992Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
 
-/**
- * Client端接收同步应答
- * 
- * @author AlanMa
- *
- */
-public class NettyClientHandler extends SimpleChannelInboundHandler<byte[]> {
+public class NettyClientSyncHandler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(NettyClientHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyClientSyncHandler.class);
 
     RemoteAdapter remoteAdapterHZ = (RemoteAdapter) SpringContext.getContext().getBean("remoteAdapterHZ");
 
-    /**
-     *
-     * @param ctx
-     * @param msg
-     * @throws Exception
-     */
+    public StringBuffer receivedMessage;
+
+    public byte[] toSendMessage;
+
+    public NettyClientSyncHandler(byte[] toSendMessage, StringBuffer receivedMessage) {
+        this.receivedMessage = receivedMessage;
+        this.toSendMessage = toSendMessage;
+    }
+
     @Override
-    protected synchronized void channelRead0(ChannelHandlerContext ctx, byte[] msg) throws Exception {
-        logger.info("enter NettyClientHandler.channelRead0 ~~~");
+    public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+        logger.info("==============channel--register==============");
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        logger.info("==============channel--unregistered==============");
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("==============channel--inactive==============");
+    }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        logger.info("==============channel--active==============");
+        ByteBuf encoded = ctx.alloc().buffer(4 * toSendMessage.length);
+        encoded.writeBytes(toSendMessage);
+        ctx.write(encoded);
+        ctx.flush();
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msgObj) throws Exception {
+        logger.info("==============channel--read==============");
+        ByteBuf result = (ByteBuf) msgObj;
+        byte[] msg = new byte[result.readableBytes()];
+        result.readBytes(msg);
         SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
         String hostName = socketChannelHelper.getMessageConfigService().getString("HOST_NAME");// 主机名称
         String hostAddress = socketChannelHelper.getMessageConfigService().getString("HOST_ADDRESS");// 主机名称
@@ -144,26 +172,20 @@ public class NettyClientHandler extends SimpleChannelInboundHandler<byte[]> {
             logger.error("message unpack is failed!!!", e);
 
         }
-
         String businessType = messageRespBean.getMessageHeaderBean().getBusinessType();
         com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean respbean = new com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean();
         BeanUtils.copyProperties(messageRespBean, respbean);
 
-        if (MessageTypeEnum.CMS900.value().equals(businessType)) {
-            // 通用处理确认报文（CMS900）
-            remoteAdapterHZ.commProcAfrmResp(respbean);
-        }
-        else if (MessageTypeEnum.CMS911.value().equals(businessType)) {
-            // 报文丢弃通知报文（CMS911）
-            remoteAdapterHZ.discardMessage(respbean);
-        }
-        else if (MessageTypeEnum.CMS317.value().equals(businessType)) {
-            // 业务状态查询应答报文（CMS317）
-            remoteAdapterHZ.busStaQryResp(respbean);
+        if (MessageTypeEnum.CMS992.value().equals(businessType)) {
+            // 探测回应报文（CMS992）
+            CMS992Bean bean = JSONObject.parseObject(respbean.getMsgBody(), CMS992Bean.class);
+            receivedMessage.append(JSONObject.toJSONString(bean));
+            logger.info("【CMS992 is】:" + receivedMessage.toString());
+            result.release();
         }
         else {
             logger.error("message type is unknown!!!");
         }
-
+        ctx.close();
     }
 }

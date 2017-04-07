@@ -12,7 +12,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zcbspay.platform.hz.realtime.common.utils.secret.RSAUtils;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
-import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeHZ;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
 import com.zcbspay.platform.hz.realtime.transfer.message.util.ParamsUtil;
@@ -32,11 +32,11 @@ public class AssembleSignBase386 implements AssembleSignBase {
         }
         catch (UnsupportedEncodingException e) {
             logger.error("msgbody sign failed:UnsupportedEncodingException", e);
-            throw new HZRealTransferException(ErrorCodeHZ.SIGN_FAILED);
+            throw new HZRealTransferException(ErrorCodeTransHZ.SIGN_FAILED);
         }
         catch (Exception e) {
             logger.error("msgbody sign failed:Exception", e);
-            throw new HZRealTransferException(ErrorCodeHZ.SIGN_FAILED);
+            throw new HZRealTransferException(ErrorCodeTransHZ.SIGN_FAILED);
         }
         return signature;
     }

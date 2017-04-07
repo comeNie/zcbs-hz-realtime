@@ -18,7 +18,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAssemble;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
-import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeHZ;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
@@ -111,7 +111,7 @@ public class MessageAssembleImpl implements MessageAssemble {
         }
         catch (UnsupportedEncodingException e) {
             logger.error("parse String to byte failed", e);
-            throw new HZRealTransferException(ErrorCodeHZ.BYTE_PARSE_FAIL);
+            throw new HZRealTransferException(ErrorCodeTransHZ.BYTE_PARSE_FAIL);
         }
 
         return msgAllBytes;

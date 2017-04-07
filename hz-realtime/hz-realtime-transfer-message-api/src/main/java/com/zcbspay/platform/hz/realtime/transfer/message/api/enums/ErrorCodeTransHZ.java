@@ -1,6 +1,6 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.api.enums;
 
-public enum ErrorCodeHZ {
+public enum ErrorCodeTransHZ {
 
 	SIGN_FAILED("THZ001", "报文体加签失败"),
 	NONE_RECORD("THZ002", "交易流水号无对应代收/代付记录"),
@@ -12,7 +12,7 @@ public enum ErrorCodeHZ {
 	private String value;
 	private final String displayName;
 
-	ErrorCodeHZ(String value, String displayName) {
+	ErrorCodeTransHZ(String value, String displayName) {
 		this.value = value;
 		this.displayName = displayName;
 	}
@@ -25,9 +25,9 @@ public enum ErrorCodeHZ {
 		return displayName;
 	}
 
-	public static ErrorCodeHZ parseOf(String value) {
+	public static ErrorCodeTransHZ parseOf(String value) {
 
-		for (ErrorCodeHZ item : values())
+		for (ErrorCodeTransHZ item : values())
 			if (item.getValue().equals(value))
 				return item;
 
@@ -35,9 +35,9 @@ public enum ErrorCodeHZ {
 	}
 	
 	public static void main(String[] args) {
-		System.out.println(ErrorCodeHZ.SIGN_FAILED.getDisplayName());
-		System.out.println(ErrorCodeHZ.SIGN_FAILED.getValue());
-		System.out.println(parseOf(ErrorCodeHZ.SIGN_FAILED.getValue()).getDisplayName());
-		System.out.print(ErrorCodeHZ.SIGN_FAILED);
+		System.out.println(ErrorCodeTransHZ.SIGN_FAILED.getDisplayName());
+		System.out.println(ErrorCodeTransHZ.SIGN_FAILED.getValue());
+		System.out.println(parseOf(ErrorCodeTransHZ.SIGN_FAILED.getValue()).getDisplayName());
+		System.out.print(ErrorCodeTransHZ.SIGN_FAILED);
 	}
 }

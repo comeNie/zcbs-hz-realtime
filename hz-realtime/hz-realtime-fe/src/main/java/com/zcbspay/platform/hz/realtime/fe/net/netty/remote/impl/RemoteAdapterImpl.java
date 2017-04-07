@@ -48,9 +48,4 @@ public class RemoteAdapterImpl implements RemoteAdapter {
         return businessMessageReceiver.commProcAfrmResp(messageRespBean);
     }
 
-    @Override
-    public ResultBean detectResponse(com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean messageRespBean) {
-        return businessMessageReceiver.detectResponse(messageRespBean);
-    }
-
 }

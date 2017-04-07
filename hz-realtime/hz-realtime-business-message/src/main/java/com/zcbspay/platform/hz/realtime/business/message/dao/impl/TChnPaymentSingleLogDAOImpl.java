@@ -32,7 +32,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
     private SerialNumberService redisSerialNumberService;
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public TChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId) {
         // 记录实时代付流水(T_CHN_PAYMENT_SINGLE_LOG)
         TChnPaymentSingleLogDO chnPaymentSingleLog = new TChnPaymentSingleLogDO();

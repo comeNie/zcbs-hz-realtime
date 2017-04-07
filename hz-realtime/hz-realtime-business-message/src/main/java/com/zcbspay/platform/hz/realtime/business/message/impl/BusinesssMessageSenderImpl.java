@@ -19,7 +19,6 @@ import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLo
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
 import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
-import com.zcbspay.platform.hz.realtime.business.message.enums.ReturnInfo;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
@@ -35,6 +34,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.OrgnlTxBean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.exception.HZRealFeException;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAssemble;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
@@ -92,6 +92,10 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         catch (UnsupportedEncodingException e) {
             logger.error("byte to string exception~~~");
         }
+        catch (HZRealFeException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            resultBean = new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
         return resultBean;
     }
 
@@ -113,20 +117,25 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             // 记录报文流水信息
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
             TChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
-            MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
+            MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
             messageSend.sendMessage(messageBean);
             // 轮训查询通用应答结果
-            resultBean = cycleQuerySynRsp(payDo.getMsgid(), payDo.getTxnseqno(), MessageTypeEnum.CMT384.value(), payDo.getTid());
+            resultBean = cycleQuerySynRsp(payDo.getMsgid(), payDo.getTxnseqno(), MessageTypeEnum.CMT386.value(), payDo.getTid());
         }
         catch (HZRealTransferException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             return new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
+        catch (HZRealFeException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            resultBean = new ResultBean(e.getErrCode(), e.getErrMsg());
         }
         return resultBean;
     }
 
     @Override
     public ResultBean queryTrade(String txnseqno) {
+        ResultBean resultBean = null;
         TTxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
         String businessType = txnsLogDO.getBusitype();
         // 查询原交易获取原报文三要素
@@ -155,19 +164,26 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         byte[] message;
         try {
             message = messageAssemble.assemble(beanHead, beanBody);
+            // 记录报文流水信息
+            MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
+            messageSend.sendMessage(messageBean);
+            // TODO mxwtodo 轮训查询结果
         }
         catch (HZRealTransferException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
-        // 记录报文流水信息
-        MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
-        messageSend.sendMessage(messageBean);
-        return new ResultBean(ReturnInfo.SUCCESS.getValue());
+        catch (HZRealFeException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            resultBean = new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
+        return resultBean;
     }
 
     @Override
     public ResultBean check() {
+
+        ResultBean resultBean = null;
         // CMS991报文组装
         MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS991.value());
         MessageBean beanBody = ComuDetecAss.communicateDetecMsgBodyReq();
@@ -181,8 +197,16 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         }
         // 发送报文
         MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS991);
-        messageSend.sendMessage(messageBean);
-        return new ResultBean(ReturnInfo.SUCCESS.getValue());
+        try {
+            String detectRspMsg = messageSend.sendMessage(messageBean);
+            logger.info("【detectRspMsg is 】:" + detectRspMsg);
+            resultBean = new ResultBean(detectRspMsg);
+        }
+        catch (HZRealFeException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            resultBean = new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
+        return resultBean;
     }
 
     /**

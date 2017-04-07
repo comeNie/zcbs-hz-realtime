@@ -22,7 +22,6 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean
 import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
-import com.zcbspay.platform.hz.realtime.message.bean.CMS992Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.RspnInfBean;
@@ -121,13 +120,6 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
             tChnPaymentSingleLogDAO.updateRealPaymentLogCommResp(bean);
         }
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
-    }
-
-    @Override
-    public ResultBean detectResponse(MessageRespBean messageRespBean) {
-        CMS992Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMS992Bean.class);
-        logger.info("CMS992 is :" + bean.toString());
-        return null;
     }
 
     private void updateTxnsLogInfo(String retSts, String retCode, String retMsg, String settDate, String txnSeq) {

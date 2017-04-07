@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.zcbspay.platform.hz.realtime.common.utils.secret.RSAUtils;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBean;
-import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeHZ;
+import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.unpack.MessageUnpack;
 import com.zcbspay.platform.hz.realtime.transfer.message.util.ParamsUtil;
@@ -63,12 +63,12 @@ public class MessageUnpackImpl implements MessageUnpack {
         try {
             if (!RSAUtils.verifyBytes(msgBody, ParamsUtil.getInstance().getPublicKeyHZQSZX(), msgSign)) {
                 logger.error("【response message check sign failed】");
-                throw new HZRealTransferException(ErrorCodeHZ.CHECK_SIGN_FAIL);
+                throw new HZRealTransferException(ErrorCodeTransHZ.CHECK_SIGN_FAIL);
             }
         }
         catch (Exception e) {
             logger.error("response message check sign failed:Exception", e);
-            throw new HZRealTransferException(ErrorCodeHZ.CHECK_SIGN_FAIL);
+            throw new HZRealTransferException(ErrorCodeTransHZ.CHECK_SIGN_FAIL);
         }
     }
 
