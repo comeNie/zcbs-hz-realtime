@@ -20,30 +20,6 @@ public class OrderCollectSingleDAOImpl extends HibernateBaseDAOImpl<OrderCollect
     private static final Logger log = LoggerFactory.getLogger(OrderCollectSingleDAOImpl.class);
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updateOrderToFail(String txnseqno) {
-        String hql = "update OrderCollectSingleDO set status = ? where relatetradetxn = ? ";
-        Session session = getSession();
-        Query query = session.createQuery(hql);
-        query.setString(0, "03");
-        query.setString(1, txnseqno);
-        int rows = query.executeUpdate();
-        log.info("updateOrderToFail() effect rows:" + rows);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public void updateOrderToSuccess(String txnseqno) {
-        String hql = "update OrderCollectSingleDO set status = ? where relatetradetxn = ? ";
-        Session session = getSession();
-        Query query = session.createQuery(hql);
-        query.setString(0, "00");
-        query.setString(1, txnseqno);
-        int rows = query.executeUpdate();
-        log.info("updateOrderToSuccess() effect rows:" + rows);
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public OrderCollectSingleDO getCollectSingleOrderByTN(String tn) {
         Criteria criteria = getSession().createCriteria(OrderCollectSingleDO.class);
