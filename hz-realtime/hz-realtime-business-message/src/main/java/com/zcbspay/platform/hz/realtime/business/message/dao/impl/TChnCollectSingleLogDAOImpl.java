@@ -123,4 +123,13 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         return tChnCollectSingleLogDO;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TChnCollectSingleLogDO getCollSingleByMsgId(String msgId) {
+        String hql = "from TChnCollectSingleLogDO where msgid=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, msgId);
+        return (TChnCollectSingleLogDO) query.uniqueResult();
+    }
+
 }

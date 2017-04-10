@@ -9,6 +9,8 @@ public enum ErrorCodeBusHZ {
     NONE_MAIN_REC("THZ005", "交易流水号无对应主流水记录"), 
     UNKNOWN_BT("THZ006", "未知业务类型（非实时代收付）"), 
     NONE_PAY_ORDER("THZ007", "实时代收付订单信息缺失"),
+    NONE_PAY_LOG("THZ008", "实时代收付主流水信息缺失"),
+    REPEAT_RESP("THZ009", "回执信息重复，拒绝本次请求"), 
     ;
 
     private String value;

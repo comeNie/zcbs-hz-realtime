@@ -48,8 +48,15 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
 
     @Override
     public ResultBean realTimeCollectionChargesReceipt(MessageRespBean messageRespBean) {
-        // 更新流水记录
         CMT385Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT385Bean.class);
+        String msgId = bean.getOrgnlMsgId().getOrgnlMsgId();
+        // 回执判重
+        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByMsgId(msgId);
+        if (record != null) {
+            logger.error("【repeat response and msgId is】 : " + msgId);
+            return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
+        }
+        // 更新流水记录
         TChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();
@@ -66,8 +73,15 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
 
     @Override
     public ResultBean realTimePaymentReceipt(MessageRespBean messageRespBean) {
-        // 更新流水记录
         CMT387Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT387Bean.class);
+        String msgId = bean.getOrgnlMsgId().getOrgnlMsgId();
+        // 回执判重
+        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByMsgId(msgId);
+        if (record != null) {
+            logger.error("【repeat response and msgId is】 : " + msgId);
+            return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
+        }
+        // 更新流水记录
         TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();

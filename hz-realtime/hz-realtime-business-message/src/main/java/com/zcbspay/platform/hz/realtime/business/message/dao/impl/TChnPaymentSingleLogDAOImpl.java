@@ -123,4 +123,13 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
         return tChnPaymentSingleLogDO;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public TChnPaymentSingleLogDO getPaySingleByMsgId(String msgId) {
+        String hql = "from TChnPaymentSingleLogDO where msgid=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, msgId);
+        return (TChnPaymentSingleLogDO) query.uniqueResult();
+    }
+
 }

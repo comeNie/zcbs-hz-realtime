@@ -32,7 +32,15 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @return
      */
     public TChnCollectSingleLogDO getCollSingleByTxnseqno(String txnseqno);
-    
+
+    /**
+     * 通过msgId获取代收记录
+     * 
+     * @param msgId
+     * @return
+     */
+    public TChnCollectSingleLogDO getCollSingleByMsgId(String msgId);
+
     /**
      * 通过tid获取代收记录
      * 
@@ -51,10 +59,9 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
 
     /**
      * 更新实时代收流水丢弃报文信息
+     * 
      * @param bean
      */
     public void updateRealCollectLogDiscard(CMS911Bean bean);
-    
-    
 
 }

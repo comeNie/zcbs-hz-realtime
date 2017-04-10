@@ -34,6 +34,14 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<TChnPaymentSingleLogDO>
     public TChnPaymentSingleLogDO getPaySingleByTxnseqno(String txnseqno);
 
     /**
+     * 通过msgId获取报文记录
+     * 
+     * @param msgId
+     * @return
+     */
+    public TChnPaymentSingleLogDO getPaySingleByMsgId(String msgId);
+
+    /**
      * 更新通用回执信息
      * 
      * @param bean

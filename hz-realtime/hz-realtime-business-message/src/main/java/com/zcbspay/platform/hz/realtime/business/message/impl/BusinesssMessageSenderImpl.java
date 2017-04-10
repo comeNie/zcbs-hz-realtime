@@ -15,11 +15,14 @@ import com.zcbspay.platform.hz.realtime.business.message.assembly.ComuDetecAss;
 import com.zcbspay.platform.hz.realtime.business.message.assembly.MsgHeadAss;
 import com.zcbspay.platform.hz.realtime.business.message.assembly.RealTimeCollAss;
 import com.zcbspay.platform.hz.realtime.business.message.assembly.RealTimePayAss;
+import com.zcbspay.platform.hz.realtime.business.message.dao.OrderCollectSingleDAO;
+import com.zcbspay.platform.hz.realtime.business.message.dao.OrderPaymentSingleDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
 import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderCollectSingleDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
@@ -59,27 +62,23 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private TChnPaymentSingleLogDAO tChnPaymentSingleLogDAO;
     @Autowired
     private TxnsLogDAO txnsLogDAO;
+    @Autowired
+    private OrderCollectSingleDAO orderCollectSingleDAO;
+    @Autowired
+    private OrderPaymentSingleDAO orderPaymentSingleDAO;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
         ResultBean resultBean = null;
-        // 业务规则校验
         try {
+            // 业务规则校验
             businessCheckColl(collectionChargesBean.getTxnseqno());
-        }
-        catch (HZRealBusException e) {
-            logger.error(e.getErrCode() + "" + e.getErrMsg());
-            return new ResultBean(e.getErrCode(), e.getErrMsg());
-        }
-
-        // CMT384报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value());
-        logger.info("[beanHead is]:" + beanHead);
-        MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
-        logger.info("[beanBody is]:" + beanBody);
-        byte[] message = null;
-        try {
-            message = messageAssemble.assemble(beanHead, beanBody);
+            // CMT384报文组装
+            MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value());
+            logger.info("[beanHead is]:" + beanHead);
+            MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
+            logger.info("[beanBody is]:" + beanBody);
+            byte[] message = messageAssemble.assemble(beanHead, beanBody);
             logger.info("[assembled message is]:" + new String(message, "utf-8"));
             // 记录报文流水信息
             CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
@@ -103,35 +102,68 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             resultBean = new ResultBean(e.getErrCode(), e.getErrMsg());
         }
+        catch (HZRealBusException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            return new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
         return resultBean;
     }
 
     private void businessCheckColl(String txnseqno) throws HZRealBusException {
-        // TODO 主流水检测
+        // 主流水校验
+        checkTnxLog(txnseqno);
+        // 代收订单状态校验
+        OrderCollectSingleDO order = orderCollectSingleDAO.getCollectSingleOrderByTN(txnseqno);
+        if (order != null) {
+            logger.error("【 no collection single order record to update!!!】" + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
+        }
+        // TODO 状态校验
         // 交易判重
         TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
         if (record != null) {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
         }
+    }
 
+    private void businessCheckPay(String txnseqno) throws HZRealBusException {
+        // 主流水校验
+        checkTnxLog(txnseqno);
+        // 代付订单状态校验
+        OrderCollectSingleDO order = orderCollectSingleDAO.getCollectSingleOrderByTN(txnseqno);
+        if (order == null) {
+            logger.error("【 no collection single order record to update!!!】" + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
+        }
+        // TODO 状态校验
+        // 交易判重
+        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
+        if (record != null) {
+            logger.error("repeat request and txnseqno is : " + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
+        }
+    }
+
+    private void checkTnxLog(String txnseqno) throws HZRealBusException {
+        // 主流水检测
+        TTxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
+        if (txnsLogDO == null) {
+            logger.error("【 no collection single log record to update!!!】");
+            throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_LOG.getValue(), ErrorCodeBusHZ.NONE_PAY_LOG.getDisplayName());
+        }
     }
 
     @Override
     public ResultBean realTimePayment(SinglePaymentBean paymentBean) {
         ResultBean resultBean = null;
-        // 交易判重
-        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(paymentBean.getTxnseqno());
-        if (record != null) {
-            logger.error("repeat request and txnseqno is : " + paymentBean.getTxnseqno());
-            return new ResultBean(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
-        }
-        // CMT386报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value());
-        MessageBean beanBody = RealTimePayAss.realtimePayMsgBodyReq(paymentBean);
-        byte[] message;
         try {
-            message = messageAssemble.assemble(beanHead, beanBody);
+            // 业务规则校验
+            businessCheckPay(paymentBean.getTxnseqno());
+            // CMT386报文组装
+            MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value());
+            MessageBean beanBody = RealTimePayAss.realtimePayMsgBodyReq(paymentBean);
+            byte[] message = messageAssemble.assemble(beanHead, beanBody);
             // 记录报文流水信息
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
             TChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
@@ -147,6 +179,10 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         catch (HZRealFeException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
             resultBean = new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
+        catch (HZRealBusException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
         return resultBean;
     }
@@ -242,7 +278,6 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     @Override
     public ResultBean check() {
-
         ResultBean resultBean = null;
         // CMS991报文组装
         MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS991.value());
