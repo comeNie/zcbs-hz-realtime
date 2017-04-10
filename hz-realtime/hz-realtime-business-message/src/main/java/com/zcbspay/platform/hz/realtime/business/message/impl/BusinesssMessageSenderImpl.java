@@ -30,7 +30,8 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleColl
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.TChnCollectSingleLogVO;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.TChnPaymentSingleLogVO;
-import com.zcbspay.platform.hz.realtime.common.enums.ErrorCodeHZ;
+import com.zcbspay.platform.hz.realtime.business.message.service.enums.ErrorCodeBusHZ;
+import com.zcbspay.platform.hz.realtime.business.message.service.exception.HZRealBusException;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT384Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.OrgnlTxBean;
@@ -62,12 +63,15 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
         ResultBean resultBean = null;
-        // 交易判重
-        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(collectionChargesBean.getTxnseqno());
-        if (record != null) {
-            logger.error("repeat request and txnseqno is : " + collectionChargesBean.getTxnseqno());
-            return new ResultBean(ErrorCodeHZ.REPEAT_REQUEST.getValue(), ErrorCodeHZ.REPEAT_REQUEST.getDisplayName());
+        // 业务规则校验
+        try {
+            businessCheckColl(collectionChargesBean.getTxnseqno());
         }
+        catch (HZRealBusException e) {
+            logger.error(e.getErrCode() + "" + e.getErrMsg());
+            return new ResultBean(e.getErrCode(), e.getErrMsg());
+        }
+
         // CMT384报文组装
         MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value());
         logger.info("[beanHead is]:" + beanHead);
@@ -102,6 +106,17 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         return resultBean;
     }
 
+    private void businessCheckColl(String txnseqno) throws HZRealBusException {
+        // TODO 主流水检测
+        // 交易判重
+        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
+        if (record != null) {
+            logger.error("repeat request and txnseqno is : " + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
+        }
+
+    }
+
     @Override
     public ResultBean realTimePayment(SinglePaymentBean paymentBean) {
         ResultBean resultBean = null;
@@ -109,7 +124,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(paymentBean.getTxnseqno());
         if (record != null) {
             logger.error("repeat request and txnseqno is : " + paymentBean.getTxnseqno());
-            return new ResultBean(ErrorCodeHZ.REPEAT_REQUEST.getValue(), ErrorCodeHZ.REPEAT_REQUEST.getDisplayName());
+            return new ResultBean(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
         }
         // CMT386报文组装
         MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value());
@@ -146,7 +161,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         }
         else {
             logger.error("【cann't find TxnsLog record by txnseqno】: " + txnseqno);
-            return new ResultBean(ErrorCodeHZ.NONE_MAIN_REC.getValue(), ErrorCodeHZ.NONE_MAIN_REC.getDisplayName());
+            return new ResultBean(ErrorCodeBusHZ.NONE_MAIN_REC.getValue(), ErrorCodeBusHZ.NONE_MAIN_REC.getDisplayName());
         }
         try {
             // 查询原交易获取原报文三要素
@@ -156,7 +171,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
                 if (collSingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
-                    return new ResultBean(ErrorCodeHZ.NONE_RECORD.getValue(), ErrorCodeHZ.NONE_RECORD.getDisplayName());
+                    return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
                 }
                 if (!StringUtils.isEmpty(collSingle.getRspstatus())) {
                     // 原交易已收到业务应答
@@ -185,7 +200,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
                 if (paySingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
-                    return new ResultBean(ErrorCodeHZ.NONE_RECORD.getValue(), ErrorCodeHZ.NONE_RECORD.getDisplayName());
+                    return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
                 }
                 if (!StringUtils.isEmpty(paySingle.getRspstatus())) {
                     // 原交易已收到业务应答
@@ -211,7 +226,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             else {
                 logger.error("【unknown businessType】: " + businessType);
-                return new ResultBean(ErrorCodeHZ.UNKNOWN_BT.getValue(), ErrorCodeHZ.UNKNOWN_BT.getDisplayName());
+                return new ResultBean(ErrorCodeBusHZ.UNKNOWN_BT.getValue(), ErrorCodeBusHZ.UNKNOWN_BT.getDisplayName());
             }
         }
         catch (HZRealTransferException e) {
@@ -292,7 +307,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         }
         catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
-            throw new HZRealTransferException(ErrorCodeHZ.INTERRUPT_EXP.getValue(), ErrorCodeHZ.INTERRUPT_EXP.getDisplayName());
+            throw new HZRealTransferException(ErrorCodeBusHZ.INTERRUPT_EXP.getValue(), ErrorCodeBusHZ.INTERRUPT_EXP.getDisplayName());
         }
         if (!StringUtils.isEmpty(status)) {
             businessRsltBean = new BusinessRsltBean();
@@ -350,7 +365,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         }
         catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
-            throw new HZRealTransferException(ErrorCodeHZ.INTERRUPT_EXP.getValue(), ErrorCodeHZ.INTERRUPT_EXP.getDisplayName());
+            throw new HZRealTransferException(ErrorCodeBusHZ.INTERRUPT_EXP.getValue(), ErrorCodeBusHZ.INTERRUPT_EXP.getDisplayName());
         }
         if (!StringUtils.isEmpty(status)) {
             if (MessageTypeEnum.CMT384.value().equals(msgType)) {

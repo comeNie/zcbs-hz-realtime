@@ -6,19 +6,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zcbspay.platform.hz.realtime.business.message.bean.TransLogUpBean;
 import com.zcbspay.platform.hz.realtime.business.message.dao.OrderCollectSingleDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.OrderPaymentSingleDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusStat;
+import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
+import com.zcbspay.platform.hz.realtime.business.message.enums.RealCPOrdSts;
 import com.zcbspay.platform.hz.realtime.business.message.enums.ReturnInfo;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
+import com.zcbspay.platform.hz.realtime.business.message.service.enums.ErrorCodeBusHZ;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
@@ -50,13 +53,13 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         TChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();
-        updateTxnsLogInfo(respBean.getSts(), respBean.getRjctcd(), respBean.getRjctinf(), respBean.getNetgdt(), chnCollectSingleLogDO.getTxnseqno());
+        updateTxnsLogInfo(BusinessType.REAL_TIME_COLL, respBean.getRjctcd(), chnCollectSingleLogDO.getTxnseqno());
         // 更新订单状态
-        if (BusStat.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
-            orderCollectSingleDAO.updateOrderToSuccessByTn(chnCollectSingleLogDO.getTxnseqno());
-        }
-        else {
-            orderCollectSingleDAO.updateOrderToFailByTn(chnCollectSingleLogDO.getTxnseqno());
+        String status = BusStat.SUCCESS.getValue().equals(bean.getRspnInf().getSts()) ? RealCPOrdSts.SCUCESS.getValue() : RealCPOrdSts.FAILED.getValue();
+        int effRow = orderCollectSingleDAO.updateOrderStatus(chnCollectSingleLogDO.getTxnseqno(), status);
+        if (effRow == 0) {
+            logger.error("【 no collection single record to update!!!】");
+            return new ResultBean(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
         }
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
@@ -64,17 +67,17 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
     @Override
     public ResultBean realTimePaymentReceipt(MessageRespBean messageRespBean) {
         // 更新流水记录
-        CMT387Bean realTimePayRespBean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT387Bean.class);
-        TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(realTimePayRespBean);
+        CMT387Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT387Bean.class);
+        TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean);
         // 更新主流水记录
-        RspnInfBean respBean = realTimePayRespBean.getRspnInf();
-        updateTxnsLogInfo(respBean.getSts(), respBean.getRjctcd(), respBean.getRjctinf(), respBean.getNetgdt(), chnPaymentSingleLogDO.getTxnseqno());
+        RspnInfBean respBean = bean.getRspnInf();
+        updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno());
         // 更新订单状态
-        if (BusStat.SUCCESS.getValue().equals(realTimePayRespBean.getRspnInf().getSts())) {
-            orderPaymentSingleDAO.updateOrderToSuccessByTN(chnPaymentSingleLogDO.getTxnseqno());
-        }
-        else {
-            orderPaymentSingleDAO.updateOrderToFailByTn(chnPaymentSingleLogDO.getTxnseqno());
+        String status = BusStat.SUCCESS.getValue().equals(bean.getRspnInf().getSts()) ? RealCPOrdSts.SCUCESS.getValue() : RealCPOrdSts.FAILED.getValue();
+        int effRow = orderPaymentSingleDAO.updateOrderStatus(chnPaymentSingleLogDO.getTxnseqno(), status);
+        if (effRow == 0) {
+            logger.error("【 no payment single record to update!!!】");
+            return new ResultBean(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
         }
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
@@ -122,13 +125,19 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
-    private void updateTxnsLogInfo(String retSts, String retCode, String retMsg, String settDate, String txnSeq) {
-        TTxnsLogDO txnsLog = new TTxnsLogDO();
-        txnsLog.setRetcode(retSts);
-        txnsLog.setRetinfo(retCode + retMsg);
-        txnsLog.setAccsettledate(settDate);
-        txnsLog.setTxnseqno(txnSeq);
-        txnsLogDAO.updateTxnsLogRespInfo(txnsLog);
+    /**
+     * 更新主流水信息
+     * 
+     * @param businessType
+     * @param retCode
+     * @param txnSeq
+     */
+    private void updateTxnsLogInfo(BusinessType businessType, String retCode, String txnSeq) {
+        TransLogUpBean transLogUpBean = new TransLogUpBean();
+        transLogUpBean.setBusinessType(businessType);
+        transLogUpBean.setTxnseqno(txnSeq);
+        transLogUpBean.setPayretcode(retCode);
+        txnsLogDAO.updatePayInfoResult(transLogUpBean);
     }
 
 }

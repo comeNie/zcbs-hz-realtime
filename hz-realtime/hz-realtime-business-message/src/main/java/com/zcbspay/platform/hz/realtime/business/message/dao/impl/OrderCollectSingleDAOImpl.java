@@ -53,27 +53,16 @@ public class OrderCollectSingleDAOImpl extends HibernateBaseDAOImpl<OrderCollect
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updateOrderToFailByTn(String tn) {
-        String hql = "update OrderCollectSingleDO set status = ? where tn = ? ";
-        Session session = getSession();
-        Query query = session.createQuery(hql);
-        query.setString(0, "03");
-        query.setString(1, tn);
-        int rows = query.executeUpdate();
-        log.info("updateOrderToFail() effect rows:" + rows);
-    }
-
-    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public void updateOrderToSuccessByTn(String tn) {
+    public int updateOrderStatus(String tn, String status) {
         String hql = "update OrderCollectSingleDO set status = ? where tn = ? ";
         Session session = getSession();
         Query query = session.createQuery(hql);
-        query.setString(0, "00");
+        query.setString(0, status);
         query.setString(1, tn);
         int rows = query.executeUpdate();
         log.info("updateOrderToSuccess() effect rows:" + rows);
+        return rows;
     }
 
 }

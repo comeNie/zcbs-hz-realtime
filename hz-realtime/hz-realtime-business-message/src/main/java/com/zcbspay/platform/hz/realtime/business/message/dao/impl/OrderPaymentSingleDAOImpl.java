@@ -20,44 +20,16 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
     private static final Logger log = LoggerFactory.getLogger(OrderPaymentSingleDAOImpl.class);
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updateOrderToFail(String txnseqno) {
-        String hql = "update OrderPaymentSingleDO set status = ? where relatetradetxn = ? ";
-        Session session = getSession();
-        Query query = session.createQuery(hql);
-        query.setString(0, "03");
-        query.setString(1, txnseqno);
-        int rows = query.executeUpdate();
-        log.info("updateOrderToFail() effect rows:" + rows);
-    }
-
-    @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public void updateOrderToSuccess(String txnseqno) {
+    public int updateOrderStatus(String txnseqno, String status) {
         String hql = "update OrderPaymentSingleDO set status = ? where relatetradetxn = ? ";
         Session session = getSession();
         Query query = session.createQuery(hql);
-        query.setString(0, "00");
+        query.setString(0, status);
         query.setString(1, txnseqno);
         int rows = query.executeUpdate();
         log.info("updateOrderToSuccess() effect rows:" + rows);
-    }
-
-    /**
-     *
-     * @param tn
-     */
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updateOrderToSuccessByTN(String tn) {
-        // TODO Auto-generated method stub
-        String hql = "update OrderPaymentSingleDO set status = ? where tn = ? ";
-        Session session = getSession();
-        Query query = session.createQuery(hql);
-        query.setString(0, "00");
-        query.setString(1, tn);
-        int rows = query.executeUpdate();
-        log.info("updateOrderToSuccessByTN() effect rows:" + rows);
+        return rows;
     }
 
     @Override
@@ -67,19 +39,6 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
         criteria.add(Restrictions.eq("tn", tn));
         OrderPaymentSingleDO uniqueResult = (OrderPaymentSingleDO) criteria.uniqueResult();
         return uniqueResult;
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public void updateOrderToFailByTn(String tn) {
-        String hql = "update OrderPaymentSingleDO set status = ? where tn = ? ";
-        Session session = getSession();
-        Query query = session.createQuery(hql);
-        query.setString(0, "03");
-        query.setString(1, tn);
-        int rows = query.executeUpdate();
-        log.info("updateOrderToFail() effect rows:" + rows);
-
     }
 
 }

@@ -1,5 +1,6 @@
 package com.zcbspay.platform.hz.realtime.business.message.dao;
 
+import com.zcbspay.platform.hz.realtime.business.message.bean.TransLogUpBean;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
 import com.zcbspay.platform.hz.realtime.common.dao.BaseDAO;
 
@@ -43,4 +44,10 @@ public interface TxnsLogDAO extends BaseDAO<TTxnsLogDO> {
      *            交易日志pojo
      */
     public void saveTxnsLog(TTxnsLogDO txnsLog);
+
+    /**
+     * 更新支付订单状态
+     * @param orderUpdateBean
+     */
+    public void updatePayInfoResult(TransLogUpBean transLogUpBean);
 }
