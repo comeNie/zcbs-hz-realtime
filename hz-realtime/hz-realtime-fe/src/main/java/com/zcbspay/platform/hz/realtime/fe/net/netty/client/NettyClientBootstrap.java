@@ -67,9 +67,9 @@ public class NettyClientBootstrap {
 
     public void sendMessage(byte[] msg) throws InterruptedException {
         ChannelFuture channelFuture = socketChannel.writeAndFlush(msg).sync();
-        if (channelFuture.isSuccess()) {
-            shutdown();
-        }
+        // if (channelFuture.isSuccess()) {
+        // shutdown();
+        // }
     }
 
     private void shutdown() {

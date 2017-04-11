@@ -1,13 +1,15 @@
 package com.zcbspay.platform.hz.realtime.business.message.enums;
 
-public enum BusStat {
+public enum HZRspStatus {
 
-    SUCCESS("PR05", "已成功"), ;
+    SUCCESS("S", "已成功"), 
+    FAILED("F", "已失败"), 
+    ;
 
     private String value;
     private final String displayName;
 
-    BusStat(String value, String displayName) {
+    HZRspStatus(String value, String displayName) {
         this.value = value;
         this.displayName = displayName;
     }
@@ -20,9 +22,9 @@ public enum BusStat {
         return displayName;
     }
 
-    public static BusStat parseOf(String value) {
+    public static HZRspStatus parseOf(String value) {
 
-        for (BusStat item : values())
+        for (HZRspStatus item : values())
             if (item.getValue().equals(value))
                 return item;
 

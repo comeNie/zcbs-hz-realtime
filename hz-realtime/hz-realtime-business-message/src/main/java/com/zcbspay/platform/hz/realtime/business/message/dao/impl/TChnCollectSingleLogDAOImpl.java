@@ -14,12 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
@@ -130,6 +132,32 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
         Query query = getSession().createQuery(hql);
         query.setString(0, msgId);
         return (TChnCollectSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TChnCollectSingleLogDO getCollSingleByTxId(String txId) {
+        String hql = "from TChnCollectSingleLogDO where txid=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, txId);
+        return (TChnCollectSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public TChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid) {
+        String hql = "from TChnCollectSingleLogDO where tid=?";
+        Query query = getSession().createQuery(hql);
+        query.setLong(0, tid);
+        TChnCollectSingleLogDO collectSingle = (TChnCollectSingleLogDO) query.uniqueResult();
+        collectSingle.setRspmsgid(queryBusStsRsp.getMsgId());
+        collectSingle.setRspstatus(queryBusStsRsp.getRspnInf().getSts());
+        collectSingle.setRsprejectcode(queryBusStsRsp.getRspnInf().getRjctcd());
+        collectSingle.setRsprejectinformation(queryBusStsRsp.getRspnInf().getRjctinf());
+        collectSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
+        collectSingle.setNettingdate(queryBusStsRsp.getRspnInf().getNetgdt());
+        TChnCollectSingleLogDO retDo = update(collectSingle);
+        return retDo;
     }
 
 }

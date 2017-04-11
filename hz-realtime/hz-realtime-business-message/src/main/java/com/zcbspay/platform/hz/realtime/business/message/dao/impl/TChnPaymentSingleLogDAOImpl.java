@@ -20,6 +20,7 @@ import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateStyle;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateTimeUtils;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
@@ -60,7 +61,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public TChnPaymentSingleLogDO updateRealPaymentLog(CMT387Bean realTimePayRespBean) {
         String hql = "from TChnPaymentSingleLogDO where msgId=?";
         Query query = getSession().createQuery(hql);
@@ -72,6 +73,23 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
         paymentSingle.setRsprejectinformation(realTimePayRespBean.getRspnInf().getRjctinf());
         paymentSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         paymentSingle.setNettingdate(realTimePayRespBean.getRspnInf().getNetgdt());
+        TChnPaymentSingleLogDO retDo = update(paymentSingle);
+        return retDo;
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public TChnPaymentSingleLogDO updateRealPaymentLog(CMS317Bean queryBusStsRsp, long tid) {
+        String hql = "from TChnPaymentSingleLogDO where tid=?";
+        Query query = getSession().createQuery(hql);
+        query.setLong(0, tid);
+        TChnPaymentSingleLogDO paymentSingle = (TChnPaymentSingleLogDO) query.uniqueResult();
+        paymentSingle.setRspmsgid(queryBusStsRsp.getMsgId());
+        paymentSingle.setRspstatus(queryBusStsRsp.getRspnInf().getSts());
+        paymentSingle.setRsprejectcode(queryBusStsRsp.getRspnInf().getRjctcd());
+        paymentSingle.setRsprejectinformation(queryBusStsRsp.getRspnInf().getRjctinf());
+        paymentSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
+        paymentSingle.setNettingdate(queryBusStsRsp.getRspnInf().getNetgdt());
         TChnPaymentSingleLogDO retDo = update(paymentSingle);
         return retDo;
     }
@@ -129,6 +147,15 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
         String hql = "from TChnPaymentSingleLogDO where msgid=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, msgId);
+        return (TChnPaymentSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TChnPaymentSingleLogDO getCollSingleByTxId(String txId) {
+        String hql = "from TChnPaymentSingleLogDO where txid=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, txId);
         return (TChnPaymentSingleLogDO) query.uniqueResult();
     }
 

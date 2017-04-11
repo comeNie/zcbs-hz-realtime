@@ -3,6 +3,7 @@ package com.zcbspay.platform.hz.realtime.business.message.dao;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.common.dao.BaseDAO;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
@@ -26,6 +27,14 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
     public TChnCollectSingleLogDO updateRealCollectLog(CMT385Bean bean);
 
     /**
+     * 更新实时代收流水信息
+     * 
+     * @param collectionChargesBean
+     * @return
+     */
+    public TChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid);
+
+    /**
      * 通过txnseqno获取代收记录
      * 
      * @param collectionChargesBean
@@ -40,6 +49,14 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @return
      */
     public TChnCollectSingleLogDO getCollSingleByMsgId(String msgId);
+
+    /**
+     * 通过明细标识号获取代收记录
+     * 
+     * @param collectionChargesBean
+     * @return
+     */
+    public TChnCollectSingleLogDO getCollSingleByTxId(String txId);
 
     /**
      * 通过tid获取代收记录
