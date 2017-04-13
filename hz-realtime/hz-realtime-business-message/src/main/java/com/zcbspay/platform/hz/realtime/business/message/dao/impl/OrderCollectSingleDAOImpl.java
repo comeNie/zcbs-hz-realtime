@@ -21,21 +21,21 @@ public class OrderCollectSingleDAOImpl extends HibernateBaseDAOImpl<OrderCollect
 
     @Override
     @Transactional(readOnly = true)
-    public OrderCollectSingleDO getCollectSingleOrderByTN(String tn) {
+    public OrderCollectSingleDO getCollSingOrdByTxnseqno(String txnseqno) {
         Criteria criteria = getSession().createCriteria(OrderCollectSingleDO.class);
-        criteria.add(Restrictions.eq("tn", tn));
+        criteria.add(Restrictions.eq("relatetradetxn", txnseqno));
         OrderCollectSingleDO uniqueResult = (OrderCollectSingleDO) criteria.uniqueResult();
         return uniqueResult;
     }
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public int updateOrderStatus(String tn, String status) {
-        String hql = "update OrderCollectSingleDO set status = ? where tn = ? ";
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public int updateOrderStatus(String relatetradetxn, String status) {
+        String hql = "update OrderCollectSingleDO set status = ? where relatetradetxn = ? ";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, status);
-        query.setString(1, tn);
+        query.setString(1, relatetradetxn);
         int rows = query.executeUpdate();
         log.info("updateOrderToSuccess() effect rows:" + rows);
         return rows;

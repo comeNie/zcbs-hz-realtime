@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
+import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
@@ -96,10 +97,21 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
 
     @Override
     @Transactional(readOnly = true)
-    public TChnPaymentSingleLogDO getPaySingleByTxnseqno(String txnseqno) {
-        String hql = "from TChnPaymentSingleLogDO where txnseqno=?";
+    public TChnPaymentSingleLogDO getPaySingleByTxnseqnoNotFail(String txnseqno) {
+        String hql = "from TChnPaymentSingleLogDO where txnseqno=? and status!=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
+        query.setString(1, HZRspStatus.FAILED.getValue());
+        return (TChnPaymentSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TChnPaymentSingleLogDO getPaySingleByTxnseqnoAndRspSta(String txnseqno, String rspStatus) {
+        String hql = "from TChnPaymentSingleLogDO where txnseqno=? and status=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, txnseqno);
+        query.setString(1, rspStatus);
         return (TChnPaymentSingleLogDO) query.uniqueResult();
     }
 

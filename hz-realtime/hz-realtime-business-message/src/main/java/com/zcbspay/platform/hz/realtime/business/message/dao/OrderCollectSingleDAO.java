@@ -5,20 +5,19 @@ import com.zcbspay.platform.hz.realtime.common.dao.BaseDAO;
 
 public interface OrderCollectSingleDAO extends BaseDAO<OrderCollectSingleDO> {
 
-
     /**
      * 通过tn获取实时代收订单
      * 
      * @param tn
      * @return
      */
-    public OrderCollectSingleDO getCollectSingleOrderByTN(String tn);
+    public OrderCollectSingleDO getCollSingOrdByTxnseqno(String txnseqno);
 
     /**
      * 更新订单状态
      * 
-     * @param tn订单号
+     * @param relatetradetxn
      * 
      */
-    public int updateOrderStatus(String tn, String status);
+    public int updateOrderStatus(String relatetradetxn, String status);
 }

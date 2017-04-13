@@ -35,12 +35,21 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
     public TChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid);
 
     /**
-     * 通过txnseqno获取代收记录
+     * 通过txnseqno获取非失败状态的代收记录
      * 
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO getCollSingleByTxnseqno(String txnseqno);
+    public TChnCollectSingleLogDO getCollSingleByTxnseqnoNotFail(String txnseqno);
+
+
+    /**
+     * 通过业务流水号和业务应答状态获取报文记录
+     * @param txnseqno
+     * @param rspStatus
+     * @return
+     */
+    public TChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String rspStatus);
 
     /**
      * 通过msgId获取代收记录

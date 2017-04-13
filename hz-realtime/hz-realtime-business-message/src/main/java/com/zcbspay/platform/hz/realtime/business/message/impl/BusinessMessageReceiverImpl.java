@@ -3,10 +3,12 @@ package com.zcbspay.platform.hz.realtime.business.message.impl;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zcbspay.platform.hz.realtime.business.message.bean.PayerAndPayeeBean;
 import com.zcbspay.platform.hz.realtime.business.message.bean.TransLogUpBean;
 import com.zcbspay.platform.hz.realtime.business.message.dao.OrderCollectSingleDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.OrderPaymentSingleDAO;
@@ -18,12 +20,15 @@ import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspCode;
 import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
 import com.zcbspay.platform.hz.realtime.business.message.enums.RealCPOrdSts;
 import com.zcbspay.platform.hz.realtime.business.message.enums.ReturnInfo;
+import com.zcbspay.platform.hz.realtime.business.message.enums.TradeStatFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.enums.ErrorCodeBusHZ;
+import com.zcbspay.platform.hz.realtime.business.message.service.exception.HZRealBusException;
+import com.zcbspay.platform.hz.realtime.message.bean.BusiTextBean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
@@ -55,16 +60,26 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         // 回执判重
         TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByMsgId(msgId);
         if (record != null) {
-            if (bean.getMsgId().equals(record.getRspmsgid()) || (StringUtils.isNotEmpty(record.getRspstatus()) && HZRspStatus.parseOf(record.getRspstatus()) != null)) {
+            if (bean.getMsgId().equals(record.getRspmsgid()) || StringUtils.isNotEmpty(record.getRspstatus())) {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
                 return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
             }
+        }
+        // 关键信息匹配
+        try {
+            PayerAndPayeeBean payAndPayBean = new PayerAndPayeeBean();
+            BeanUtils.copyProperties(record, payAndPayBean);
+            mainInfoMatchingCheckColl(bean.getBusiText(), payAndPayBean);
+        }
+        catch (HZRealBusException e) {
+            logger.error(e.getErrCode() + e.getErrMsg());
+            return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
         // 更新流水记录
         TChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();
-        updateTxnsLogInfo(BusinessType.REAL_TIME_COLL, respBean.getRjctcd(), chnCollectSingleLogDO.getTxnseqno());
+        updateTxnsLogInfo(BusinessType.REAL_TIME_COLL, respBean.getRjctcd(), chnCollectSingleLogDO.getTxnseqno(), bean.getRspnInf().getSts());
         // 更新订单状态
         String status = HZRspCode.SUCCESS.getValue().equals(bean.getRspnInf().getSts()) ? RealCPOrdSts.SCUCESS.getValue() : RealCPOrdSts.FAILED.getValue();
         int effRow = orderCollectSingleDAO.updateOrderStatus(chnCollectSingleLogDO.getTxnseqno(), status);
@@ -75,6 +90,35 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
+    private void mainInfoMatchingCheckColl(BusiTextBean busiTextBean, PayerAndPayeeBean record) throws HZRealBusException {
+        boolean isPassCheck = true;
+        if (!busiTextBean.getAmt().equals(Long.toString(record.getAmount()))) {
+            isPassCheck = false;
+        }
+        else if (busiTextBean.getCdtrAcct().equals(record.getCreditoraccountno())) {
+            isPassCheck = false;
+        }
+        else if (busiTextBean.getCdtrBk().equals(record.getCreditorbranchcode())) {
+            isPassCheck = false;
+        }
+        else if (busiTextBean.getCdtrNm().equals(record.getCreditorname())) {
+            isPassCheck = false;
+        }
+        else if (busiTextBean.getDbtrAcct().equals(record.getDebtoraccountno())) {
+            isPassCheck = false;
+        }
+        else if (busiTextBean.getDbtrBk().equals(record.getDebtorbranchcode())) {
+            isPassCheck = false;
+        }
+        else if (busiTextBean.getDbtrNm().equals(record.getDebtorname())) {
+            isPassCheck = false;
+        }
+        if (!isPassCheck) {
+            logger.error("【response main information doesn't match orignal trade record!!!】");
+            throw new HZRealBusException(ErrorCodeBusHZ.RSP_NOT_MATCH);
+        }
+    }
+
     @Override
     public ResultBean realTimePaymentReceipt(MessageRespBean messageRespBean) {
         CMT387Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT387Bean.class);
@@ -82,16 +126,26 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         // 回执判重
         TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByMsgId(msgId);
         if (record != null) {
-            if (bean.getMsgId().equals(record.getRspmsgid()) || (StringUtils.isNotEmpty(record.getRspstatus()) && HZRspStatus.parseOf(record.getRspstatus()) != null)) {
+            if (bean.getMsgId().equals(record.getRspmsgid()) || StringUtils.isNotEmpty(record.getRspstatus())) {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
                 return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
             }
+        }
+        // 关键信息匹配
+        try {
+            PayerAndPayeeBean payAndPayBean = new PayerAndPayeeBean();
+            BeanUtils.copyProperties(record, payAndPayBean);
+            mainInfoMatchingCheckColl(bean.getBusiText(), payAndPayBean);
+        }
+        catch (HZRealBusException e) {
+            logger.error(e.getErrCode() + e.getErrMsg());
+            return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
         // 更新流水记录
         TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();
-        updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno());
+        updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno(), bean.getRspnInf().getSts());
         // 更新订单状态
         String status = HZRspCode.SUCCESS.getValue().equals(bean.getRspnInf().getSts()) ? RealCPOrdSts.SCUCESS.getValue() : RealCPOrdSts.FAILED.getValue();
         int effRow = orderPaymentSingleDAO.updateOrderStatus(chnPaymentSingleLogDO.getTxnseqno(), status);
@@ -136,7 +190,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
                 TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean, payDo.getTid());
                 // 更新主流水记录
                 RspnInfBean respBean = bean.getRspnInf();
-                updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno());
+                updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno(), bean.getRspnInf().getSts());
                 // 更新订单状态
                 String status = HZRspCode.SUCCESS.getValue().equals(bean.getRspnInf().getSts()) ? RealCPOrdSts.SCUCESS.getValue() : RealCPOrdSts.FAILED.getValue();
                 int effRow = orderPaymentSingleDAO.updateOrderStatus(chnPaymentSingleLogDO.getTxnseqno(), status);
@@ -160,7 +214,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
             TChnCollectSingleLogDO chnCollectSingleLogDAO = tChnCollectSingleLogDAO.updateRealCollectLog(bean, collDo.getTid());
             // 更新主流水记录
             RspnInfBean respBean = bean.getRspnInf();
-            updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnCollectSingleLogDAO.getTxnseqno());
+            updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnCollectSingleLogDAO.getTxnseqno(), bean.getRspnInf().getSts());
             // 更新订单状态
             String status = HZRspCode.SUCCESS.getValue().equals(bean.getRspnInf().getSts()) ? RealCPOrdSts.SCUCESS.getValue() : RealCPOrdSts.FAILED.getValue();
             int effRow = orderCollectSingleDAO.updateOrderStatus(chnCollectSingleLogDAO.getTxnseqno(), status);
@@ -193,12 +247,15 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
      * @param businessType
      * @param retCode
      * @param txnSeq
+     * @param status
      */
-    private void updateTxnsLogInfo(BusinessType businessType, String retCode, String txnSeq) {
+    private void updateTxnsLogInfo(BusinessType businessType, String retCode, String txnSeq, String rspStatus) {
         TransLogUpBean transLogUpBean = new TransLogUpBean();
         transLogUpBean.setBusinessType(businessType);
         transLogUpBean.setTxnseqno(txnSeq);
         transLogUpBean.setPayretcode(retCode);
+        String status = HZRspStatus.SUCCESS.getValue().equals(rspStatus) ? TradeStatFlagEnum.FINISH_SUCCESS.getStatus() : TradeStatFlagEnum.FINISH_FAILED.getStatus();
+        transLogUpBean.setRspStatus(status);
         txnsLogDAO.updatePayInfoResult(transLogUpBean);
     }
 

@@ -20,7 +20,7 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
     private static final Logger log = LoggerFactory.getLogger(OrderPaymentSingleDAOImpl.class);
 
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public int updateOrderStatus(String txnseqno, String status) {
         String hql = "update OrderPaymentSingleDO set status = ? where relatetradetxn = ? ";
         Session session = getSession();
@@ -34,9 +34,9 @@ public class OrderPaymentSingleDAOImpl extends HibernateBaseDAOImpl<OrderPayment
 
     @Override
     @Transactional(readOnly = true)
-    public OrderPaymentSingleDO getPaymentSingleOrderByTN(String tn) {
+    public OrderPaymentSingleDO getPaySingOrdByTxnseqno(String txnseqno) {
         Criteria criteria = getSession().createCriteria(OrderPaymentSingleDO.class);
-        criteria.add(Restrictions.eq("tn", tn));
+        criteria.add(Restrictions.eq("relatetradetxn", txnseqno));
         OrderPaymentSingleDO uniqueResult = (OrderPaymentSingleDO) criteria.uniqueResult();
         return uniqueResult;
     }

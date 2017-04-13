@@ -21,8 +21,12 @@ import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLo
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
+import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
 import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
+import com.zcbspay.platform.hz.realtime.business.message.enums.RealCPOrdSts;
+import com.zcbspay.platform.hz.realtime.business.message.enums.TradeStatFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderCollectSingleDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderPaymentSingleDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
@@ -113,14 +117,17 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         // 主流水校验
         checkTnxLog(txnseqno);
         // 代收订单状态校验
-        OrderCollectSingleDO order = orderCollectSingleDAO.getCollectSingleOrderByTN(txnseqno);
-        if (order != null) {
+        OrderCollectSingleDO order = orderCollectSingleDAO.getCollSingOrdByTxnseqno(txnseqno);
+        if (order == null) {
             logger.error("【 no collection single order record to update!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
         }
-        // TODO 状态校验
+        if (!RealCPOrdSts.INITIAL.getValue().equals(order.getStatus()) && !RealCPOrdSts.FAILED.getValue().equals(order.getStatus())) {
+            logger.error("【OrderCollectSingleDO status is wrong and it's rejected!!!】" + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.ORDER_STS_WRONG.getValue(), ErrorCodeBusHZ.ORDER_STS_WRONG.getDisplayName());
+        }
         // 交易判重
-        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
+        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoNotFail(txnseqno);
         if (record != null) {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
@@ -131,14 +138,17 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         // 主流水校验
         checkTnxLog(txnseqno);
         // 代付订单状态校验
-        OrderCollectSingleDO order = orderCollectSingleDAO.getCollectSingleOrderByTN(txnseqno);
+        OrderPaymentSingleDO order = orderPaymentSingleDAO.getPaySingOrdByTxnseqno(txnseqno);
         if (order == null) {
             logger.error("【 no collection single order record to update!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
         }
-        // TODO 状态校验
+        if (!RealCPOrdSts.INITIAL.getValue().equals(order.getStatus()) && !RealCPOrdSts.FAILED.getValue().equals(order.getStatus())) {
+            logger.error("【OrderCollectSingleDO status is wrong and it's rejected!!!】" + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.ORDER_STS_WRONG.getValue(), ErrorCodeBusHZ.ORDER_STS_WRONG.getDisplayName());
+        }
         // 交易判重
-        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
+        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoNotFail(txnseqno);
         if (record != null) {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
@@ -151,6 +161,10 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         if (txnsLogDO == null) {
             logger.error("【 no collection single log record to update!!!】");
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_LOG.getValue(), ErrorCodeBusHZ.NONE_PAY_LOG.getDisplayName());
+        }
+        if (!TradeStatFlagEnum.PAYING.getStatus().equals(txnsLogDO.getTradestatflag())) {
+            logger.error("【TTxnsLogDO status is wrong and it's rejected!!!】" + txnseqno);
+            throw new HZRealBusException(ErrorCodeBusHZ.CHL_SER_STS_WR.getValue(), ErrorCodeBusHZ.CHL_SER_STS_WR.getDisplayName());
         }
     }
 
@@ -204,7 +218,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             OrgnlTxBean orgMsgIde = null;
             if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
                 // 实时代收原交易
-                TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
+                TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue());
                 if (collSingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
@@ -233,7 +247,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             else if (BusinessType.REAL_TIME_PAY.getValue().equals(businessType)) {
                 // 实时代付原交易
-                TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
+                TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue());
                 if (paySingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());

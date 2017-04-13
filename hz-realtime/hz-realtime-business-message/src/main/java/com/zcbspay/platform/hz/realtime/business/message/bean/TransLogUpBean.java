@@ -12,6 +12,8 @@ public class TransLogUpBean implements Serializable {
 
     private String txnseqno;
 
+    private String rspStatus;
+
     private BusinessType businessType;
 
     public String getPayretcode() {
@@ -36,6 +38,19 @@ public class TransLogUpBean implements Serializable {
 
     public void setTxnseqno(String txnseqno) {
         this.txnseqno = txnseqno;
+    }
+
+    public String getRspStatus() {
+        return rspStatus;
+    }
+
+    public void setRspStatus(String rspStatus) {
+        this.rspStatus = rspStatus;
+    }
+
+    @Override
+    public String toString() {
+        return "TransLogUpBean [payretcode=" + payretcode + ", txnseqno=" + txnseqno + ", rspStatus=" + rspStatus + ", businessType=" + businessType + "]";
     }
 
 }

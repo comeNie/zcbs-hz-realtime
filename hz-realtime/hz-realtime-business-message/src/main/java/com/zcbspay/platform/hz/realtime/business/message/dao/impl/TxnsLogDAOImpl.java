@@ -15,7 +15,6 @@ import com.zcbspay.platform.hz.realtime.business.message.bean.TransLogUpBean;
 import com.zcbspay.platform.hz.realtime.business.message.dao.RspmsgDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
-import com.zcbspay.platform.hz.realtime.business.message.enums.TradeStatFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.enums.TradeTxnFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.RspmsgDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
@@ -91,7 +90,7 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
         else if (BusinessType.REAL_TIME_PAY == orderUpdateBean.getBusinessType()) {
             query.setParameter(5, TradeTxnFlagEnum.HZ_REALTIME_PAY.getCode());
         }
-        query.setParameter(6, TradeStatFlagEnum.FINISH_SUCCESS.getStatus());
+        query.setParameter(6, orderUpdateBean.getRspStatus());
         query.setParameter(7, "10000000");
         query.setParameter(8, UUIDUtil.uuid());
         query.setParameter(9, rspmsg.getWebrspcode());

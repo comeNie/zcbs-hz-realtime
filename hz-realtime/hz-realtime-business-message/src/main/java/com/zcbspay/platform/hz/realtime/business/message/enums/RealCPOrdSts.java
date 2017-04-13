@@ -1,6 +1,8 @@
 package com.zcbspay.platform.hz.realtime.business.message.enums;
 
 public enum RealCPOrdSts {
+    INITIAL("01", "初始，订单提交成功，但未支付"), 
+    PAYING("02", "支付中"), 
     SCUCESS("00", "成功"), 
     FAILED("03", "失败"), ;
 

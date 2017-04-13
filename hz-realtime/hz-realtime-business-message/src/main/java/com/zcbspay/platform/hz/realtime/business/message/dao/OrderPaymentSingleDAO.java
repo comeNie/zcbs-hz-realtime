@@ -19,6 +19,6 @@ public interface OrderPaymentSingleDAO extends BaseDAO<OrderPaymentSingleDO> {
      * @param tn
      * @return
      */
-    public OrderPaymentSingleDO getPaymentSingleOrderByTN(String tn);
+    public OrderPaymentSingleDO getPaySingOrdByTxnseqno(String txnseqno);
 
 }

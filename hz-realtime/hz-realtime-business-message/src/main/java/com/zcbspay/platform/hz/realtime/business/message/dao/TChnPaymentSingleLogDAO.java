@@ -37,12 +37,21 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<TChnPaymentSingleLogDO>
     public TChnPaymentSingleLogDO updateRealPaymentLog(CMS317Bean queryBusStsRsp, long tid);
 
     /**
-     * 通过业务流水号获取报文记录
+     * 通过业务流水号获取非失败状态的报文记录
      * 
      * @param txnseqno
      * @return
      */
-    public TChnPaymentSingleLogDO getPaySingleByTxnseqno(String txnseqno);
+    public TChnPaymentSingleLogDO getPaySingleByTxnseqnoNotFail(String txnseqno);
+
+    /**
+     * 通过业务流水号和业务应答状态获取报文记录
+     * 
+     * @param txnseqno
+     * @param rspStatus
+     * @return
+     */
+    public TChnPaymentSingleLogDO getPaySingleByTxnseqnoAndRspSta(String txnseqno, String rspStatus);
 
     /**
      * 通过msgId获取报文记录

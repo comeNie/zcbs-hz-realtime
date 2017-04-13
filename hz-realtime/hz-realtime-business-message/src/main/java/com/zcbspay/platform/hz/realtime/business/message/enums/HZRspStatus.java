@@ -4,6 +4,7 @@ public enum HZRspStatus {
 
     SUCCESS("S", "已成功"), 
     FAILED("F", "已失败"), 
+    UNKNOWN("","未知"),
     ;
 
     private String value;
