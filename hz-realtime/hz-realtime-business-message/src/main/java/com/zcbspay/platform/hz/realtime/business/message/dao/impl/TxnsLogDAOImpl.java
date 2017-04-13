@@ -15,16 +15,18 @@ import com.zcbspay.platform.hz.realtime.business.message.bean.TransLogUpBean;
 import com.zcbspay.platform.hz.realtime.business.message.dao.RspmsgDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
+import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.enums.TradeTxnFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.RspmsgDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.TxnsLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.enums.ChnlTypeEnum;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
+import com.zcbspay.platform.hz.realtime.common.enums.ChannelCode;
 import com.zcbspay.platform.hz.realtime.common.utils.UUIDUtil;
 import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
 
 @Repository("txnsLogDAO")
-public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements TxnsLogDAO {
+public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TxnsLogDO> implements TxnsLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TxnsLogDAOImpl.class);
 
@@ -33,10 +35,10 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
 
     @Override
     @Transactional(readOnly = true)
-    public TTxnsLogDO getTxnsLogByTxnseqno(String txnseqno) {
-        Criteria criteria = getSession().createCriteria(TTxnsLogDO.class);
+    public TxnsLogDO getTxnsLogByTxnseqno(String txnseqno) {
+        Criteria criteria = getSession().createCriteria(TxnsLogDO.class);
         criteria.add(Restrictions.eq("txnseqno", txnseqno));
-        TTxnsLogDO txnsLog = (TTxnsLogDO) criteria.uniqueResult();
+        TxnsLogDO txnsLog = (TxnsLogDO) criteria.uniqueResult();
         if (txnsLog != null) {
             getSession().evict(txnsLog);
         }
@@ -45,14 +47,14 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public void updateTxnsLog(TTxnsLogDO txnsLog) {
+    public void updateTxnsLog(TxnsLogDO txnsLog) {
         update(txnsLog);
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public void updateTxnsLogRespInfo(TTxnsLogDO txnsLog) {
-        String hql = "update TTxnsLogDO set payretcode = ? , payretinfo = ? ,accsettledate=? where txnseqno=?";
+    public void updateTxnsLogRespInfo(TxnsLogDO txnsLog) {
+        String hql = "update TxnsLogDO set payretcode = ? , payretinfo = ? ,accsettledate=? where txnseqno=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, txnsLog.getPayretcode());
@@ -65,7 +67,7 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void saveTxnsLog(TTxnsLogDO txnsLog) {
+    public void saveTxnsLog(TxnsLogDO txnsLog) {
         saveEntity(txnsLog);
     }
 
@@ -96,6 +98,20 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TTxnsLogDO> implements 
         query.setParameter(9, rspmsg.getWebrspcode());
         query.setParameter(10, rspmsg.getRspinfo());
         query.setParameter(11, orderUpdateBean.getTxnseqno());
+        int rows = query.executeUpdate();
+        logger.info("updatePayInfo() effect rows:" + rows);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updatePayInfo(String txnseqno, String txid) {
+        String hql = "update TxnsLogDO set payordno=?,payinst=?,payfirmerno=?,payordcomtime=? where txnseqno=?";
+        Query query = getSession().createQuery(hql);
+        query.setParameter(0, txid);
+        query.setParameter(1, ChannelCode.CHL_HZQSZX.getValue());
+        query.setParameter(2, OrgCode.ZCBS.getValue());
+        query.setParameter(3, DateUtil.getCurrentDateTime());
+        query.setParameter(4, txnseqno);
         int rows = query.executeUpdate();
         logger.info("updatePayInfo() effect rows:" + rows);
     }

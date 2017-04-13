@@ -12,7 +12,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "T_TXNS_LOG", schema = "PDTT")
-public class TTxnsLogDO implements java.io.Serializable {
+public class TxnsLogDO implements java.io.Serializable {
 
     private static final long serialVersionUID = -3903255312200377844L;
     private String txnseqno;
@@ -79,14 +79,14 @@ public class TTxnsLogDO implements java.io.Serializable {
     private String groupcode;
     private String inpanName;
 
-    public TTxnsLogDO() {
+    public TxnsLogDO() {
     }
 
-    public TTxnsLogDO(String txnseqno) {
+    public TxnsLogDO(String txnseqno) {
         this.txnseqno = txnseqno;
     }
 
-    public TTxnsLogDO(String txnseqno, String txndate, String txntime, String apptype, String busitype, String busicode, Long amount, Long tradcomm, Long txnfee, String riskver, String splitver,
+    public TxnsLogDO(String txnseqno, String txndate, String txntime, String apptype, String busitype, String busicode, Long amount, Long tradcomm, Long txnfee, String riskver, String splitver,
             String feever, String prdtver, String checkstandver, String routver, String pan, String cardtype, String cardinstino, String inpan, String incardtype, String incardinstino,
             String accordno, String accordinst, String accsecmerno, String accfirmerno, String accsettledate, String accordcommitime, String accordfintime, String paytype, String payordno,
             String payinst, String payfirmerno, String paysecmerno, String payordcomtime, String payordfintime, String payrettsnseqno, String payretcode, String payretinfo, String appordno,

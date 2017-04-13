@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
@@ -27,7 +27,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
 
 @Repository
-public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollectSingleLogDO> implements TChnCollectSingleLogDAO {
+public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollectSingleLogDO> implements TChnCollectSingleLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TChnCollectSingleLogDAOImpl.class);
     @Resource(name = "redisSerialNumberService")
@@ -35,9 +35,9 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public TChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId) {
+    public ChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId) {
         // 记录实时代收流水(T_CHN_COLLECT_SINGLE_LOG)
-        TChnCollectSingleLogDO chnCollectSingleLog = new TChnCollectSingleLogDO();
+        ChnCollectSingleLogDO chnCollectSingleLog = new ChnCollectSingleLogDO();
         chnCollectSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
         chnCollectSingleLog.setMsgid(msgId);
         chnCollectSingleLog.setTxid(collectionChargesBean.getTxId());
@@ -63,35 +63,35 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public TChnCollectSingleLogDO updateRealCollectLog(CMT385Bean realTimeCollRespBean) {
-        String hql = "from TChnCollectSingleLogDO where msgId=?";
+    public ChnCollectSingleLogDO updateRealCollectLog(CMT385Bean realTimeCollRespBean) {
+        String hql = "from ChnCollectSingleLogDO where msgId=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, realTimeCollRespBean.getOrgnlMsgId().getOrgnlMsgId());
-        TChnCollectSingleLogDO collSingle = (TChnCollectSingleLogDO) query.uniqueResult();
+        ChnCollectSingleLogDO collSingle = (ChnCollectSingleLogDO) query.uniqueResult();
         collSingle.setRspmsgid(realTimeCollRespBean.getMsgId());
         collSingle.setRspstatus(realTimeCollRespBean.getRspnInf().getSts());
         collSingle.setRsprejectcode(realTimeCollRespBean.getRspnInf().getRjctcd());
         collSingle.setRsprejectinformation(realTimeCollRespBean.getRspnInf().getRjctinf());
         collSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         collSingle.setNettingdate(realTimeCollRespBean.getRspnInf().getNetgdt());
-        TChnCollectSingleLogDO retDo = update(collSingle);
+        ChnCollectSingleLogDO retDo = update(collSingle);
         return retDo;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnCollectSingleLogDO getCollSingleByTxnseqnoNotFail(String txnseqno) {
-        String hql = "from TChnCollectSingleLogDO where txnseqno=? and status!=?";
+    public ChnCollectSingleLogDO getCollSingleByTxnseqnoNotFail(String txnseqno) {
+        String hql = "from ChnCollectSingleLogDO where txnseqno=? and rspstatus!=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
         query.setString(1, HZRspStatus.FAILED.getValue());
-        return (TChnCollectSingleLogDO) query.uniqueResult();
+        return (ChnCollectSingleLogDO) query.uniqueResult();
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealCollectLogCommResp(CMS900Bean bean) {
-        String hql = "update TChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
+        String hql = "update ChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
@@ -107,7 +107,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealCollectLogDiscard(CMS911Bean bean) {
-        String hql = "update TChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
+        String hql = "update ChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
@@ -121,54 +121,55 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnCollec
 
     @Override
     @Transactional(readOnly = true)
-    public TChnCollectSingleLogDO getCollSingleByTid(long tid) {
-        TChnCollectSingleLogDO tChnCollectSingleLogDO = (TChnCollectSingleLogDO) getSession().get(TChnCollectSingleLogDO.class, tid);
+    public ChnCollectSingleLogDO getCollSingleByTid(long tid) {
+        ChnCollectSingleLogDO tChnCollectSingleLogDO = (ChnCollectSingleLogDO) getSession().get(ChnCollectSingleLogDO.class, tid);
         return tChnCollectSingleLogDO;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnCollectSingleLogDO getCollSingleByMsgId(String msgId) {
-        String hql = "from TChnCollectSingleLogDO where msgid=?";
+    public ChnCollectSingleLogDO getCollSingleByMsgId(String msgId) {
+        String hql = "from ChnCollectSingleLogDO where msgid=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, msgId);
-        return (TChnCollectSingleLogDO) query.uniqueResult();
+        return (ChnCollectSingleLogDO) query.uniqueResult();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnCollectSingleLogDO getCollSingleByTxId(String txId) {
-        String hql = "from TChnCollectSingleLogDO where txid=?";
+    public ChnCollectSingleLogDO getCollSingleByTxId(String txId) {
+        String hql = "from ChnCollectSingleLogDO where txid=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txId);
-        return (TChnCollectSingleLogDO) query.uniqueResult();
+        return (ChnCollectSingleLogDO) query.uniqueResult();
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public TChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid) {
-        String hql = "from TChnCollectSingleLogDO where tid=?";
+    public ChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid) {
+        String hql = "from ChnCollectSingleLogDO where tid=?";
         Query query = getSession().createQuery(hql);
         query.setLong(0, tid);
-        TChnCollectSingleLogDO collectSingle = (TChnCollectSingleLogDO) query.uniqueResult();
+        ChnCollectSingleLogDO collectSingle = (ChnCollectSingleLogDO) query.uniqueResult();
         collectSingle.setRspmsgid(queryBusStsRsp.getMsgId());
         collectSingle.setRspstatus(queryBusStsRsp.getRspnInf().getSts());
         collectSingle.setRsprejectcode(queryBusStsRsp.getRspnInf().getRjctcd());
         collectSingle.setRsprejectinformation(queryBusStsRsp.getRspnInf().getRjctinf());
         collectSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         collectSingle.setNettingdate(queryBusStsRsp.getRspnInf().getNetgdt());
-        TChnCollectSingleLogDO retDo = update(collectSingle);
+        ChnCollectSingleLogDO retDo = update(collectSingle);
         return retDo;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String rspStatus) {
-        String hql = "from TChnCollectSingleLogDO where txnseqno=? and status=?";
+    public ChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus) {
+        String hql = "from ChnCollectSingleLogDO where txnseqno=? and rspstatus in (?,?)";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
-        query.setString(1, rspStatus);
-        return (TChnCollectSingleLogDO) query.uniqueResult();
+        query.setString(1, rspStatus[0]);
+        query.setString(2, rspStatus[1]);
+        return (ChnCollectSingleLogDO) query.uniqueResult();
     }
 
 }

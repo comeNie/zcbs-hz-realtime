@@ -1,6 +1,6 @@
 package com.zcbspay.platform.hz.realtime.business.message.dao;
 
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
 import com.zcbspay.platform.hz.realtime.common.dao.BaseDAO;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
@@ -8,7 +8,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
 
-public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO> {
+public interface TChnCollectSingleLogDAO extends BaseDAO<ChnCollectSingleLogDO> {
 
     /**
      * 保存实时代收流水信息
@@ -16,7 +16,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId);
+    public ChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId);
 
     /**
      * 更新实时代收流水信息
@@ -24,7 +24,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO updateRealCollectLog(CMT385Bean bean);
+    public ChnCollectSingleLogDO updateRealCollectLog(CMT385Bean bean);
 
     /**
      * 更新实时代收流水信息
@@ -32,7 +32,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid);
+    public ChnCollectSingleLogDO updateRealCollectLog(CMS317Bean queryBusStsRsp, long tid);
 
     /**
      * 通过txnseqno获取非失败状态的代收记录
@@ -40,7 +40,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO getCollSingleByTxnseqnoNotFail(String txnseqno);
+    public ChnCollectSingleLogDO getCollSingleByTxnseqnoNotFail(String txnseqno);
 
 
     /**
@@ -49,7 +49,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param rspStatus
      * @return
      */
-    public TChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String rspStatus);
+    public ChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus);
 
     /**
      * 通过msgId获取代收记录
@@ -57,7 +57,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param msgId
      * @return
      */
-    public TChnCollectSingleLogDO getCollSingleByMsgId(String msgId);
+    public ChnCollectSingleLogDO getCollSingleByMsgId(String msgId);
 
     /**
      * 通过明细标识号获取代收记录
@@ -65,7 +65,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO getCollSingleByTxId(String txId);
+    public ChnCollectSingleLogDO getCollSingleByTxId(String txId);
 
     /**
      * 通过tid获取代收记录
@@ -73,7 +73,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<TChnCollectSingleLogDO>
      * @param collectionChargesBean
      * @return
      */
-    public TChnCollectSingleLogDO getCollSingleByTid(long tid);
+    public ChnCollectSingleLogDO getCollSingleByTid(long tid);
 
     /**
      * 更新实时代收流水通用回执信息

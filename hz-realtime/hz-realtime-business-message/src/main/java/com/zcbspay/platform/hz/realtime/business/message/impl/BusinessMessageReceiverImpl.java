@@ -21,8 +21,8 @@ import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
 import com.zcbspay.platform.hz.realtime.business.message.enums.RealCPOrdSts;
 import com.zcbspay.platform.hz.realtime.business.message.enums.ReturnInfo;
 import com.zcbspay.platform.hz.realtime.business.message.enums.TradeStatFlagEnum;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinessMessageReceiver;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.MessageRespBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
@@ -58,7 +58,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         CMT385Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT385Bean.class);
         String msgId = bean.getOrgnlMsgId().getOrgnlMsgId();
         // 回执判重
-        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByMsgId(msgId);
+        ChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByMsgId(msgId);
         if (record != null) {
             if (bean.getMsgId().equals(record.getRspmsgid()) || StringUtils.isNotEmpty(record.getRspstatus())) {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
@@ -76,7 +76,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
             return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
         // 更新流水记录
-        TChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(bean);
+        ChnCollectSingleLogDO chnCollectSingleLogDO = tChnCollectSingleLogDAO.updateRealCollectLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();
         updateTxnsLogInfo(BusinessType.REAL_TIME_COLL, respBean.getRjctcd(), chnCollectSingleLogDO.getTxnseqno(), bean.getRspnInf().getSts());
@@ -94,24 +94,31 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         boolean isPassCheck = true;
         if (!busiTextBean.getAmt().equals(Long.toString(record.getAmount()))) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getAmt() + "】-【" + Long.toString(record.getAmount()) + "】");
         }
-        else if (busiTextBean.getCdtrAcct().equals(record.getCreditoraccountno())) {
+        else if (!busiTextBean.getCdtrAcct().equals(record.getCreditoraccountno())) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getCdtrAcct() + "】-【" + record.getCreditoraccountno() + "】");
         }
-        else if (busiTextBean.getCdtrBk().equals(record.getCreditorbranchcode())) {
+        else if (!busiTextBean.getCdtrBk().equals(record.getCreditorbranchcode())) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getCdtrBk() + "】-【" + record.getCreditorbranchcode() + "】");
         }
-        else if (busiTextBean.getCdtrNm().equals(record.getCreditorname())) {
+        else if (!busiTextBean.getCdtrNm().equals(record.getCreditorname())) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getCdtrNm() + "】-【" + record.getCreditorname() + "】");
         }
-        else if (busiTextBean.getDbtrAcct().equals(record.getDebtoraccountno())) {
+        else if (!busiTextBean.getDbtrAcct().equals(record.getDebtoraccountno())) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getDbtrAcct() + "】-【" + record.getDebtoraccountno() + "】");
         }
-        else if (busiTextBean.getDbtrBk().equals(record.getDebtorbranchcode())) {
+        else if (!busiTextBean.getDbtrBk().equals(record.getDebtorbranchcode())) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getDbtrBk() + "】-【" + record.getDebtorbranchcode() + "】");
         }
-        else if (busiTextBean.getDbtrNm().equals(record.getDebtorname())) {
+        else if (!busiTextBean.getDbtrNm().equals(record.getDebtorname())) {
             isPassCheck = false;
+            logger.error("【" + busiTextBean.getDbtrNm() + "】-【" + record.getDebtorname() + "】");
         }
         if (!isPassCheck) {
             logger.error("【response main information doesn't match orignal trade record!!!】");
@@ -124,7 +131,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         CMT387Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMT387Bean.class);
         String msgId = bean.getOrgnlMsgId().getOrgnlMsgId();
         // 回执判重
-        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByMsgId(msgId);
+        ChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByMsgId(msgId);
         if (record != null) {
             if (bean.getMsgId().equals(record.getRspmsgid()) || StringUtils.isNotEmpty(record.getRspstatus())) {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
@@ -142,7 +149,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
             return new ResultBean(e.getErrCode(), e.getErrMsg());
         }
         // 更新流水记录
-        TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean);
+        ChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean);
         // 更新主流水记录
         RspnInfBean respBean = bean.getRspnInf();
         updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno(), bean.getRspnInf().getSts());
@@ -177,9 +184,9 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         CMS317Bean bean = JSONObject.parseObject(messageRespBean.getMsgBody(), CMS317Bean.class);
         String orgnlTxId = bean.getOrgnlTx().getOrgnlTxId();
 
-        TChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.getCollSingleByTxId(orgnlTxId);
+        ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.getCollSingleByTxId(orgnlTxId);
         if (collDo == null) {
-            TChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.getCollSingleByTxId(orgnlTxId);
+            ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.getCollSingleByTxId(orgnlTxId);
             if (payDo != null) {
                 // 回执判重
                 if (bean.getMsgId().equals(payDo.getRspmsgid()) || (StringUtils.isNotEmpty(payDo.getRspstatus()) && HZRspStatus.parseOf(payDo.getRspstatus()) != null)) {
@@ -187,7 +194,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
                     return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
                 }
                 // 更新流水记录
-                TChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean, payDo.getTid());
+                ChnPaymentSingleLogDO chnPaymentSingleLogDO = tChnPaymentSingleLogDAO.updateRealPaymentLog(bean, payDo.getTid());
                 // 更新主流水记录
                 RspnInfBean respBean = bean.getRspnInf();
                 updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnPaymentSingleLogDO.getTxnseqno(), bean.getRspnInf().getSts());
@@ -211,7 +218,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
                 return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
             }
             // 更新流水记录
-            TChnCollectSingleLogDO chnCollectSingleLogDAO = tChnCollectSingleLogDAO.updateRealCollectLog(bean, collDo.getTid());
+            ChnCollectSingleLogDO chnCollectSingleLogDAO = tChnCollectSingleLogDAO.updateRealCollectLog(bean, collDo.getTid());
             // 更新主流水记录
             RspnInfBean respBean = bean.getRspnInf();
             updateTxnsLogInfo(BusinessType.REAL_TIME_PAY, respBean.getRjctcd(), chnCollectSingleLogDAO.getTxnseqno(), bean.getRspnInf().getSts());

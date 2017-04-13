@@ -1,14 +1,12 @@
 package com.zcbspay.platform.hz.realtime.business.message.dao;
 
-import java.util.List;
-
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zcbspay.platform.hz.realtime.business.message.BaseTest;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderCollectSingleDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.TxnsLogDO;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 
 public class TestDao extends BaseTest {
@@ -25,6 +23,7 @@ public class TestDao extends BaseTest {
     @Test
     public void testAll() {
         long currentTime = System.currentTimeMillis();
+        getCollSingleByTxnseqnoNotFail();
         System.out.println("excute time:" + (System.currentTimeMillis() - currentTime));
     }
 
@@ -42,8 +41,12 @@ public class TestDao extends BaseTest {
     }
 
     private void getTxnsLogByTxnseqno() {
-        TTxnsLogDO tTxnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno("1604209900054111");
+        TxnsLogDO tTxnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno("1604209900054111");
         System.out.println("~~~~~~~~:" + JSONObject.toJSONString(tTxnsLogDO));
     }
 
+    private void getCollSingleByTxnseqnoNotFail() {
+        ChnCollectSingleLogDO chnDo = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoNotFail("");
+        System.out.println("~~~~~~~~:" + JSONObject.toJSONString(chnDo));
+    }
 }

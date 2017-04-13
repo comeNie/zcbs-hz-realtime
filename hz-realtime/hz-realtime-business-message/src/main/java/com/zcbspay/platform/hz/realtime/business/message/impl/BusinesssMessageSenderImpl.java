@@ -27,9 +27,9 @@ import com.zcbspay.platform.hz.realtime.business.message.enums.RealCPOrdSts;
 import com.zcbspay.platform.hz.realtime.business.message.enums.TradeStatFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderCollectSingleDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderPaymentSingleDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnCollectSingleLogDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TTxnsLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.TxnsLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.BusinessRsltBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
@@ -86,8 +86,10 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.info("[assembled message is]:" + new String(message, "utf-8"));
             // 记录报文流水信息
             CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
-            TChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
+            ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
             logger.info("[saveRealCollectLog successful]");
+            // 更新交易流水支付信息
+            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid());
             // 发送报文
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
             messageSend.sendMessage(messageBean);
@@ -127,7 +129,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             throw new HZRealBusException(ErrorCodeBusHZ.ORDER_STS_WRONG.getValue(), ErrorCodeBusHZ.ORDER_STS_WRONG.getDisplayName());
         }
         // 交易判重
-        TChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoNotFail(txnseqno);
+        ChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoNotFail(txnseqno);
         if (record != null) {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
@@ -148,7 +150,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             throw new HZRealBusException(ErrorCodeBusHZ.ORDER_STS_WRONG.getValue(), ErrorCodeBusHZ.ORDER_STS_WRONG.getDisplayName());
         }
         // 交易判重
-        TChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoNotFail(txnseqno);
+        ChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoNotFail(txnseqno);
         if (record != null) {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
@@ -157,7 +159,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
 
     private void checkTnxLog(String txnseqno) throws HZRealBusException {
         // 主流水检测
-        TTxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
+        TxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
         if (txnsLogDO == null) {
             logger.error("【 no collection single log record to update!!!】");
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_LOG.getValue(), ErrorCodeBusHZ.NONE_PAY_LOG.getDisplayName());
@@ -180,7 +182,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             byte[] message = messageAssemble.assemble(beanHead, beanBody);
             // 记录报文流水信息
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
-            TChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
+            ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
+            // 更新交易流水支付信息
+            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid());
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
             messageSend.sendMessage(messageBean);
             // 轮训查询通用应答结果
@@ -204,7 +208,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     @Override
     public ResultBean queryTrade(String txnseqno) {
         ResultBean resultBean = null;
-        TTxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
+        TxnsLogDO txnsLogDO = txnsLogDAO.getTxnsLogByTxnseqno(txnseqno);
         String businessType = null;
         if (txnsLogDO != null) {
             businessType = txnsLogDO.getBusicode();
@@ -218,7 +222,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             OrgnlTxBean orgMsgIde = null;
             if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
                 // 实时代收原交易
-                TChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue());
+                ChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue(), HZRspStatus.SUCCESS.getValue());
                 if (collSingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
@@ -247,7 +251,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             else if (BusinessType.REAL_TIME_PAY.getValue().equals(businessType)) {
                 // 实时代付原交易
-                TChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue());
+                ChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue(), HZRspStatus.SUCCESS.getValue());
                 if (paySingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
@@ -331,8 +335,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private ResultBean cycleQuerySynRsp(String msgid, String txnseqno, String msgType, long tid) throws HZRealTransferException {
         ResultBean resultBean = null;
         BusinessRsltBean businessRsltBean = null;
-        TChnCollectSingleLogDO resultColl = null;
-        TChnPaymentSingleLogDO resultPay = null;
+        ChnCollectSingleLogDO resultColl = null;
+        ChnPaymentSingleLogDO resultPay = null;
         String status = null;
         int time = 2000;
         int cycTimes = 1;
@@ -389,8 +393,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
      */
     private ResultBean cycleQueryBusRsp(String msgid, String txnseqno, String msgType, long tid) throws HZRealTransferException {
         ResultBean resultBean = null;
-        TChnCollectSingleLogDO resultColl = null;
-        TChnPaymentSingleLogDO resultPay = null;
+        ChnCollectSingleLogDO resultColl = null;
+        ChnPaymentSingleLogDO resultPay = null;
         String status = null;
         int time = 2000;
         int cycTimes = 1;

@@ -14,7 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.TChnPaymentSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
@@ -27,7 +27,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
 
 @Repository
-public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymentSingleLogDO> implements TChnPaymentSingleLogDAO {
+public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPaymentSingleLogDO> implements TChnPaymentSingleLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TChnPaymentSingleLogDAOImpl.class);
     @Resource(name = "redisSerialNumberService")
@@ -35,9 +35,9 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public TChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId) {
+    public ChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId) {
         // 记录实时代付流水(T_CHN_PAYMENT_SINGLE_LOG)
-        TChnPaymentSingleLogDO chnPaymentSingleLog = new TChnPaymentSingleLogDO();
+        ChnPaymentSingleLogDO chnPaymentSingleLog = new ChnPaymentSingleLogDO();
         chnPaymentSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
         chnPaymentSingleLog.setMsgid(msgId);
         chnPaymentSingleLog.setTxid(paymentBean.getTxId());
@@ -63,62 +63,63 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public TChnPaymentSingleLogDO updateRealPaymentLog(CMT387Bean realTimePayRespBean) {
-        String hql = "from TChnPaymentSingleLogDO where msgId=?";
+    public ChnPaymentSingleLogDO updateRealPaymentLog(CMT387Bean realTimePayRespBean) {
+        String hql = "from ChnPaymentSingleLogDO where msgId=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, realTimePayRespBean.getOrgnlMsgId().getOrgnlMsgId());
-        TChnPaymentSingleLogDO paymentSingle = (TChnPaymentSingleLogDO) query.uniqueResult();
+        ChnPaymentSingleLogDO paymentSingle = (ChnPaymentSingleLogDO) query.uniqueResult();
         paymentSingle.setRspmsgid(realTimePayRespBean.getMsgId());
         paymentSingle.setRspstatus(realTimePayRespBean.getRspnInf().getSts());
         paymentSingle.setRsprejectcode(realTimePayRespBean.getRspnInf().getRjctcd());
         paymentSingle.setRsprejectinformation(realTimePayRespBean.getRspnInf().getRjctinf());
         paymentSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         paymentSingle.setNettingdate(realTimePayRespBean.getRspnInf().getNetgdt());
-        TChnPaymentSingleLogDO retDo = update(paymentSingle);
+        ChnPaymentSingleLogDO retDo = update(paymentSingle);
         return retDo;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public TChnPaymentSingleLogDO updateRealPaymentLog(CMS317Bean queryBusStsRsp, long tid) {
-        String hql = "from TChnPaymentSingleLogDO where tid=?";
+    public ChnPaymentSingleLogDO updateRealPaymentLog(CMS317Bean queryBusStsRsp, long tid) {
+        String hql = "from ChnPaymentSingleLogDO where tid=?";
         Query query = getSession().createQuery(hql);
         query.setLong(0, tid);
-        TChnPaymentSingleLogDO paymentSingle = (TChnPaymentSingleLogDO) query.uniqueResult();
+        ChnPaymentSingleLogDO paymentSingle = (ChnPaymentSingleLogDO) query.uniqueResult();
         paymentSingle.setRspmsgid(queryBusStsRsp.getMsgId());
         paymentSingle.setRspstatus(queryBusStsRsp.getRspnInf().getSts());
         paymentSingle.setRsprejectcode(queryBusStsRsp.getRspnInf().getRjctcd());
         paymentSingle.setRsprejectinformation(queryBusStsRsp.getRspnInf().getRjctinf());
         paymentSingle.setRspdate(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         paymentSingle.setNettingdate(queryBusStsRsp.getRspnInf().getNetgdt());
-        TChnPaymentSingleLogDO retDo = update(paymentSingle);
+        ChnPaymentSingleLogDO retDo = update(paymentSingle);
         return retDo;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnPaymentSingleLogDO getPaySingleByTxnseqnoNotFail(String txnseqno) {
-        String hql = "from TChnPaymentSingleLogDO where txnseqno=? and status!=?";
+    public ChnPaymentSingleLogDO getPaySingleByTxnseqnoNotFail(String txnseqno) {
+        String hql = "from ChnPaymentSingleLogDO where txnseqno=? and rspstatus!=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
         query.setString(1, HZRspStatus.FAILED.getValue());
-        return (TChnPaymentSingleLogDO) query.uniqueResult();
+        return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnPaymentSingleLogDO getPaySingleByTxnseqnoAndRspSta(String txnseqno, String rspStatus) {
-        String hql = "from TChnPaymentSingleLogDO where txnseqno=? and status=?";
+    public ChnPaymentSingleLogDO getPaySingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus) {
+        String hql = "from ChnPaymentSingleLogDO where txnseqno=? and rspstatus in(?,?)";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
-        query.setString(1, rspStatus);
-        return (TChnPaymentSingleLogDO) query.uniqueResult();
+        query.setString(1, rspStatus[0]);
+        query.setString(2, rspStatus[1]);
+        return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealPaymentLogCommResp(CMS900Bean bean) {
-        String hql = "update TChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
+        String hql = "update ChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
@@ -135,7 +136,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealPaymentLogDiscard(CMS911Bean bean) {
-        String hql = "update TChnPaymentSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
+        String hql = "update ChnPaymentSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
@@ -148,27 +149,27 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<TChnPaymen
 
     @Override
     @Transactional(readOnly = true)
-    public TChnPaymentSingleLogDO getPaySingleByTid(long tid) {
-        TChnPaymentSingleLogDO tChnPaymentSingleLogDO = (TChnPaymentSingleLogDO) getSession().get(TChnPaymentSingleLogDO.class, tid);
+    public ChnPaymentSingleLogDO getPaySingleByTid(long tid) {
+        ChnPaymentSingleLogDO tChnPaymentSingleLogDO = (ChnPaymentSingleLogDO) getSession().get(ChnPaymentSingleLogDO.class, tid);
         return tChnPaymentSingleLogDO;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnPaymentSingleLogDO getPaySingleByMsgId(String msgId) {
-        String hql = "from TChnPaymentSingleLogDO where msgid=?";
+    public ChnPaymentSingleLogDO getPaySingleByMsgId(String msgId) {
+        String hql = "from ChnPaymentSingleLogDO where msgid=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, msgId);
-        return (TChnPaymentSingleLogDO) query.uniqueResult();
+        return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
     @Override
     @Transactional(readOnly = true)
-    public TChnPaymentSingleLogDO getCollSingleByTxId(String txId) {
-        String hql = "from TChnPaymentSingleLogDO where txid=?";
+    public ChnPaymentSingleLogDO getCollSingleByTxId(String txId) {
+        String hql = "from ChnPaymentSingleLogDO where txid=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txId);
-        return (TChnPaymentSingleLogDO) query.uniqueResult();
+        return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
 }
