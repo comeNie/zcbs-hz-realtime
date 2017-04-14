@@ -54,6 +54,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         chnPaymentSingleLog.setEndtoendidentification(paymentBean.getEndToEndIdentification());
         chnPaymentSingleLog.setTxnseqno(paymentBean.getTxnseqno());
         chnPaymentSingleLog.setRemarks(paymentBean.getSummary());
+        chnPaymentSingleLog.setRspstatus(HZRspStatus.UNKNOWN.getValue());
         // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
         chnPaymentSingleLog.setNotes(comRefId);
         saveEntity(chnPaymentSingleLog);

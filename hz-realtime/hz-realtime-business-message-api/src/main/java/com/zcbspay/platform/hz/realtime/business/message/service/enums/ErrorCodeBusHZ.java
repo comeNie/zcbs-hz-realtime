@@ -15,6 +15,7 @@ public enum ErrorCodeBusHZ {
     CHL_SER_STS_WR("THZ011", "渠道流水状态非法"),
     RSP_NOT_MATCH("THZ012", "业务应答与原交易记录关键信息不匹配"),
     PAR_PARSE_FAIL("THZ013", "参数转换异常"),
+    CONN_FAIL("THZ014", "网络未通，无法建立连接"),
     ;
 
     private String value;

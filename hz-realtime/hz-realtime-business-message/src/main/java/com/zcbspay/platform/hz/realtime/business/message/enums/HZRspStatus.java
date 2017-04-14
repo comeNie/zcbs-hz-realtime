@@ -2,10 +2,11 @@ package com.zcbspay.platform.hz.realtime.business.message.enums;
 
 public enum HZRspStatus {
 
-    SUCCESS("S", "已成功"), 
-    FAILED("F", "已失败"), 
-    UNKNOWN("","未知"),
-    ;
+    FAILED("PR09", "已拒绝"), // 需要确认失败的状态是什么
+    UNKNOWN("PRXX", "未知"), 
+    SUCCESS("PR05", "已成功"), 
+    REJECTED("PR09", "已拒绝"), 
+    TRANSFERED("PR00", "已转发"), ;
 
     private String value;
     private final String displayName;

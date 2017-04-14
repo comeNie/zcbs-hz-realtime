@@ -54,6 +54,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         chnCollectSingleLog.setEndtoendidentification(collectionChargesBean.getEndToEndIdentification());
         chnCollectSingleLog.setSummary(collectionChargesBean.getSummary());
         chnCollectSingleLog.setTxnseqno(collectionChargesBean.getTxnseqno());
+        chnCollectSingleLog.setRspstatus(HZRspStatus.UNKNOWN.getValue());
         // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
         chnCollectSingleLog.setNotes(comRefId);
 
@@ -91,7 +92,13 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealCollectLogCommResp(CMS900Bean bean) {
-        String hql = "update ChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
+        String hql = null;
+        if (HZRspStatus.TRANSFERED.getValue().equals(bean.getRspnInf().getSts())) {
+            hql = "update ChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
+        }
+        else {
+            hql = "update ChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=?, rspstatus=? where msgid=?";
+        }
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
@@ -99,7 +106,14 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         query.setString(2, bean.getRspnInf().getRjctcd());
         query.setString(3, bean.getRspnInf().getRjctinf());
         query.setString(4, DateUtil.getCurrentDateTime());
-        query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
+        if (HZRspStatus.TRANSFERED.getValue().equals(bean.getRspnInf().getSts())) {
+            query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
+        }
+        else {
+            query.setString(5, HZRspStatus.REJECTED.getValue());
+            query.setString(6, bean.getOrgnlMsgId().getOrgnlMsgId());
+        }
+
         int rows = query.executeUpdate();
         logger.info("updateRealCollectLogCommResp() effect rows:" + rows);
     }

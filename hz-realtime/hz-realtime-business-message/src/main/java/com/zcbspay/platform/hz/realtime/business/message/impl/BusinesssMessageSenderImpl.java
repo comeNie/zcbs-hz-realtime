@@ -227,7 +227,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
                 }
-                if (!StringUtils.isEmpty(collSingle.getRspstatus())) {
+                if (!HZRspStatus.UNKNOWN.getValue().equals(collSingle.getRspstatus())) {
                     // 原交易已收到业务应答
                     TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
                     BeanUtils.copyProperties(collSingle, vo);
@@ -256,7 +256,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
                 }
-                if (!StringUtils.isEmpty(paySingle.getRspstatus())) {
+                if (!HZRspStatus.UNKNOWN.getValue().equals(paySingle.getRspstatus())) {
                     // 原交易已收到业务应答
                     TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
                     BeanUtils.copyProperties(paySingle, vo);
@@ -272,7 +272,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
                     messageSend.sendMessage(messageBean);
                     // 轮训查询结果
-                    resultBean = cycleQueryBusRsp(paySingle.getMsgid(), txnseqno, MessageTypeEnum.CMT384.value(), paySingle.getTid());
+                    resultBean = cycleQueryBusRsp(paySingle.getMsgid(), txnseqno, MessageTypeEnum.CMT386.value(), paySingle.getTid());
                     TChnPaymentSingleLogVO vo = new TChnPaymentSingleLogVO();
                     BeanUtils.copyProperties(paySingle, vo);
                     return resultBean == null ? new ResultBean(vo) : resultBean;
@@ -313,7 +313,12 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         try {
             String detectRspMsg = messageSend.sendMessage(messageBean);
             logger.info("【detectRspMsg is 】:" + detectRspMsg);
-            resultBean = new ResultBean(detectRspMsg);
+            if (StringUtils.isEmpty(detectRspMsg)) {
+                resultBean = new ResultBean(ErrorCodeBusHZ.CONN_FAIL.getValue(), ErrorCodeBusHZ.CONN_FAIL.getDisplayName());
+            }
+            else {
+                resultBean = new ResultBean(detectRspMsg);
+            }
         }
         catch (HZRealFeException e) {
             logger.error(e.getErrCode() + "" + e.getErrMsg());
@@ -413,14 +418,14 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 if (++cycTimes > 4) {
                     break;
                 }
-            } while (StringUtils.isEmpty(status));
+            } while (HZRspStatus.UNKNOWN.getValue().equals(status));
             logger.info("【finish loop query~】");
         }
         catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
             throw new HZRealTransferException(ErrorCodeBusHZ.INTERRUPT_EXP.getValue(), ErrorCodeBusHZ.INTERRUPT_EXP.getDisplayName());
         }
-        if (!StringUtils.isEmpty(status)) {
+        if (!HZRspStatus.UNKNOWN.getValue().equals(status)) {
             if (MessageTypeEnum.CMT384.value().equals(msgType)) {
                 TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
                 BeanUtils.copyProperties(resultPay, vo);
