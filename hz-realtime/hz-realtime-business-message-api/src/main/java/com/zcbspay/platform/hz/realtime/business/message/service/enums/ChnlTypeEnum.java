@@ -1,13 +1,3 @@
-/* 
- * ChnlTypeEnum.java  
- * 
- * version TODO
- *
- * 2015年11月20日 
- * 
- * Copyright (c) 2015,zlebank.All rights reserved.
- * 
- */
 package com.zcbspay.platform.hz.realtime.business.message.service.enums;
 
 

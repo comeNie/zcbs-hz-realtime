@@ -1,13 +1,3 @@
-/* 
- * RspmsgDAOImpl.java  
- * 
- * version TODO
- *
- * 2015年10月22日 
- * 
- * Copyright (c) 2015,zlebank.All rights reserved.
- * 
- */
 package com.zcbspay.platform.hz.realtime.business.message.dao.impl;
 
 import java.util.List;
@@ -76,7 +66,6 @@ public class RspmsgDAOImpl  extends HibernateBaseDAOImpl<RspmsgDO> implements Rs
                 return result.get(0);
             }
         } catch (HibernateException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 

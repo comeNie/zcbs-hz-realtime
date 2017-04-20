@@ -1,13 +1,3 @@
-/* 
- * BaseException.java  
- * 
- * version TODO
- *
- * 2015年9月6日 
- * 
- * Copyright (c) 2015,zlebank.All rights reserved.
- * 
- */
 package com.zcbspay.platform.hz.realtime.transfer.message.api.exception;
 
 import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;

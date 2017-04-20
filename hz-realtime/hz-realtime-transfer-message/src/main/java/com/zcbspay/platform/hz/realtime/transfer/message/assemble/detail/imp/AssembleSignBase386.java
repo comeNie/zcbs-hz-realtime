@@ -50,7 +50,6 @@ public class AssembleSignBase386 implements AssembleSignBase {
             signatureBytes = RSAUtils.signBytes(str.getBytes("UTF-8"), pk);
         }
         catch (Exception e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         String signature = null;
@@ -58,7 +57,6 @@ public class AssembleSignBase386 implements AssembleSignBase {
             signature = new String(signatureBytes, "UTF-8");
         }
         catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
         System.out.println("原文:" + str);

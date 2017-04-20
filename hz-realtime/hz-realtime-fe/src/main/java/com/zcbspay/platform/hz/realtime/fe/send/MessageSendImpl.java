@@ -65,7 +65,6 @@ public class MessageSendImpl implements MessageSend {
                         }
                         catch (Exception e) {
                             logger.error("【send message to HangZhou Clearing Center failed！！！】", e);
-                            // TODO todomxw 更新流水记录失败信息
                         }
                     }
                 });

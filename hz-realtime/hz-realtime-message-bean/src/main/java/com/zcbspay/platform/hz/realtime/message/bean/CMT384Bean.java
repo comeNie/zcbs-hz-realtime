@@ -33,7 +33,6 @@ public class CMT384Bean implements Serializable{
 	
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
 		return JSON.toJSONString(this);
 	}
 }

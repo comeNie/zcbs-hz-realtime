@@ -168,7 +168,6 @@ public class NettyClientSyncHandler extends ChannelInboundHandlerAdapter {
             messageRespBean = remoteAdapterHZ.unpack(headBytes, signBytes, bodyBytes);
         }
         catch (Exception e) {
-            // TODO mxwtodo 记录异常信息至报文流水表
             logger.error("message unpack is failed!!!", e);
 
         }
