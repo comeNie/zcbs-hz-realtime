@@ -13,6 +13,7 @@ import com.zcbspay.platform.hz.realtime.fe.net.netty.client.sync.NettySyncClient
 import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.ErrorCodeFeHZ;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.exception.HZRealFeException;
@@ -22,14 +23,15 @@ public class MessageSendImpl implements MessageSend {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageSendImpl.class);
     private byte[] sendMsg;
+    private String detectRsp = null;
+    private ResultBean resultBean = null;
 
     @Override
-    public String sendMessage(MessageBeanStr messageBean) throws HZRealFeException {
-        String detectRsp = null;
+    public ResultBean sendMessage(MessageBeanStr messageBean) throws HZRealFeException {
+
         MessageTypeEnum msgTypeEnum = messageBean.getMessageType();
         sendMsg = messageBean.getSendMsgBytes();
         logger.info("[sendMsg length is~~~]:" + sendMsg.length);
-
         if (MessageTypeEnum.CMS991.equals(msgTypeEnum)) {
             // 查询和报文探测netty阻塞同步返回结果
             SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
@@ -40,6 +42,7 @@ public class MessageSendImpl implements MessageSend {
             NettySyncClient client = new NettySyncClient();
             try {
                 detectRsp = client.sendMessage(hostAddress, hostPort, sendMsg);
+                resultBean = new ResultBean(detectRsp);
             }
             catch (Exception e) {
                 logger.error("【send message to HangZhou Clearing Center failed！！！】", e);
@@ -65,6 +68,7 @@ public class MessageSendImpl implements MessageSend {
                         }
                         catch (Exception e) {
                             logger.error("【send message to HangZhou Clearing Center failed！！！】", e);
+                            resultBean = new ResultBean(ErrorCodeFeHZ.SEND_FAILED.getValue(), ErrorCodeFeHZ.SEND_FAILED.getDisplayName());
                         }
                     }
                 });
@@ -72,6 +76,6 @@ public class MessageSendImpl implements MessageSend {
             executors.shutdown();
         }
 
-        return detectRsp;
+        return resultBean;
     }
 }
