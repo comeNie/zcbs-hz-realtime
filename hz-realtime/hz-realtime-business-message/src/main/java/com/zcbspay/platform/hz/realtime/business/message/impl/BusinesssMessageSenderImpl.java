@@ -61,6 +61,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private MessageSend messageSend;
     @com.alibaba.dubbo.config.annotation.Reference(version = "1.0")
     private MessageAssemble messageAssemble;
+    @com.alibaba.dubbo.config.annotation.Reference(version = "1.0")
+    private MerchService merchService;
     @Autowired
     private TChnCollectSingleLogDAO tChnCollectSingleLogDAO;
     @Autowired
@@ -71,8 +73,6 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private OrderCollectSingleDAO orderCollectSingleDAO;
     @Autowired
     private OrderPaymentSingleDAO orderPaymentSingleDAO;
-    @Autowired
-    private MerchService merchService;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
@@ -486,7 +486,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         if (!HZRspStatus.UNKNOWN.getValue().equals(status)) {
             if (MessageTypeEnum.CMT384.value().equals(msgType)) {
                 TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
-                BeanUtils.copyProperties(resultPay, vo);
+                BeanUtils.copyProperties(resultColl, vo);
                 resultBean = new ResultBean(vo);
             }
             if (MessageTypeEnum.CMT386.value().equals(msgType)) {
@@ -504,6 +504,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
      * @return
      */
     private String getSenderOrgCodeByMerOrgCode(String memberId) {
+        // TODO 测试不调用member，生产环境打开注释
         return merchService.getMerchBymemberId(memberId).getOrgcode();
+        // return OrgCode.DEFAUT.getValue();
     }
 }
