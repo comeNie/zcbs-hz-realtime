@@ -102,7 +102,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             else {
                 // 更新渠道流水状态为失败
-                tChnCollectSingleLogDAO.updateRealCollLogSendInfo(collDo.getTid(), HZRspStatus.FAILED.getValue(), resSendMsg.getErrCode() + resSendMsg.getErrMsg());
+                tChnCollectSingleLogDAO.updateRealCollLogSendInfo(collDo.getTid(), HZRspStatus.REJECTED.getValue(), resSendMsg.getErrCode() + resSendMsg.getErrMsg());
                 resultBean = new ResultBean();
                 BeanUtils.copyProperties(resSendMsg, resultBean);
                 return resultBean;
@@ -211,7 +211,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             else {
                 // 更新渠道流水状态为失败
-                tChnPaymentSingleLogDAO.updateRealPayLogSendInfo(payDo.getTid(), HZRspStatus.FAILED.getValue(), resSendMsg.getErrCode() + resSendMsg.getErrMsg());
+                tChnPaymentSingleLogDAO.updateRealPayLogSendInfo(payDo.getTid(), HZRspStatus.REJECTED.getValue(), resSendMsg.getErrCode() + resSendMsg.getErrMsg());
                 resultBean = new ResultBean();
                 BeanUtils.copyProperties(resSendMsg, resultBean);
                 return resultBean;

@@ -99,10 +99,11 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
     @Override
     @Transactional(readOnly = true)
     public ChnPaymentSingleLogDO getPaySingleByTxnseqnoNotFail(String txnseqno) {
-        String hql = "from ChnPaymentSingleLogDO where txnseqno=? and rspstatus!=?";
+        String hql = "from ChnPaymentSingleLogDO where txnseqno=? and rspstatus!=? and rspstatus!=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
-        query.setString(1, HZRspStatus.FAILED.getValue());
+        query.setString(1, HZRspStatus.REJECTED.getValue());
+        query.setString(2, HZRspStatus.OVERDUE.getValue());
         return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
@@ -120,7 +121,14 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealPaymentLogCommResp(CMS900Bean bean) {
-        String hql = "update ChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
+
+        String hql = null;
+        if (HZRspStatus.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
+            hql = "update ChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
+        }
+        else {
+            hql = "update ChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=?, rspstatus=? where msgid=?";
+        }
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
@@ -128,10 +136,16 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         query.setString(2, bean.getRspnInf().getRjctcd());
         query.setString(3, bean.getRspnInf().getRjctinf());
         query.setString(4, DateUtil.getCurrentDateTime());
-        query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
+        if (HZRspStatus.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
+            query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
+        }
+        else {
+            query.setString(5, HZRspStatus.REJECTED.getValue());
+            query.setString(6, bean.getOrgnlMsgId().getOrgnlMsgId());
+        }
+
         int rows = query.executeUpdate();
         logger.info("updateRealPaymentLogCommResp() effect rows:" + rows);
-
     }
 
     @Override
