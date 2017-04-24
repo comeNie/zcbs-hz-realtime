@@ -173,4 +173,18 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateRealPayLogSendInfo(long tid, String status, String errCodeMsg) {
+        String hql = "update ChnPaymentSingleLogDO set rspstatus = ? ,comrejectinformation=? where tid=?";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, status);
+        query.setString(1, errCodeMsg);
+        query.setLong(2, tid);
+        int rows = query.executeUpdate();
+        logger.info("updateRealPayLogSendInfo() effect rows:" + rows);
+
+    }
+
 }

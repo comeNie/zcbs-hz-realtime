@@ -75,7 +75,12 @@ public class MessageSendImpl implements MessageSend {
             }
             executors.shutdown();
         }
-
+        try {
+            Thread.sleep(3000);
+        }
+        catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+        }
         return resultBean;
     }
 }

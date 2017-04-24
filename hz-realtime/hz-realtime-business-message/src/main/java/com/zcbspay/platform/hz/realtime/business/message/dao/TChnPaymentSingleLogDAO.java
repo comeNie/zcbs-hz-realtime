@@ -80,4 +80,6 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<ChnPaymentSingleLogDO> 
 
     public ChnPaymentSingleLogDO getPaySingleByTid(long tid);
 
+    public void updateRealPayLogSendInfo(long tid, String status, String errCodeMsg);
+
 }

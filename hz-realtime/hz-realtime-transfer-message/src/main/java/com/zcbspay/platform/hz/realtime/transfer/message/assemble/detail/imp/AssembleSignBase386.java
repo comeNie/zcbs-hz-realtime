@@ -1,7 +1,5 @@
 package com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.imp;
 
-import io.netty.handler.logging.LoggingHandler;
-
 import java.io.UnsupportedEncodingException;
 
 import org.slf4j.Logger;

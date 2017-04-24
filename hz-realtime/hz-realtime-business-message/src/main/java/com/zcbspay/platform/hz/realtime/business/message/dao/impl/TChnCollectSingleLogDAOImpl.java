@@ -186,4 +186,17 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         return (ChnCollectSingleLogDO) query.uniqueResult();
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateRealCollLogSendInfo(long tid, String status, String errCodeMsg) {
+        String hql = "update ChnCollectSingleLogDO set rspstatus = ? ,comrejectinformation=? where tid=?";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, status);
+        query.setString(1, errCodeMsg);
+        query.setLong(2, tid);
+        int rows = query.executeUpdate();
+        logger.info("updateRealCollLogSendInfo() effect rows:" + rows);
+    }
+
 }

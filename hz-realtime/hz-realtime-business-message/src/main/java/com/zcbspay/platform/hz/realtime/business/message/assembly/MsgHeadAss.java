@@ -25,10 +25,10 @@ public class MsgHeadAss implements InitializingBean {
     @Resource(name = "redisSerialNumberService")
     private SerialNumberService redisSerialNumberServiceBean;
 
-    public static MessageHeaderBean commMsgHeaderReq(String businessType) {
+    public static MessageHeaderBean commMsgHeaderReq(String businessType,String senderOrgCode) {
         MessageHeaderBean header = new MessageHeaderBean();
         header.setBusinessType(businessType);
-        header.setSender(OrgCode.ZCBS.getValue());
+        header.setSender(senderOrgCode);
         header.setReciever(OrgCode.HZQSZX.getValue());
         header.setSendTime(DateTimeUtils.formatDateToString(new Date(), DateStyle.YYYYMMDDHHMMSS.getValue()));
         header.setComRefId(redisSerialNumberService.generateHZComuRefId());

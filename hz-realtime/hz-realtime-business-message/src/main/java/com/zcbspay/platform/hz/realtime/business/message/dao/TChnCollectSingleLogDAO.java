@@ -42,9 +42,9 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<ChnCollectSingleLogDO> 
      */
     public ChnCollectSingleLogDO getCollSingleByTxnseqnoNotFail(String txnseqno);
 
-
     /**
      * 通过业务流水号和业务应答状态获取报文记录
+     * 
      * @param txnseqno
      * @param rspStatus
      * @return
@@ -89,5 +89,12 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<ChnCollectSingleLogDO> 
      * @param bean
      */
     public void updateRealCollectLogDiscard(CMS911Bean bean);
+
+    /**
+     * 更新实时代收渠道流水发送信息
+     * 
+     * @param bean
+     */
+    public void updateRealCollLogSendInfo(long tid, String status, String errCodeMsg);
 
 }

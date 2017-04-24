@@ -1,6 +1,7 @@
 package com.zcbspay.platform.hz.realtime.message.bean.fe.service;
 
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.exception.HZRealFeException;
 
 public interface MessageSend {
@@ -12,6 +13,6 @@ public interface MessageSend {
      * @return
      * @throws HZRealFeException
      */
-    public String sendMessage(MessageBeanStr messageBean) throws HZRealFeException;
+    public ResultBean sendMessage(MessageBeanStr messageBean) throws HZRealFeException;
 
 }

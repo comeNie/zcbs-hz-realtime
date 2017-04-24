@@ -25,10 +25,10 @@ import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
 import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.enums.RealCPOrdSts;
 import com.zcbspay.platform.hz.realtime.business.message.enums.TradeStatFlagEnum;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderCollectSingleDO;
-import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderPaymentSingleDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderCollectSingleDO;
+import com.zcbspay.platform.hz.realtime.business.message.pojo.OrderPaymentSingleDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TxnsLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.BusinessRsltBean;
@@ -50,6 +50,7 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.assemble.MessageAss
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageHeaderBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
+import com.zcbspay.platform.member.merchant.service.MerchService;
 
 @Service("businesssMessageSender")
 public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
@@ -70,15 +71,18 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private OrderCollectSingleDAO orderCollectSingleDAO;
     @Autowired
     private OrderPaymentSingleDAO orderPaymentSingleDAO;
+    @Autowired
+    private MerchService merchService;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
         ResultBean resultBean = null;
         try {
             // 业务规则校验
-            businessCheckColl(collectionChargesBean.getTxnseqno());
+            String merOrgCode = businessCheckColl(collectionChargesBean.getTxnseqno());
+            String senderOrgCode = getSenderOrgCodeByMerOrgCode(merOrgCode);
             // CMT384报文组装
-            MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value());
+            MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value(), senderOrgCode);
             logger.info("[beanHead is]:" + beanHead);
             MessageBean beanBody = RealTimeCollAss.realtimeCollMsgBodyReq(collectionChargesBean);
             logger.info("[beanBody is]:" + beanBody);
@@ -89,11 +93,20 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
             logger.info("[saveRealCollectLog successful]");
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid());
+            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), senderOrgCode);
             // 发送报文
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
-            messageSend.sendMessage(messageBean);
-            logger.info("[sendMessage successful]");
+            com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
+            if (resSendMsg.isResultBool()) {
+                logger.info("[sendMessage successful]");
+            }
+            else {
+                // 更新渠道流水状态为失败
+                tChnCollectSingleLogDAO.updateRealCollLogSendInfo(collDo.getTid(), HZRspStatus.FAILED.getValue(), resSendMsg.getErrCode() + resSendMsg.getErrMsg());
+                resultBean = new ResultBean();
+                BeanUtils.copyProperties(resSendMsg, resultBean);
+                return resultBean;
+            }
             // 轮训查询通用应答结果
             resultBean = cycleQuerySynRsp(collDo.getMsgid(), collDo.getTxnseqno(), MessageTypeEnum.CMT384.value(), collDo.getTid());
         }
@@ -115,7 +128,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         return resultBean;
     }
 
-    private void businessCheckColl(String txnseqno) throws HZRealBusException {
+    private String businessCheckColl(String txnseqno) throws HZRealBusException {
+        // 商户在中创标石开立的机构号
+        String merOrgCode = null;
         // 主流水校验
         checkTnxLog(txnseqno);
         // 代收订单状态校验
@@ -134,9 +149,11 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
         }
+        merOrgCode = order.getMerid();
+        return merOrgCode;
     }
 
-    private void businessCheckPay(String txnseqno) throws HZRealBusException {
+    private String businessCheckPay(String txnseqno) throws HZRealBusException {
         // 主流水校验
         checkTnxLog(txnseqno);
         // 代付订单状态校验
@@ -155,6 +172,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.error("repeat request and txnseqno is : " + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.REPEAT_REQUEST.getValue(), ErrorCodeBusHZ.REPEAT_REQUEST.getDisplayName());
         }
+        return order.getMerid();
     }
 
     private void checkTnxLog(String txnseqno) throws HZRealBusException {
@@ -175,18 +193,29 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         ResultBean resultBean = null;
         try {
             // 业务规则校验
-            businessCheckPay(paymentBean.getTxnseqno());
+            String merOrgCode = businessCheckPay(paymentBean.getTxnseqno());
+            String senderOrgCode = getSenderOrgCodeByMerOrgCode(merOrgCode);
             // CMT386报文组装
-            MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value());
+            MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value(), senderOrgCode);
             MessageBean beanBody = RealTimePayAss.realtimePayMsgBodyReq(paymentBean);
             byte[] message = messageAssemble.assemble(beanHead, beanBody);
             // 记录报文流水信息
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
             ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid());
+            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), senderOrgCode);
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
-            messageSend.sendMessage(messageBean);
+            com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
+            if (resSendMsg.isResultBool()) {
+                logger.info("[sendMessage successful]");
+            }
+            else {
+                // 更新渠道流水状态为失败
+                tChnPaymentSingleLogDAO.updateRealPayLogSendInfo(payDo.getTid(), HZRspStatus.FAILED.getValue(), resSendMsg.getErrCode() + resSendMsg.getErrMsg());
+                resultBean = new ResultBean();
+                BeanUtils.copyProperties(resSendMsg, resultBean);
+                return resultBean;
+            }
             // 轮训查询通用应答结果
             resultBean = cycleQuerySynRsp(payDo.getMsgid(), payDo.getTxnseqno(), MessageTypeEnum.CMT386.value(), payDo.getTid());
         }
@@ -234,14 +263,24 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     return new ResultBean(vo);
                 }
                 else {
+                    String merOrgCode = orderCollectSingleDAO.getCollSingOrdByTxnseqno(txnseqno).getMerid();
+                    String senderOrgCode = getSenderOrgCodeByMerOrgCode(merOrgCode);
                     // 发送CMS316报文同步查询信息
-                    orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), collSingle.getTxid(), MessageTypeEnum.CMT384.value());
+                    orgMsgIde = new OrgnlTxBean(senderOrgCode, collSingle.getTxid(), MessageTypeEnum.CMT384.value());
                     // CMS316报文组装
-                    MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value());
+                    MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value(), senderOrgCode);
                     MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
                     byte[] message = messageAssemble.assemble(beanHead, beanBody);
                     MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
-                    messageSend.sendMessage(messageBean);
+                    com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
+                    if (resSendMsg.isResultBool()) {
+                        logger.info("[sendMessage successful]");
+                    }
+                    else {
+                        resultBean = new ResultBean();
+                        BeanUtils.copyProperties(resSendMsg, resultBean);
+                        return resultBean;
+                    }
                     // 轮训查询结果
                     resultBean = cycleQueryBusRsp(collSingle.getMsgid(), txnseqno, MessageTypeEnum.CMT384.value(), collSingle.getTid());
                     TChnCollectSingleLogVO vo = new TChnCollectSingleLogVO();
@@ -263,14 +302,24 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     return new ResultBean(vo);
                 }
                 else {
+                    String merOrgCode = orderPaymentSingleDAO.getPaySingOrdByTxnseqno(txnseqno).getMerid();
+                    String senderOrgCode = getSenderOrgCodeByMerOrgCode(merOrgCode);
                     // 发送CMS316报文同步查询信息
-                    orgMsgIde = new OrgnlTxBean(OrgCode.ZCBS.getValue(), paySingle.getTxid(), MessageTypeEnum.CMT386.value());
+                    orgMsgIde = new OrgnlTxBean(senderOrgCode, paySingle.getTxid(), MessageTypeEnum.CMT386.value());
                     // CMS316报文组装
-                    MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value());
+                    MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS316.value(), senderOrgCode);
                     MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
                     byte[] message = messageAssemble.assemble(beanHead, beanBody);
                     MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
-                    messageSend.sendMessage(messageBean);
+                    com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
+                    if (resSendMsg.isResultBool()) {
+                        logger.info("[sendMessage successful]");
+                    }
+                    else {
+                        resultBean = new ResultBean();
+                        BeanUtils.copyProperties(resSendMsg, resultBean);
+                        return resultBean;
+                    }
                     // 轮训查询结果
                     resultBean = cycleQueryBusRsp(paySingle.getMsgid(), txnseqno, MessageTypeEnum.CMT386.value(), paySingle.getTid());
                     TChnPaymentSingleLogVO vo = new TChnPaymentSingleLogVO();
@@ -297,8 +346,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     @Override
     public ResultBean check() {
         ResultBean resultBean = null;
+        String detectRspMsg = null;
         // CMS991报文组装
-        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS991.value());
+        MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMS991.value(), OrgCode.DEFAUT.getValue());
         MessageBean beanBody = ComuDetecAss.communicateDetecMsgBodyReq();
         byte[] message;
         try {
@@ -311,8 +361,16 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         // 发送报文
         MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS991);
         try {
-            String detectRspMsg = messageSend.sendMessage(messageBean);
-            logger.info("【detectRspMsg is 】:" + detectRspMsg);
+            com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
+            if (resSendMsg.isResultBool()) {
+                detectRspMsg = (String) resSendMsg.getResultObj();
+                logger.info("【detectRspMsg is 】:" + detectRspMsg);
+            }
+            else {
+                resultBean = new ResultBean();
+                BeanUtils.copyProperties(resSendMsg, resultBean);
+                return resultBean;
+            }
             if (StringUtils.isEmpty(detectRspMsg)) {
                 resultBean = new ResultBean(ErrorCodeBusHZ.CONN_FAIL.getValue(), ErrorCodeBusHZ.CONN_FAIL.getDisplayName());
             }
@@ -438,5 +496,14 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
         }
         return resultBean;
+    }
+
+    /**
+     * 通过商户机构号获取宁波清算中心发送机构号
+     * 
+     * @return
+     */
+    private String getSenderOrgCodeByMerOrgCode(String memberId) {
+        return merchService.getMerchBymemberId(memberId).getOrgcode();
     }
 }

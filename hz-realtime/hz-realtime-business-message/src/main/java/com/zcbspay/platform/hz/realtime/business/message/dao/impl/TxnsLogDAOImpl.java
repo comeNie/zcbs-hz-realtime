@@ -15,7 +15,6 @@ import com.zcbspay.platform.hz.realtime.business.message.bean.TransLogUpBean;
 import com.zcbspay.platform.hz.realtime.business.message.dao.RspmsgDAO;
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
-import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.enums.TradeTxnFlagEnum;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.RspmsgDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TxnsLogDO;
@@ -104,12 +103,12 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TxnsLogDO> implements T
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updatePayInfo(String txnseqno, String txid) {
+    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode) {
         String hql = "update TxnsLogDO set payordno=?,payinst=?,payfirmerno=?,payordcomtime=? where txnseqno=?";
         Query query = getSession().createQuery(hql);
         query.setParameter(0, txid);
         query.setParameter(1, ChannelCode.CHL_HZQSZX.getValue());
-        query.setParameter(2, OrgCode.ZCBS.getValue());
+        query.setParameter(2, senderOrgCode);
         query.setParameter(3, DateUtil.getCurrentDateTime());
         query.setParameter(4, txnseqno);
         int rows = query.executeUpdate();
