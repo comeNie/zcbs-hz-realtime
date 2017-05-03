@@ -59,9 +59,12 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         ChnCollectSingleLogDO record = tChnCollectSingleLogDAO.getCollSingleByMsgId(msgId);
         if (record != null) {
             String status = record.getRspstatus();
-            if (bean.getMsgId().equals(record.getRspmsgid()) || HZRspStatus.UNKNOWN.getValue().equals(status)) {
+            if (bean.getMsgId().equals(record.getRspmsgid()) || !HZRspStatus.UNKNOWN.getValue().equals(status)) {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
                 return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
+            }
+            else {
+                logger.error("【no orignal trade record !!!】  ");
             }
         }
         // 关键信息匹配
@@ -132,10 +135,13 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         // 回执判重
         ChnPaymentSingleLogDO record = tChnPaymentSingleLogDAO.getPaySingleByMsgId(msgId);
         if (record != null) {
-            if (bean.getMsgId().equals(record.getRspmsgid()) || HZRspStatus.UNKNOWN.getValue().equals(record.getRspstatus())) {
+            if (bean.getMsgId().equals(record.getRspmsgid()) || !HZRspStatus.UNKNOWN.getValue().equals(record.getRspstatus())) {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
                 return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
             }
+        }
+        else {
+            logger.error("【no orignal trade record !!!】  ");
         }
         // 关键信息匹配
         try {

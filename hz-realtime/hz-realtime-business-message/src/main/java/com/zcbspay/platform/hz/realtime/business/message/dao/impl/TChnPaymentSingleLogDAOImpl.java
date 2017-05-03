@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
+import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SinglePaymentBean;
@@ -25,6 +26,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT387Bean;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 
 @Repository
 public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPaymentSingleLogDO> implements TChnPaymentSingleLogDAO {
@@ -35,7 +37,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public ChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId) {
+    public ChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId, String senderOrgCode) {
         // 记录实时代付流水(T_CHN_PAYMENT_SINGLE_LOG)
         ChnPaymentSingleLogDO chnPaymentSingleLog = new ChnPaymentSingleLogDO();
         chnPaymentSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
@@ -55,8 +57,10 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         chnPaymentSingleLog.setTxnseqno(paymentBean.getTxnseqno());
         chnPaymentSingleLog.setRemarks(paymentBean.getSummary());
         chnPaymentSingleLog.setRspstatus(HZRspStatus.UNKNOWN.getValue());
-        // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
-        chnPaymentSingleLog.setNotes(comRefId);
+        chnPaymentSingleLog.setCommunno(comRefId);
+        chnPaymentSingleLog.setTradetype(MessageTypeEnum.CMT386.value());
+        chnPaymentSingleLog.setTransmitleg(senderOrgCode);
+        chnPaymentSingleLog.setReceiver(OrgCode.HZQSZX.getValue());
         saveEntity(chnPaymentSingleLog);
 
         return chnPaymentSingleLog;
@@ -151,7 +155,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealPaymentLogDiscard(CMS911Bean bean) {
-        String hql = "update ChnPaymentSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
+        String hql = "update ChnPaymentSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where communno=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());

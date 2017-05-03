@@ -46,6 +46,10 @@ public class ChnCollectSingleLogDO implements java.io.Serializable {
     private String txnseqno;
     private String notes;
     private String remarks;
+    private String transmitleg;
+    private String receiver;
+    private String tradetype;
+    private String communno;
 
     public ChnCollectSingleLogDO() {
     }
@@ -57,7 +61,7 @@ public class ChnCollectSingleLogDO implements java.io.Serializable {
     public ChnCollectSingleLogDO(long tid, String msgid, String txid, String transdate, String transtime, String debtorname, String debtoraccountno, String debtorbranchcode, String creditorbranchcode,
             String creditorname, String creditoraccountno, Long amount, String purposeproprietary, String endtoendidentification, String summary, String billnumber, String rspmsgid, String rspstatus,
             String rsprejectcode, String rsprejectinformation, String rspdate, String nettingdate, String commsgid, String comstatus, String comrejectcode, String comrejectinformation,
-            String comdate, String txnseqno, String notes, String remarks) {
+            String comdate, String txnseqno, String notes, String remarks, String transmitleg, String receiver, String tradetype, String communno) {
         this.tid = tid;
         this.msgid = msgid;
         this.txid = txid;
@@ -88,6 +92,10 @@ public class ChnCollectSingleLogDO implements java.io.Serializable {
         this.txnseqno = txnseqno;
         this.notes = notes;
         this.remarks = remarks;
+        this.transmitleg = transmitleg;
+        this.receiver = receiver;
+        this.tradetype = tradetype;
+        this.communno = communno;
     }
 
     @Id
@@ -359,6 +367,42 @@ public class ChnCollectSingleLogDO implements java.io.Serializable {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    @Column(name = "TRANSMITLEG", length = 10)
+    public String getTransmitleg() {
+        return this.transmitleg;
+    }
+
+    public void setTransmitleg(String transmitleg) {
+        this.transmitleg = transmitleg;
+    }
+
+    @Column(name = "RECEIVER", length = 10)
+    public String getReceiver() {
+        return this.receiver;
+    }
+
+    public void setReceiver(String receiver) {
+        this.receiver = receiver;
+    }
+
+    @Column(name = "TRADETYPE", length = 2)
+    public String getTradetype() {
+        return this.tradetype;
+    }
+
+    public void setTradetype(String tradetype) {
+        this.tradetype = tradetype;
+    }
+
+    @Column(name = "COMMUNNO", length = 16)
+    public String getCommunno() {
+        return this.communno;
+    }
+
+    public void setCommunno(String communno) {
+        this.communno = communno;
     }
 
 }

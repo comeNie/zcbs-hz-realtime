@@ -16,7 +16,7 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<ChnPaymentSingleLogDO> 
      * @param collectionChargesBean
      * @return
      */
-    public ChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId);
+    public ChnPaymentSingleLogDO saveRealPaymentLog(SinglePaymentBean paymentBean, String msgId, String comRefId, String senderOrgCode);
 
     /**
      * 更新实时代付流水信息

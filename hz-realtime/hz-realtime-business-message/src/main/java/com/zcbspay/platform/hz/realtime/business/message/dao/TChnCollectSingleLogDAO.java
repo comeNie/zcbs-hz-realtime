@@ -16,7 +16,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<ChnCollectSingleLogDO> 
      * @param collectionChargesBean
      * @return
      */
-    public ChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId);
+    public ChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId, String senderOrgCode);
 
     /**
      * 更新实时代收流水信息

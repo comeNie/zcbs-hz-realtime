@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.zcbspay.platform.hz.realtime.business.message.dao.TChnCollectSingleLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
+import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.SingleCollectionChargesBean;
@@ -25,6 +26,7 @@ import com.zcbspay.platform.hz.realtime.message.bean.CMS317Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS900Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS911Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT385Bean;
+import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
 
 @Repository
 public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollectSingleLogDO> implements TChnCollectSingleLogDAO {
@@ -35,7 +37,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
 
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
-    public ChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId) {
+    public ChnCollectSingleLogDO saveRealCollectLog(SingleCollectionChargesBean collectionChargesBean, String msgId, String comRefId, String senderOrgCode) {
         // 记录实时代收流水(T_CHN_COLLECT_SINGLE_LOG)
         ChnCollectSingleLogDO chnCollectSingleLog = new ChnCollectSingleLogDO();
         chnCollectSingleLog.setTid(redisSerialNumberService.generateDBPrimaryKey());
@@ -55,9 +57,10 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         chnCollectSingleLog.setSummary(collectionChargesBean.getSummary());
         chnCollectSingleLog.setTxnseqno(collectionChargesBean.getTxnseqno());
         chnCollectSingleLog.setRspstatus(HZRspStatus.UNKNOWN.getValue());
-        // 借用Notes备注字段储存通讯级参考号,用于丢弃报文匹配原交易
-        chnCollectSingleLog.setNotes(comRefId);
-
+        chnCollectSingleLog.setCommunno(comRefId);
+        chnCollectSingleLog.setTradetype(MessageTypeEnum.CMT384.value());
+        chnCollectSingleLog.setTransmitleg(senderOrgCode);
+        chnCollectSingleLog.setReceiver(OrgCode.HZQSZX.getValue());
         saveEntity(chnCollectSingleLog);
         return chnCollectSingleLog;
     }
@@ -122,7 +125,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealCollectLogDiscard(CMS911Bean bean) {
-        String hql = "update ChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where notes=?";
+        String hql = "update ChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where communno=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());

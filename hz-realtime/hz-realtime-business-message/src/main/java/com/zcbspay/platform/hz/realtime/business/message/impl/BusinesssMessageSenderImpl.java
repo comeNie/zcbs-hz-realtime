@@ -90,7 +90,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.info("[assembled message is]:" + new String(message, "utf-8"));
             // 记录报文流水信息
             CMT384Bean bean = (CMT384Bean) beanBody.getMessageBean();
-            ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId());
+            ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId(), senderOrgCode);
             logger.info("[saveRealCollectLog successful]");
             // 更新交易流水支付信息
             txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), senderOrgCode);
@@ -201,7 +201,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             byte[] message = messageAssemble.assemble(beanHead, beanBody);
             // 记录报文流水信息
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
-            ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId());
+            ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId(), senderOrgCode);
             // 更新交易流水支付信息
             txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), senderOrgCode);
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
