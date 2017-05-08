@@ -63,15 +63,15 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
                 logger.error("【repeat response and msgId is】 : " + record.getRspmsgid());
                 return new ResultBean(ErrorCodeBusHZ.REPEAT_RESP.getValue(), ErrorCodeBusHZ.REPEAT_RESP.getDisplayName());
             }
-            else {
-                logger.error("【no orignal trade record !!!】  ");
-            }
+        }
+        else {
+            logger.error("【no orignal trade record !!!】  ");
         }
         // 关键信息匹配
         try {
             PayerAndPayeeBean payAndPayBean = new PayerAndPayeeBean();
             BeanUtils.copyProperties(record, payAndPayBean);
-            mainInfoMatchingCheckColl(bean.getBusiText(), payAndPayBean, null);
+            mainInfoMatchingCheck(bean.getBusiText(), payAndPayBean, null);
         }
         catch (HZRealBusException e) {
             logger.error(e.getErrCode() + e.getErrMsg());
@@ -92,9 +92,9 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 
-    private void mainInfoMatchingCheckColl(BusiTextBean busiTextBean, PayerAndPayeeBean record, BusinessType businessType) throws HZRealBusException {
+    private void mainInfoMatchingCheck(BusiTextBean busiTextBean, PayerAndPayeeBean record, BusinessType businessType) throws HZRealBusException {
         boolean isPassCheck = true;
-        if (!busiTextBean.getAmt().equals(Long.toString(record.getAmount()))) {
+        if (!busiTextBean.getAmt().substring(3, busiTextBean.getAmt().length()).equals(Long.toString(record.getAmount()))) {
             isPassCheck = false;
             logger.error("【" + busiTextBean.getAmt() + "】-【" + Long.toString(record.getAmount()) + "】");
         }
@@ -147,7 +147,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         try {
             PayerAndPayeeBean payAndPayBean = new PayerAndPayeeBean();
             BeanUtils.copyProperties(record, payAndPayBean);
-            mainInfoMatchingCheckColl(bean.getBusiText(), payAndPayBean, null);
+            mainInfoMatchingCheck(bean.getBusiText(), payAndPayBean, null);
         }
         catch (HZRealBusException e) {
             logger.error(e.getErrCode() + e.getErrMsg());
@@ -202,7 +202,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
                 try {
                     PayerAndPayeeBean payAndPayBean = new PayerAndPayeeBean();
                     BeanUtils.copyProperties(payDo, payAndPayBean);
-                    mainInfoMatchingCheckColl(bean.getBusiText(), payAndPayBean, BusinessType.REAL_TIME_PAY);
+                    mainInfoMatchingCheck(bean.getBusiText(), payAndPayBean, BusinessType.REAL_TIME_PAY);
                 }
                 catch (HZRealBusException e) {
                     logger.error(e.getErrCode() + e.getErrMsg());
@@ -236,7 +236,7 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
             try {
                 PayerAndPayeeBean payAndPayBean = new PayerAndPayeeBean();
                 BeanUtils.copyProperties(collDo, payAndPayBean);
-                mainInfoMatchingCheckColl(bean.getBusiText(), payAndPayBean, BusinessType.REAL_TIME_COLL);
+                mainInfoMatchingCheck(bean.getBusiText(), payAndPayBean, BusinessType.REAL_TIME_COLL);
             }
             catch (HZRealBusException e) {
                 logger.error(e.getErrCode() + e.getErrMsg());

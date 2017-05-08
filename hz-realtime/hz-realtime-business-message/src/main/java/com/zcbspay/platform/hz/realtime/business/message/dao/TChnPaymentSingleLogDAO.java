@@ -51,7 +51,7 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<ChnPaymentSingleLogDO> 
      * @param rspStatus
      * @return
      */
-    public ChnPaymentSingleLogDO getPaySingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus);
+    public ChnPaymentSingleLogDO getPaySingleByTxnseqno(String txnseqno);
 
     /**
      * 通过msgId获取报文记录

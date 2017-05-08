@@ -47,8 +47,8 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         chnCollectSingleLog.setTranstime(DateUtil.getCurrentTime());
         chnCollectSingleLog.setDebtorname(collectionChargesBean.getDebtorName());
         chnCollectSingleLog.setDebtoraccountno(collectionChargesBean.getDebtorAccountNo());
-        chnCollectSingleLog.setDebtorbranchcode(collectionChargesBean.getDebtorBranchCode());
-        chnCollectSingleLog.setCreditorbranchcode(collectionChargesBean.getCreditorBranchCode());
+        chnCollectSingleLog.setDebtorbranchcode(collectionChargesBean.getDebtorAgentCode());
+        chnCollectSingleLog.setCreditorbranchcode(collectionChargesBean.getCreditorAgentCode());
         chnCollectSingleLog.setCreditorname(collectionChargesBean.getCreditorName());
         chnCollectSingleLog.setCreditoraccountno(collectionChargesBean.getCreditorAccountNo());
         chnCollectSingleLog.setAmount(Long.parseLong(collectionChargesBean.getAmount()));
@@ -97,7 +97,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void updateRealCollectLogCommResp(CMS900Bean bean) {
         String hql = null;
-        if (HZRspStatus.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
+        if (HZRspStatus.TRANSFER.getValue().equals(bean.getRspnInf().getSts())) {
             hql = "update ChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
         }
         else {
@@ -110,7 +110,7 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         query.setString(2, bean.getRspnInf().getRjctcd());
         query.setString(3, bean.getRspnInf().getRjctinf());
         query.setString(4, DateUtil.getCurrentDateTime());
-        if (HZRspStatus.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
+        if (HZRspStatus.TRANSFER.getValue().equals(bean.getRspnInf().getSts())) {
             query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
         }
         else {
@@ -181,12 +181,10 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
 
     @Override
     @Transactional(readOnly = true)
-    public ChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus) {
-        String hql = "from ChnCollectSingleLogDO where txnseqno=? and rspstatus in (?,?)";
+    public ChnCollectSingleLogDO getCollSingleByTxnseqno(String txnseqno) {
+        String hql = "from ChnCollectSingleLogDO where txnseqno=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
-        query.setString(1, rspStatus[0]);
-        query.setString(2, rspStatus[1]);
         return (ChnCollectSingleLogDO) query.uniqueResult();
     }
 

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.client.NettyClientBootstrap;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.client.SocketChannelHelper;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.client.sync.NettySyncClient;
+import com.zcbspay.platform.hz.realtime.fe.util.LogUtil;
 import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.MessageBeanStr;
@@ -31,6 +32,7 @@ public class MessageSendImpl implements MessageSend {
 
         MessageTypeEnum msgTypeEnum = messageBean.getMessageType();
         sendMsg = messageBean.getSendMsgBytes();
+        logger.info("[sendMsg is~~~]:" + LogUtil.formatLogHex(sendMsg));
         logger.info("[sendMsg length is~~~]:" + sendMsg.length);
         if (MessageTypeEnum.CMS991.equals(msgTypeEnum)) {
             // 查询和报文探测netty阻塞同步返回结果
@@ -81,6 +83,8 @@ public class MessageSendImpl implements MessageSend {
         catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
+        resultBean=new ResultBean();
+        resultBean.setResultBool(true);
         return resultBean;
     }
 }

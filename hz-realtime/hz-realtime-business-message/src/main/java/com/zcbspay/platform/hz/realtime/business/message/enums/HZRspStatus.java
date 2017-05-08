@@ -3,6 +3,7 @@ package com.zcbspay.platform.hz.realtime.business.message.enums;
 public enum HZRspStatus {
 
     UNKNOWN("PRXX", "未知"), 
+    TRANSFER("PR00", "已转发"),
     SUCCESS("PR05", "已成功"), 
     REJECTED("PR09", "已拒绝"), 
     OVERDUE("PR32", "逾期退回"), 

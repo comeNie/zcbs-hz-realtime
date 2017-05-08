@@ -46,7 +46,7 @@ public class RealTimeCollAss implements InitializingBean {
         textBean.setCdtrBk(collectionChargesBean.getCreditorAgentCode());
         textBean.setCdtrAcct(collectionChargesBean.getCreditorAccountNo());
         textBean.setCdtrNm(collectionChargesBean.getCreditorName());
-        textBean.setAmt(collectionChargesBean.getAmount());
+        textBean.setAmt("RMB"+collectionChargesBean.getAmount());
         textBean.setPrtry(collectionChargesBean.getPurposeCode());
         textBean.setSummary(collectionChargesBean.getSummary());
         bean.setBusiText(textBean);

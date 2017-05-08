@@ -102,11 +102,12 @@ public class MessageAssembleImpl implements MessageAssemble {
             CMS991Bean msgBodyBean = (CMS991Bean) bean.getMessageBean();
             msgBody = JSONObject.toJSONString(msgBodyBean);
         }
-        byte[] msgAllBytes;
+        byte[] msgAllBytes = null;
         try {
             beanHead.setMsgBodyLength(Integer.toString(msgBody.getBytes(charset).length));
             msgHeader = createMessageHead(beanHead);
-            msgAllBytes = ArrayUtils.addAll(msgHeader.getBytes(charset), msgSign);
+            msgAllBytes = ArrayUtils.addAll(msgAllBytes,msgHeader.getBytes(charset));
+            msgAllBytes = ArrayUtils.addAll(msgAllBytes, msgSign);
             msgAllBytes = ArrayUtils.addAll(msgAllBytes, msgBody.getBytes(charset));
         }
         catch (UnsupportedEncodingException e) {

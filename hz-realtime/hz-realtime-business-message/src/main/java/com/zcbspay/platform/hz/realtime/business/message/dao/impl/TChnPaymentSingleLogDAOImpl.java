@@ -47,8 +47,8 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         chnPaymentSingleLog.setTranstime(DateUtil.getCurrentTime());
         chnPaymentSingleLog.setDebtorname(paymentBean.getDebtorName());
         chnPaymentSingleLog.setDebtoraccountno(paymentBean.getDebtorAccountNo());
-        chnPaymentSingleLog.setDebtorbranchcode(paymentBean.getDebtorBranchCode());
-        chnPaymentSingleLog.setCreditorbranchcode(paymentBean.getCreditorBranchCode());
+        chnPaymentSingleLog.setDebtorbranchcode(paymentBean.getDebtorAgentCode());
+        chnPaymentSingleLog.setCreditorbranchcode(paymentBean.getCreditorAgentCode());
         chnPaymentSingleLog.setCreditorname(paymentBean.getCreditorName());
         chnPaymentSingleLog.setCreditoraccountno(paymentBean.getCreditorAccountNo());
         chnPaymentSingleLog.setAmount(Long.parseLong(paymentBean.getAmount()));
@@ -113,12 +113,10 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
 
     @Override
     @Transactional(readOnly = true)
-    public ChnPaymentSingleLogDO getPaySingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus) {
-        String hql = "from ChnPaymentSingleLogDO where txnseqno=? and rspstatus in(?,?)";
+    public ChnPaymentSingleLogDO getPaySingleByTxnseqno(String txnseqno) {
+        String hql = "from ChnPaymentSingleLogDO where txnseqno=?";
         Query query = getSession().createQuery(hql);
         query.setString(0, txnseqno);
-        query.setString(1, rspStatus[0]);
-        query.setString(2, rspStatus[1]);
         return (ChnPaymentSingleLogDO) query.uniqueResult();
     }
 
@@ -127,7 +125,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
     public void updateRealPaymentLogCommResp(CMS900Bean bean) {
 
         String hql = null;
-        if (HZRspStatus.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
+        if (HZRspStatus.TRANSFER.getValue().equals(bean.getRspnInf().getSts())) {
             hql = "update ChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=? where msgid=?";
         }
         else {
@@ -140,7 +138,7 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         query.setString(2, bean.getRspnInf().getRjctcd());
         query.setString(3, bean.getRspnInf().getRjctinf());
         query.setString(4, DateUtil.getCurrentDateTime());
-        if (HZRspStatus.SUCCESS.getValue().equals(bean.getRspnInf().getSts())) {
+        if (HZRspStatus.TRANSFER.getValue().equals(bean.getRspnInf().getSts())) {
             query.setString(5, bean.getOrgnlMsgId().getOrgnlMsgId());
         }
         else {

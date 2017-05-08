@@ -3,8 +3,8 @@ package com.zcbspay.platform.hz.realtime.business.message.enums;
 public enum OrgCode {
 
     // ZCBS("XXXXXXXXXX", "中创标石机构号"),发送机构不是zcbs，而是各个商户在清算中心开的账户
-    DEFAUT("XXXXXXXXXX", "XX机构"),//仅在通信探测报文中使用
-    HZQSZX("YYYYYYYYYY", "杭州清算中心机构号"), ;
+    DEFAUT("3310961099", "XX机构"),//仅在通信探测报文中使用
+    HZQSZX("3310100102", "杭州清算中心机构号"), ;
 
     private String value;
     private final String displayName;

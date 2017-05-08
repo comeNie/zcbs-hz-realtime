@@ -251,7 +251,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             OrgnlTxBean orgMsgIde = null;
             if (BusinessType.REAL_TIME_COLL.getValue().equals(businessType)) {
                 // 实时代收原交易
-                ChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue(), HZRspStatus.SUCCESS.getValue());
+                ChnCollectSingleLogDO collSingle = tChnCollectSingleLogDAO.getCollSingleByTxnseqno(txnseqno);
                 if (collSingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
@@ -290,7 +290,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
             else if (BusinessType.REAL_TIME_PAY.getValue().equals(businessType)) {
                 // 实时代付原交易
-                ChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqnoAndRspSta(txnseqno, HZRspStatus.UNKNOWN.getValue(), HZRspStatus.SUCCESS.getValue());
+                ChnPaymentSingleLogDO paySingle = tChnPaymentSingleLogDAO.getPaySingleByTxnseqno(txnseqno);
                 if (paySingle == null) {
                     logger.error("cann't find record by txnseqno : " + txnseqno);
                     return new ResultBean(ErrorCodeBusHZ.NONE_RECORD.getValue(), ErrorCodeBusHZ.NONE_RECORD.getDisplayName());
@@ -401,6 +401,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         ChnCollectSingleLogDO resultColl = null;
         ChnPaymentSingleLogDO resultPay = null;
         String status = null;
+        String retComCode = null;
+        String retComMsg = null;
         int time = 2000;
         int cycTimes = 1;
         try {
@@ -409,10 +411,14 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 if (MessageTypeEnum.CMT384.value().equals(msgType)) {
                     resultColl = tChnCollectSingleLogDAO.getCollSingleByTid(tid);
                     status = resultColl.getComstatus();
+                    retComCode = resultColl.getComrejectcode();
+                    retComMsg = resultColl.getComrejectinformation();
                 }
                 if (MessageTypeEnum.CMT386.value().equals(msgType)) {
                     resultPay = tChnPaymentSingleLogDAO.getPaySingleByTid(tid);
                     status = resultPay.getComstatus();
+                    retComCode = resultPay.getComrejectcode();
+                    retComMsg = resultPay.getComrejectinformation();
                 }
                 time = 2 * time;
                 if (++cycTimes > 4) {
@@ -425,7 +431,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             logger.error(e.getMessage(), e);
             throw new HZRealTransferException(ErrorCodeBusHZ.INTERRUPT_EXP.getValue(), ErrorCodeBusHZ.INTERRUPT_EXP.getDisplayName());
         }
-        if (!StringUtils.isEmpty(status)) {
+        if (!StringUtils.isEmpty(status) || !StringUtils.isEmpty(retComCode) || !StringUtils.isEmpty(retComMsg)) {
             businessRsltBean = new BusinessRsltBean();
             businessRsltBean.setMsgid(msgid);
             businessRsltBean.setTxnseqno(txnseqno);
@@ -440,6 +446,11 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 businessRsltBean.setCommRspInfo(resultPay.getComrejectinformation());
             }
             resultBean = new ResultBean(businessRsltBean);
+            if (!HZRspStatus.TRANSFER.getValue().equals(status)) {
+                resultBean.setResultBool(false);
+                resultBean.setErrCode(retComCode);
+                resultBean.setErrMsg(retComMsg);
+            }
         }
         return resultBean;
     }
@@ -505,7 +516,19 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
      */
     private String getSenderOrgCodeByMerOrgCode(String memberId) {
         // TODO 测试不调用member，生产环境打开注释
-        return merchService.getMerchBymemberId(memberId).getOrgcode();
-        // return OrgCode.DEFAUT.getValue();
+        // return merchService.getMerchBymemberId(memberId).getOrgcode();
+        // =============测试挡板begin==============
+        String senderOrg = null;
+        if ("test001".equals(memberId)) {
+            senderOrg = "3310061091";
+        }
+        else if ("test002".equals(memberId)) {
+            senderOrg = "3310961099";
+        }
+        else {
+            logger.error("【实时代收付业务订单表中MerId不是手工测试数据，不应走此逻辑分支！！！】");
+        }
+        return senderOrg;
+        // =============测试挡板end==============
     }
 }

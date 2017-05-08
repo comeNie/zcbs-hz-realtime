@@ -46,7 +46,7 @@ public class RealTimePayAss implements InitializingBean {
         textBean.setCdtrBk(paymentBean.getCreditorAgentCode());
         textBean.setCdtrAcct(paymentBean.getCreditorAccountNo());
         textBean.setCdtrNm(paymentBean.getCreditorName());
-        textBean.setAmt(paymentBean.getAmount());
+        textBean.setAmt("RMB" + paymentBean.getAmount());
         textBean.setPrtry(paymentBean.getPurposeCode());
         textBean.setSummary(paymentBean.getSummary());
         bean.setBusiText(textBean);

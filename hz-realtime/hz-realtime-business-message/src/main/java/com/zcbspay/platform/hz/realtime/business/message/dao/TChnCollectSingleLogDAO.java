@@ -49,7 +49,7 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<ChnCollectSingleLogDO> 
      * @param rspStatus
      * @return
      */
-    public ChnCollectSingleLogDO getCollSingleByTxnseqnoAndRspSta(String txnseqno, String... rspStatus);
+    public ChnCollectSingleLogDO getCollSingleByTxnseqno(String txnseqno);
 
     /**
      * 通过msgId获取代收记录
