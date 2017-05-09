@@ -47,8 +47,8 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         chnCollectSingleLog.setTranstime(DateUtil.getCurrentTime());
         chnCollectSingleLog.setDebtorname(collectionChargesBean.getDebtorName());
         chnCollectSingleLog.setDebtoraccountno(collectionChargesBean.getDebtorAccountNo());
-        chnCollectSingleLog.setDebtorbranchcode(collectionChargesBean.getDebtorAgentCode());
-        chnCollectSingleLog.setCreditorbranchcode(collectionChargesBean.getCreditorAgentCode());
+        chnCollectSingleLog.setDebtorbranchcode(collectionChargesBean.getDebtorBranchCode());
+        chnCollectSingleLog.setCreditorbranchcode(collectionChargesBean.getCreditorBranchCode());
         chnCollectSingleLog.setCreditorname(collectionChargesBean.getCreditorName());
         chnCollectSingleLog.setCreditoraccountno(collectionChargesBean.getCreditorAccountNo());
         chnCollectSingleLog.setAmount(Long.parseLong(collectionChargesBean.getAmount()));

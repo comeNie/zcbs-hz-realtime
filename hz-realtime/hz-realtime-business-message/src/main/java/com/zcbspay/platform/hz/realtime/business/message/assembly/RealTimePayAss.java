@@ -39,11 +39,11 @@ public class RealTimePayAss implements InitializingBean {
         bean.setMsgId(redisSerialNumberService.generateHZMsgId());
         BusiTextBean textBean = new BusiTextBean();
         textBean.setTxId(paymentBean.getTxId());
-        textBean.setDbtrBk(paymentBean.getDebtorAgentCode());
+        textBean.setDbtrBk(paymentBean.getDebtorBranchCode());
         textBean.setDbtrAcct(paymentBean.getDebtorAccountNo());
         textBean.setDbtrNm(paymentBean.getDebtorName());
         textBean.setDbtrCnsn(paymentBean.getEndToEndIdentification());
-        textBean.setCdtrBk(paymentBean.getCreditorAgentCode());
+        textBean.setCdtrBk(paymentBean.getCreditorBranchCode());
         textBean.setCdtrAcct(paymentBean.getCreditorAccountNo());
         textBean.setCdtrNm(paymentBean.getCreditorName());
         textBean.setAmt("RMB" + paymentBean.getAmount());

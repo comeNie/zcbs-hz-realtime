@@ -47,8 +47,8 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
         chnPaymentSingleLog.setTranstime(DateUtil.getCurrentTime());
         chnPaymentSingleLog.setDebtorname(paymentBean.getDebtorName());
         chnPaymentSingleLog.setDebtoraccountno(paymentBean.getDebtorAccountNo());
-        chnPaymentSingleLog.setDebtorbranchcode(paymentBean.getDebtorAgentCode());
-        chnPaymentSingleLog.setCreditorbranchcode(paymentBean.getCreditorAgentCode());
+        chnPaymentSingleLog.setDebtorbranchcode(paymentBean.getDebtorBranchCode());
+        chnPaymentSingleLog.setCreditorbranchcode(paymentBean.getCreditorBranchCode());
         chnPaymentSingleLog.setCreditorname(paymentBean.getCreditorName());
         chnPaymentSingleLog.setCreditoraccountno(paymentBean.getCreditorAccountNo());
         chnPaymentSingleLog.setAmount(Long.parseLong(paymentBean.getAmount()));

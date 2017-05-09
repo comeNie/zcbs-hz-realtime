@@ -39,11 +39,11 @@ public class RealTimeCollAss implements InitializingBean {
         bean.setMsgId(redisSerialNumberService.generateHZMsgId());
         BusiTextBean textBean = new BusiTextBean();
         textBean.setTxId(collectionChargesBean.getTxId());
-        textBean.setDbtrBk(collectionChargesBean.getDebtorAgentCode());
+        textBean.setDbtrBk(collectionChargesBean.getDebtorBranchCode());
         textBean.setDbtrAcct(collectionChargesBean.getDebtorAccountNo());
         textBean.setDbtrNm(collectionChargesBean.getDebtorName());
         textBean.setDbtrCnsn(collectionChargesBean.getEndToEndIdentification());
-        textBean.setCdtrBk(collectionChargesBean.getCreditorAgentCode());
+        textBean.setCdtrBk(collectionChargesBean.getCreditorBranchCode());
         textBean.setCdtrAcct(collectionChargesBean.getCreditorAccountNo());
         textBean.setCdtrNm(collectionChargesBean.getCreditorName());
         textBean.setAmt("RMB"+collectionChargesBean.getAmount());
