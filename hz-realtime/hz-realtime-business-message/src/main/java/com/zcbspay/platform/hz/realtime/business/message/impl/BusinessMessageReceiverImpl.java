@@ -270,10 +270,6 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         else if (MessageTypeEnum.CMT386.value().equals(orgMsgType)) {
             tChnPaymentSingleLogDAO.updateRealPaymentLogCommResp(bean);
         } 
-        else if (MessageTypeEnum.CMS900.value().equals(orgMsgType)) {
-            
-            tChnPaymentSingleLogDAO.updateRealPaymentLogCommResp(bean);
-        }
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 

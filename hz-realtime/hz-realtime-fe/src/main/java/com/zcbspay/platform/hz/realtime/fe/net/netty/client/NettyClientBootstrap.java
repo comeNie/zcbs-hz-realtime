@@ -66,17 +66,7 @@ public class NettyClientBootstrap {
     }
 
     public void sendMessage(byte[] msg) throws InterruptedException {
-        ChannelFuture channelFuture = socketChannel.writeAndFlush(msg).sync();
-        // if (channelFuture.isSuccess()) {
-        // shutdown();
-        // }
+        socketChannel.writeAndFlush(msg);
     }
 
-    private void shutdown() {
-        if (socketChannel != null) {
-            socketChannel.close();
-            socketChannel = null;
-            log.info("本地[{}]关闭", SocketChannelHelper.getInstance().getSocketKey());
-        }
-    }
 }

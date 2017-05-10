@@ -1,6 +1,7 @@
 package com.zcbspay.platform.hz.realtime.fe.net.netty.client.sync;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -185,6 +186,14 @@ public class NettyClientSyncHandler extends ChannelInboundHandlerAdapter {
         else {
             logger.error("message type is unknown!!!");
         }
-        ctx.close();
+        shutdown(ctx.channel());
+    }
+    
+    private void shutdown(Channel socketChannel) {
+        if (socketChannel != null) {
+            socketChannel.close();
+            socketChannel = null;
+            logger.info("本地[{}]TCP连接关闭", SocketChannelHelper.getInstance().getSocketKey());
+        }
     }
 }
