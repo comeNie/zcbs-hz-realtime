@@ -33,7 +33,7 @@ public class HZRealTimeProducer implements Producer {
     String group = "HZRealTimeGroup";
     String instancename = "HZRealTimeProducer";
     String subscribe = "HZRealTimeOrder";
-    private String topic=subscribe;
+    private String topic = subscribe;
 
     // RocketMQ消费者客户端
     private DefaultMQProducer producer;
@@ -129,10 +129,10 @@ public class HZRealTimeProducer implements Producer {
             producer = new HZRealTimeProducer(namesrvAddr2, tags);
             String message = "{\"tn\":\"2017051117493181209472\",\"txnseqno\":\"2017051189651562\"}";
             SendResult sendResult = producer.sendJsonMessage(message, tags);
-            System.out.println("======result======:"+sendResult.toString());
-//            TimeUnit.MILLISECONDS.sleep(8000);
-//            ResultBean resultBean = producer.queryReturnResult(sendResult);
-//            System.out.println("===result bean:" + resultBean.toString());
+            System.out.println("======result======:" + sendResult.toString());
+            TimeUnit.MILLISECONDS.sleep(8000);
+            ResultBean resultBean = producer.queryReturnResult(sendResult);
+            System.out.println("===result bean:" + resultBean.toString());
         }
         catch (MQClientException | RemotingException | InterruptedException | MQBrokerException e) {
             e.printStackTrace();

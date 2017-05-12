@@ -24,6 +24,7 @@ import com.zcbspay.platform.hz.realtime.application.enums.HZRealTimeEnum;
 import com.zcbspay.platform.hz.realtime.application.interfaces.Producer;
 import com.zcbspay.platform.hz.realtime.application.redis.RedisFactory;
 
+
 public class HZRealTimeSpringProducer implements Producer{
 	private final static Logger logger = LoggerFactory.getLogger(HZRealTimeSpringProducer.class);
 	private static final String KEY = "HZREALTIME:";

@@ -21,7 +21,7 @@ import com.zcbspay.platform.hz.realtime.application.enums.HZRealTimeEnum;
 public class HZRealTimeConsumer implements ApplicationListener<ContextRefreshedEvent>{
 	
 	private static final Logger log = LoggerFactory.getLogger(HZRealTimeConsumer.class);
-//	private static final  ResourceBundle RESOURCE = ResourceBundle.getBundle("producer_hz_realtime");
+	private static final  ResourceBundle RESOURCE = ResourceBundle.getBundle("producer_hz_realtime");
 	@Autowired
 	@Qualifier("hzRealTimeListener")
 	private MessageListenerConcurrently hzRealTimeListener;
@@ -31,10 +31,10 @@ public class HZRealTimeConsumer implements ApplicationListener<ContextRefreshedE
 		 * 当前例子是PushConsumer用法，使用方式给用户感觉是消息从RocketMQ服务器推到了应用客户端。<br>
 		 * 但是实际PushConsumer内部是使用长轮询Pull方式从RocketMQ服务器拉消息，然后再回调用户Listener方法<br>
 		 */
-		DefaultMQPushConsumer consumer = new DefaultMQPushConsumer("HZRealTimeGroup");
+		DefaultMQPushConsumer consumer = new DefaultMQPushConsumer(RESOURCE.getString("hz.realtime.producer.group"));
 		consumer.setConsumeFromWhere(ConsumeFromWhere.CONSUME_FROM_FIRST_OFFSET);
-		consumer.setNamesrvAddr("192.168.209.6:9876");
-		consumer.setInstanceName("HZRealTimeProducer");
+		consumer.setNamesrvAddr(RESOURCE.getString("single.namesrv.addr"));
+		consumer.setInstanceName(RESOURCE.getString("hz.realtime.instancename"));
 		String subExpression = "";
 		for(HZRealTimeEnum tagsEnum:HZRealTimeEnum.values()){
 			if(StringUtils.isNotEmpty(subExpression)){
@@ -43,7 +43,7 @@ public class HZRealTimeConsumer implements ApplicationListener<ContextRefreshedE
 			subExpression+=tagsEnum.getCode();
 		}
 		log.info("subExpression:{}",subExpression);
-		consumer.subscribe("HZRealTimeOrder", subExpression);
+		consumer.subscribe(RESOURCE.getString("hz.realtime.subscribe"), subExpression);
 		consumer.registerMessageListener(hzRealTimeListener);//在监听器中实现创建order
 		log.info("NamesrvAddr:{},InstanceName:{},subscribe:{},MessageListener:{}",consumer.getNamesrvAddr(),consumer.getInstanceName(),consumer.getSubscription(),consumer.getMessageListener());
 		consumer.start();
