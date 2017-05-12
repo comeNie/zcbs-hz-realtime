@@ -1,4 +1,4 @@
-package com.zcbspay.platform.hz.realtime.business.message.enums;
+package com.zcbspay.platform.hz.realtime.application.enums;
 
 public enum BusinessType {
     REAL_TIME_COLL("11000001", "实时代收"), 

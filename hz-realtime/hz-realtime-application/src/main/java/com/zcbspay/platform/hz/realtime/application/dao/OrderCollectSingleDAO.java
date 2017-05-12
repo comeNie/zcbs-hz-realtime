@@ -22,4 +22,20 @@ public interface OrderCollectSingleDAO extends BaseDAO<OrderCollectSingleDO>{
      * @return
      */
     public OrderCollectSingleDO getCollectSingleOrderByTN(String tn);
+    
+    /**
+     * 通过tn获取实时代收订单
+     * 
+     * @param tn
+     * @return
+     */
+    public OrderCollectSingleDO getCollSingOrdByTxnseqno(String txnseqno);
+
+    /**
+     * 更新订单状态
+     * 
+     * @param relatetradetxn
+     * 
+     */
+    public int updateOrderStatus(String relatetradetxn, String status);
 }

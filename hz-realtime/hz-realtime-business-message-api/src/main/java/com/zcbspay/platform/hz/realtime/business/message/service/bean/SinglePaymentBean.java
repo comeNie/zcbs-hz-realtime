@@ -66,9 +66,20 @@ public class SinglePaymentBean implements Serializable {
      */
     private String endToEndIdentification;
 
+    /**
+     * 交易流水号
+     */
     private String txnseqno;
 
+    /**
+     * 备注
+     */
     private String summary;
+    
+    /**
+     * 发起方机构号
+     */
+    private String senderOrgCode;
 
     public String getTxId() {
         return txId;
@@ -180,6 +191,22 @@ public class SinglePaymentBean implements Serializable {
 
     public void setSummary(String summary) {
         this.summary = summary;
+    }
+
+    public String getSenderOrgCode() {
+        return senderOrgCode;
+    }
+
+    public void setSenderOrgCode(String senderOrgCode) {
+        this.senderOrgCode = senderOrgCode;
+    }
+
+    @Override
+    public String toString() {
+        return "SinglePaymentBean [txId=" + txId + ", debtorName=" + debtorName + ", debtorAccountNo=" + debtorAccountNo + ", debtorAgentCode=" + debtorAgentCode + ", debtorBranchCode="
+                + debtorBranchCode + ", creditorAgentCode=" + creditorAgentCode + ", creditorBranchCode=" + creditorBranchCode + ", creditorName=" + creditorName + ", creditorAccountNo="
+                + creditorAccountNo + ", amount=" + amount + ", purposeCode=" + purposeCode + ", endToEndIdentification=" + endToEndIdentification + ", txnseqno=" + txnseqno + ", summary=" + summary
+                + ", senderOrgCode=" + senderOrgCode + "]";
     }
 
 }

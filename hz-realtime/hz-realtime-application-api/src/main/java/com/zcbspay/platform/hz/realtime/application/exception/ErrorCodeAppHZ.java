@@ -1,6 +1,6 @@
-package com.zcbspay.platform.hz.realtime.business.message.service.enums;
+package com.zcbspay.platform.hz.realtime.application.exception;
 
-public enum ErrorCodeBusHZ {
+public enum ErrorCodeAppHZ {
 
     SIGN_FAILED("THZB001", "报文体加签失败"), 
     NONE_RECORD("THZB002", "交易流水号无对应实时代收/代付记录"), 
@@ -21,7 +21,7 @@ public enum ErrorCodeBusHZ {
     private String value;
     private final String displayName;
 
-    ErrorCodeBusHZ(String value, String displayName) {
+    ErrorCodeAppHZ(String value, String displayName) {
         this.value = value;
         this.displayName = displayName;
     }
@@ -34,9 +34,9 @@ public enum ErrorCodeBusHZ {
         return displayName;
     }
 
-    public static ErrorCodeBusHZ parseOf(String value) {
+    public static ErrorCodeAppHZ parseOf(String value) {
 
-        for (ErrorCodeBusHZ item : values())
+        for (ErrorCodeAppHZ item : values())
             if (item.getValue().equals(value))
                 return item;
 
@@ -44,9 +44,9 @@ public enum ErrorCodeBusHZ {
     }
 
      public static void main(String[] args) {
-     System.out.println(ErrorCodeBusHZ.SIGN_FAILED.getDisplayName());
-     System.out.println(ErrorCodeBusHZ.SIGN_FAILED.getValue());
-     System.out.println(parseOf(ErrorCodeBusHZ.SIGN_FAILED.getValue()).getDisplayName());
-     System.out.print(ErrorCodeBusHZ.SIGN_FAILED);
+     System.out.println(ErrorCodeAppHZ.SIGN_FAILED.getDisplayName());
+     System.out.println(ErrorCodeAppHZ.SIGN_FAILED.getValue());
+     System.out.println(parseOf(ErrorCodeAppHZ.SIGN_FAILED.getValue()).getDisplayName());
+     System.out.print(ErrorCodeAppHZ.SIGN_FAILED);
      }
 }

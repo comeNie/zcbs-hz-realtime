@@ -5,7 +5,7 @@
 	http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 	<!-- <dubbo:service interface="com.zcbspay.platform.payment.fee.service.TradeFeeService" 
 		ref="tradeFeeService" retries="0" version="1.0" timeout="60000"/> -->
-	<dubbo:annotation package="com.zcbspay.platform.hz.realtime.fe" />
+	<dubbo:annotation package="com.zcbspay.platform.hz.realtime" />
 
 	<dubbo:service
 		interface="com.zcbspay.platform.hz.realtime.message.bean.fe.service.MessageSend"

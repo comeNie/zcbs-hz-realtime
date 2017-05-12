@@ -1,13 +1,15 @@
-package com.zcbspay.platform.hz.realtime.business.message.enums;
+package com.zcbspay.platform.hz.realtime.application.enums;
 
-public enum BusinessType {
-    REAL_TIME_COLL("11000001", "实时代收"), 
-    REAL_TIME_PAY("11000002", "实时代付"), ;
+public enum RealCPOrdSts {
+    INITIAL("01", "初始，订单提交成功，但未支付"), 
+    PAYING("02", "支付中"), 
+    SCUCESS("00", "成功"), 
+    FAILED("03", "失败"), ;
 
     private String value;
     private final String displayName;
 
-    BusinessType(String value, String displayName) {
+    RealCPOrdSts(String value, String displayName) {
         this.value = value;
         this.displayName = displayName;
     }
@@ -20,9 +22,9 @@ public enum BusinessType {
         return displayName;
     }
 
-    public static BusinessType parseOf(String value) {
+    public static RealCPOrdSts parseOf(String value) {
 
-        for (BusinessType item : values())
+        for (RealCPOrdSts item : values())
             if (item.getValue().equals(value))
                 return item;
 

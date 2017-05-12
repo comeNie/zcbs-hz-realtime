@@ -2,7 +2,7 @@ package com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums;
 
 public enum ErrorCodeFeHZ {
 
-    SEND_FAILED("THZ201", "发送报文至杭州清算中心失败"), 
+    SEND_FAILED("THZF201", "发送报文至杭州清算中心失败"), 
     ;
 
     private String value;
