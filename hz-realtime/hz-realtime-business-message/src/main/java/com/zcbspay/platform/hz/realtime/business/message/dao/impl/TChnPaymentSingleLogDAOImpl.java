@@ -153,13 +153,14 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealPaymentLogDiscard(CMS911Bean bean) {
-        String hql = "update ChnPaymentSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where communno=?";
+        String hql = "update ChnPaymentSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=?,rspstatus=? where communno=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
         query.setString(1, bean.getDscrdInf().getRjctCd());
         query.setString(2, bean.getDscrdInf().getRjctInf());
         query.setString(3, bean.getDscrdInf().getRefId());
+        query.setString(4, HZRspStatus.REJECTED.getValue());
         int rows = query.executeUpdate();
         logger.info("updateRealPaymentLogDiscard() effect rows:" + rows);
     }

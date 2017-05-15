@@ -44,7 +44,9 @@ public class MessageSendImpl implements MessageSend {
             NettySyncClient client = new NettySyncClient();
             try {
                 detectRsp = client.sendMessage(hostAddress, hostPort, sendMsg);
+                logger.info("【detectRsp is】:" + detectRsp);
                 resultBean = new ResultBean(detectRsp);
+                return resultBean;
             }
             catch (Exception e) {
                 logger.error("【send message to HangZhou Clearing Center failed！！！】", e);
@@ -83,7 +85,7 @@ public class MessageSendImpl implements MessageSend {
         catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
         }
-        resultBean=new ResultBean();
+        resultBean = new ResultBean();
         resultBean.setResultBool(true);
         return resultBean;
     }

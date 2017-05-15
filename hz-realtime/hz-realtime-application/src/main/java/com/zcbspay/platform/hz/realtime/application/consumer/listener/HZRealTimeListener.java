@@ -36,8 +36,10 @@ public class HZRealTimeListener implements MessageListenerConcurrently {
     public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext arg1) {
         String json = null;
         ResultBean resultBeanExp = null;
+        MessageExt message = null;
         try {
             for (MessageExt msg : msgs) {
+                message = msg;
                 ResultBean resultBean = null;
                 if (msg.getTopic().equals(RESOURCE.getString("hz.realtime.subscribe"))) {
                     HZRealTimeEnum hzRealTimeEnum = HZRealTimeEnum.fromValue(msg.getTags());
@@ -77,24 +79,17 @@ public class HZRealTimeListener implements MessageListenerConcurrently {
                         resultBean = concentrateTradeService.queryTrade(tradeBean.getTxnseqno());
                     }
                     else if (hzRealTimeEnum == HZRealTimeEnum.LINK_CHECK) {
-                        json = new String(msg.getBody(), Charsets.UTF_8);
-                        log.info("接收到的MSG:" + json);
                         log.info("接收到的MSGID:" + msg.getMsgId());
-                        TradeBean tradeBean = JSON.parseObject(json, TradeBean.class);
-                        if (tradeBean == null) {
-                            log.warn("MSGID:{}JSON转换后为NULL,无法生成订单数据,原始消息数据为{}", msg.getMsgId(), json);
-                            break;
-                        }
                         resultBean = concentrateTradeService.checkLink();
                     }
                 }
-                concentrateCacheResultService.saveInsteadPayResult(KEY, JSON.toJSONString(resultBean));
+                concentrateCacheResultService.saveInsteadPayResult(KEY + msg.getMsgId(), JSON.toJSONString(resultBean));
                 log.info(Thread.currentThread().getName() + " Receive New Messages: " + msgs);
             }
         }
         catch (Throwable e) {
             resultBeanExp = new ResultBean("09", e.getMessage());
-            concentrateCacheResultService.saveInsteadPayResult(KEY, JSON.toJSONString(resultBeanExp));
+            concentrateCacheResultService.saveInsteadPayResult(KEY + message.getMsgId(), JSON.toJSONString(resultBeanExp));
             log.info(Thread.currentThread().getName() + " Receive New Messages: " + msgs);
         }
         return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;

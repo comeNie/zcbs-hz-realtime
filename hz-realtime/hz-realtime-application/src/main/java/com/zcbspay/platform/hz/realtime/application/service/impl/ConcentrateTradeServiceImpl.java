@@ -60,6 +60,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             collectionChargesBean.setEndToEndIdentification(orderInfo.getDebtorconsign());
             collectionChargesBean.setSummary(orderInfo.getSummary());
             collectionChargesBean.setTxnseqno(orderInfo.getRelatetradetxn());
+            collectionChargesBean.setTxId(txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno()).getPayordno());
             HzAgencyInfoDO hzAgencyInfoDO = hzAgencyInfoDAO.getHzAgencyInfoByMerIdBusTyp(orderInfo.getMerid(), BusinessType.REAL_TIME_COLL.getValue());
             collectionChargesBean.setSenderOrgCode(hzAgencyInfoDO.getChargingunit());
             collectionChargesBean.setPurposeCode(hzAgencyInfoDO.getBusisort());
@@ -119,6 +120,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             paymentBean.setEndToEndIdentification(orderInfo.getDebtorconsign());
             paymentBean.setSummary(orderInfo.getSummary());
             paymentBean.setTxnseqno(orderInfo.getRelatetradetxn());
+            paymentBean.setTxId(txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno()).getPayordno());
             HzAgencyInfoDO hzAgencyInfoDO = hzAgencyInfoDAO.getHzAgencyInfoByMerIdBusTyp(orderInfo.getMerid(), BusinessType.REAL_TIME_PAY.getValue());
             paymentBean.setSenderOrgCode(hzAgencyInfoDO.getChargingunit());
             paymentBean.setPurposeCode(hzAgencyInfoDO.getBusisort());

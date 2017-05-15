@@ -188,7 +188,7 @@ public class NettyClientSyncHandler extends ChannelInboundHandlerAdapter {
         }
         shutdown(ctx.channel());
     }
-    
+
     private void shutdown(Channel socketChannel) {
         if (socketChannel != null) {
             socketChannel.close();

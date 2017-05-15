@@ -37,6 +37,7 @@ public class NettySyncClient {
      * @throws Exception
      */
     public String sendMessage(String host, int port, byte[] messageToSend) throws Exception {
+        String retMsg = null;
         message = messageToSend;
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -51,8 +52,9 @@ public class NettySyncClient {
                 }
             });
             b.connect(host, port).channel().closeFuture().await();
-            logger.info("【NettySyncClient.sendMessage respMessage is】:" + respMessage.toString());
-            return respMessage.toString();
+            retMsg = new String(respMessage.toString());
+            logger.info("【NettySyncClient.sendMessage respMessage is】:" + retMsg);
+            return retMsg;
         }
         finally {
             workerGroup.shutdownGracefully();

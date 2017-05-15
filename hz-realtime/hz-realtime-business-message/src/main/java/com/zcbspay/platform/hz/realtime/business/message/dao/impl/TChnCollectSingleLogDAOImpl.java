@@ -125,16 +125,16 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
     @Override
     @Transactional(propagation = Propagation.REQUIRES_NEW, rollbackFor = Throwable.class)
     public void updateRealCollectLogDiscard(CMS911Bean bean) {
-        String hql = "update ChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? where communno=?";
+        String hql = "update ChnCollectSingleLogDO set commsgid = ? ,comrejectcode=? ,comrejectinformation=? ,rspstatus=? where communno=?";
         Session session = getSession();
         Query query = session.createQuery(hql);
         query.setString(0, bean.getMsgId());
         query.setString(1, bean.getDscrdInf().getRjctCd());
         query.setString(2, bean.getDscrdInf().getRjctInf());
         query.setString(3, bean.getDscrdInf().getRefId());
+        query.setString(4, HZRspStatus.REJECTED.getValue());
         int rows = query.executeUpdate();
         logger.info("updateRealCollectLogDiscard() effect rows:" + rows);
-
     }
 
     @Override
