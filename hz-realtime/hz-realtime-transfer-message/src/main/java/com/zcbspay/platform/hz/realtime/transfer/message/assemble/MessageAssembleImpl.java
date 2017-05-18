@@ -7,6 +7,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
@@ -23,6 +24,9 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.MessageTypeEn
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleMsgHeadBase;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
+import com.zcbspay.platform.hz.realtime.transfer.message.dao.ConfigInfoDao;
+import com.zcbspay.platform.hz.realtime.transfer.message.enums.SKKEY;
+import com.zcbspay.platform.hz.realtime.transfer.message.pojo.ConfigInfoDO;
 
 @Service("messageAssemble")
 public class MessageAssembleImpl implements MessageAssemble {
@@ -39,7 +43,9 @@ public class MessageAssembleImpl implements MessageAssemble {
     private AssembleSignBase assembleSignBase316;
     @Resource(name = "assembleSignBase991")
     private AssembleSignBase assembleSignBase991;
-
+    @Autowired
+    private ConfigInfoDao configInfoDao;
+    
     @Override
     public String createMessageHead(MessageHeaderBean beanHead) {
         return assembleMsgHeadBase.createMessageHead(beanHead);
@@ -49,21 +55,22 @@ public class MessageAssembleImpl implements MessageAssemble {
     public byte[] signature(MessageBean bean) throws HZRealTransferException {
         MessageTypeEnum messageType = bean.getMessageTypeEnum();
         byte[] signature = null;
+        ConfigInfoDO configInfoDO = configInfoDao.getparamByName(SKKEY.HZCC_SHPT_PRIKEY.getValue());
         if (messageType == MessageTypeEnum.CMT384) {
             // 实时代收业务报文（CMT384）
-            signature = assembleSignBase384.signatureElement(bean);
+            signature = assembleSignBase384.signatureElement(bean,configInfoDO.getPara());
         }
         else if (messageType == MessageTypeEnum.CMT386) {
             // 实时代付业务报文(CMT386)
-            signature = assembleSignBase386.signatureElement(bean);
+            signature = assembleSignBase386.signatureElement(bean,configInfoDO.getPara());
         }
         else if (messageType == MessageTypeEnum.CMS316) {
             // 业务状态查询报文（CMS316）
-            signature = assembleSignBase316.signatureElement(bean);
+            signature = assembleSignBase316.signatureElement(bean,configInfoDO.getPara());
         }
         else if (messageType == MessageTypeEnum.CMS991) {
             // 通讯探测报文（CMS991）
-            signature = assembleSignBase991.signatureElement(bean);
+            signature = assembleSignBase991.signatureElement(bean,configInfoDO.getPara());
         }
         return signature;
     }

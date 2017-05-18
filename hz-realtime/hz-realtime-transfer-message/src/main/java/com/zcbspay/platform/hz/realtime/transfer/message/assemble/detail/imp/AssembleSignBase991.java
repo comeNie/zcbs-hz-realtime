@@ -13,7 +13,6 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageBean;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.assemble.detail.AssembleSignBase;
-import com.zcbspay.platform.hz.realtime.transfer.message.util.ParamsUtil;
 
 @Service("assembleSignBase991")
 public class AssembleSignBase991 implements AssembleSignBase {
@@ -21,12 +20,12 @@ public class AssembleSignBase991 implements AssembleSignBase {
     Logger logger = LoggerFactory.getLogger(AssembleSignBase384.class);
 
     @Override
-    public byte[] signatureElement(MessageBean bean) throws HZRealTransferException {
+    public byte[] signatureElement(MessageBean bean, String priKey) throws HZRealTransferException {
         byte[] signature = null;
         CMS991Bean msgBodyBean = (CMS991Bean) bean.getMessageBean();
         String msgBody = JSONObject.toJSONString(msgBodyBean);
         try {
-            signature = RSAUtils.signBytes(msgBody.getBytes("utf-8"), ParamsUtil.getInstance().getPrivateKey());
+            signature = RSAUtils.signBytes(msgBody.getBytes("utf-8"), priKey);
         }
         catch (UnsupportedEncodingException e) {
             logger.error("msgbody sign failed:UnsupportedEncodingException", e);

@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.zcbspay.platform.hz.realtime.common.utils.secret.RSAUtils;
@@ -12,12 +13,16 @@ import com.zcbspay.platform.hz.realtime.transfer.message.api.bean.MessageRespBea
 import com.zcbspay.platform.hz.realtime.transfer.message.api.enums.ErrorCodeTransHZ;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.exception.HZRealTransferException;
 import com.zcbspay.platform.hz.realtime.transfer.message.api.unpack.MessageUnpack;
-import com.zcbspay.platform.hz.realtime.transfer.message.util.ParamsUtil;
+import com.zcbspay.platform.hz.realtime.transfer.message.dao.ConfigInfoDao;
+import com.zcbspay.platform.hz.realtime.transfer.message.enums.SKKEY;
+import com.zcbspay.platform.hz.realtime.transfer.message.pojo.ConfigInfoDO;
 
 @Service("messageUnpack")
 public class MessageUnpackImpl implements MessageUnpack {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageUnpackImpl.class);
+    @Autowired
+    private ConfigInfoDao configInfoDao;
 
     @Override
     public MessageRespBean unpack(byte[] headInfo, byte[] signInfo, byte[] bodyInfo) throws HZRealTransferException {
@@ -36,7 +41,8 @@ public class MessageUnpackImpl implements MessageUnpack {
             msgBodyStr = new String(bodyInfo, charset);
             logger.info("[msgBodyStr is ]:" + msgBodyStr);
 
-            checkSignature(signInfo, bodyInfo);
+            ConfigInfoDO configInfoDO = configInfoDao.getparamByName(SKKEY.HZCC_PUBKEY.getValue());
+            checkSignature(signInfo, bodyInfo, configInfoDO.getPara());
             logger.info("[pass sign verification~~~]");
 
             MessageHeaderBean headerBean = getMessageHeaderBean(msgHeaderStr);
@@ -59,9 +65,9 @@ public class MessageUnpackImpl implements MessageUnpack {
      * @param msgBodyStr
      * @throws HZRealTransferException
      */
-    private void checkSignature(byte[] msgSign, byte[] msgBody) throws HZRealTransferException {
+    private void checkSignature(byte[] msgSign, byte[] msgBody, String publicKey) throws HZRealTransferException {
         try {
-            if (!RSAUtils.verifyBytes(msgBody, ParamsUtil.getInstance().getPublicKeyHZQSZX(), msgSign)) {
+            if (!RSAUtils.verifyBytes(msgBody, publicKey, msgSign)) {
                 logger.error("【response message check sign failed】");
                 throw new HZRealTransferException(ErrorCodeTransHZ.CHECK_SIGN_FAIL);
             }
