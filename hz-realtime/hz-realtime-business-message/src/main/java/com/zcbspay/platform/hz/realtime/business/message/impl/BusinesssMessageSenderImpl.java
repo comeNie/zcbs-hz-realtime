@@ -407,6 +407,11 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                 resultBean.setErrMsg(retComMsg);
             }
         }
+        else {
+            resultBean = new ResultBean();
+            resultBean.setErrCode(ErrorCodeBusHZ.CONN_FAIL.getValue());
+            resultBean.setErrMsg(ErrorCodeBusHZ.CONN_FAIL.getDisplayName());
+        }
         return resultBean;
     }
 

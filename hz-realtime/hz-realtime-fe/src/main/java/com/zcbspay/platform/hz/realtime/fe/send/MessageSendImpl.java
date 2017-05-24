@@ -32,8 +32,8 @@ public class MessageSendImpl implements MessageSend {
 
         MessageTypeEnum msgTypeEnum = messageBean.getMessageType();
         sendMsg = messageBean.getSendMsgBytes();
-        logger.info("[sendMsg is~~~]:" + LogUtil.formatLogHex(sendMsg));
-        logger.info("[sendMsg length is~~~]:" + sendMsg.length);
+        logger.info("【sendMsg is~~~】:" + "\n" + LogUtil.formatLogHex(sendMsg));
+        logger.info("【sendMsg length is~~~】:" + sendMsg.length);
         if (MessageTypeEnum.CMS991.equals(msgTypeEnum)) {
             // 查询和报文探测netty阻塞同步返回结果
             SocketChannelHelper socketChannelHelper = SocketChannelHelper.getInstance();
@@ -72,18 +72,12 @@ public class MessageSendImpl implements MessageSend {
                         }
                         catch (Exception e) {
                             logger.error("【send message to HangZhou Clearing Center failed！！！】", e);
-                            resultBean = new ResultBean(ErrorCodeFeHZ.SEND_FAILED.getValue(), ErrorCodeFeHZ.SEND_FAILED.getDisplayName());
+                            
                         }
                     }
                 });
             }
             executors.shutdown();
-        }
-        try {
-            Thread.sleep(3000);
-        }
-        catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
         }
         resultBean = new ResultBean();
         resultBean.setResultBool(true);

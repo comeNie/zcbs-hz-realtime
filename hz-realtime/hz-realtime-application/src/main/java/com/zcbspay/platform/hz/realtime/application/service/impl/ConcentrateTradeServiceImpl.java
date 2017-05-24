@@ -83,7 +83,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             logger.error("【 no collection single order record to update!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
         }
-        if (!RealCPOrdSts.INITIAL.getValue().equals(order.getStatus()) && !RealCPOrdSts.FAILED.getValue().equals(order.getStatus())) {
+        if (!RealCPOrdSts.PAYING.getValue().equals(order.getStatus()) && !RealCPOrdSts.FAILED.getValue().equals(order.getStatus())) {
             logger.error("【OrderCollectSingleDO status is wrong and it's rejected!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.ORDER_STS_WRONG.getValue(), ErrorCodeBusHZ.ORDER_STS_WRONG.getDisplayName());
         }
@@ -143,7 +143,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             logger.error("【 no collection single order record to update!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_ORDER.getValue(), ErrorCodeBusHZ.NONE_PAY_ORDER.getDisplayName());
         }
-        if (!RealCPOrdSts.INITIAL.getValue().equals(order.getStatus()) && !RealCPOrdSts.FAILED.getValue().equals(order.getStatus())) {
+        if (!RealCPOrdSts.PAYING.getValue().equals(order.getStatus()) && !RealCPOrdSts.FAILED.getValue().equals(order.getStatus())) {
             logger.error("【OrderCollectSingleDO status is wrong and it's rejected!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.ORDER_STS_WRONG.getValue(), ErrorCodeBusHZ.ORDER_STS_WRONG.getDisplayName());
         }

@@ -17,6 +17,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.zcbspay.platform.hz.realtime.common.utils.SpringContext;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.client.SocketChannelHelper;
 import com.zcbspay.platform.hz.realtime.fe.net.netty.remote.RemoteAdapter;
+import com.zcbspay.platform.hz.realtime.fe.util.LogUtil;
 import com.zcbspay.platform.hz.realtime.fe.util.ParamsUtil;
 import com.zcbspay.platform.hz.realtime.message.bean.CMS992Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.fe.service.enums.MessageTypeEnum;
@@ -77,8 +78,9 @@ public class NettyClientSyncHandler extends ChannelInboundHandlerAdapter {
         int maxSingleLength = socketChannelHelper.getMessageConfigService().getInt("MAX_SINGLE_LENGTH", 200 * 1024);// 单个报文最大长度，单位：字节
         int msgAllLengthIndex = 4;
         String body = new String(msg, charset);
-        logger.info("SERVER接收到消息:{}", body);
-        logger.info("SERVER接收到消息长度:{}", msg.length);
+        logger.info("【~~~SERVER接收到消息~~~】:{}", body);
+        logger.info("【SERVER接收到消息长度】:{}", msg.length);
+        logger.info("\n" + LogUtil.formatLogHex(msg));
         ByteArrayInputStream input = new ByteArrayInputStream(msg);
         SocketChannelHelper socketHelper = SocketChannelHelper.getInstance();
 
