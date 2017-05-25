@@ -46,4 +46,11 @@ public interface BusinesssMessageSender {
      * @return
      */
     public ResultBean check();
+    
+    /**
+     * 记录发送报文失败信息
+     * 
+     * @return
+     */
+    public void recordSendMsgErrInfo();
 }

@@ -8,7 +8,7 @@
   <properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<project.nexus>http://192.168.2.48:8081</project.nexus>
+		<project.nexus>http://192.168.2.2:8081</project.nexus>
 		<project.remoteArtifactRepositories>${project.nexus}/nexus/content/groups/public</project.remoteArtifactRepositories>
 		<sonar.language>java</sonar.language>
 		<skipTests>true</skipTests>

@@ -13,8 +13,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.zcbspay.platform.hz.realtime.application.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.application.pojo.TxnsLogDO;
 import com.zcbspay.platform.hz.realtime.common.dao.impl.HibernateBaseDAOImpl;
-import com.zcbspay.platform.hz.realtime.common.enums.ChannelCode;
-import com.zcbspay.platform.hz.realtime.common.utils.date.DateUtil;
 
 @Repository("txnsLogDAO")
 public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TxnsLogDO> implements TxnsLogDAO {
@@ -57,20 +55,6 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TxnsLogDO> implements T
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void saveTxnsLog(TxnsLogDO txnsLog) {
         saveEntity(txnsLog);
-    }
-
-    @Override
-    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode) {
-        String hql = "update TxnsLogDO set payordno=?,payinst=?,payfirmerno=?,payordcomtime=? where txnseqno=?";
-        Query query = getSession().createQuery(hql);
-        query.setParameter(0, txid);
-        query.setParameter(1, ChannelCode.CHL_HZQSZX.getValue());
-        query.setParameter(2, senderOrgCode);
-        query.setParameter(3, DateUtil.getCurrentDateTime());
-        query.setParameter(4, txnseqno);
-        int rows = query.executeUpdate();
-        logger.info("updatePayInfo() effect rows:" + rows);
     }
 
 }

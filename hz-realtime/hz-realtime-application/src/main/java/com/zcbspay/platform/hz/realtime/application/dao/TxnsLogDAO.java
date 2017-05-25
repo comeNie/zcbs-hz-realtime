@@ -43,11 +43,4 @@ public interface TxnsLogDAO extends BaseDAO<TxnsLogDO> {
      *            交易日志pojo
      */
     public void saveTxnsLog(TxnsLogDO txnsLog);
-
-    /**
-     * 更新交易流水支付信息
-     * 
-     * @param txid
-     */
-    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode);
 }

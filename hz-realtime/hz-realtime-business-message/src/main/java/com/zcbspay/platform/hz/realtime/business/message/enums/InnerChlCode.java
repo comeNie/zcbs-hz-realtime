@@ -1,14 +1,13 @@
-package com.zcbspay.platform.hz.realtime.common.enums;
+package com.zcbspay.platform.hz.realtime.business.message.enums;
 
-public enum ChannelCode {
-
-    CHL_HZQSZX("ZZZZZZZZ", "杭州清算中心渠道号"), 
-    ;
+public enum InnerChlCode {
+    REAL_TIME_COLL("10000001", "杭州实时代收付"), 
+    REAL_TIME_PAY("10000002", "杭州批量代收付"), ;
 
     private String value;
     private final String displayName;
 
-    ChannelCode(String value, String displayName) {
+    InnerChlCode(String value, String displayName) {
         this.value = value;
         this.displayName = displayName;
     }
@@ -21,9 +20,9 @@ public enum ChannelCode {
         return displayName;
     }
 
-    public static ChannelCode parseOf(String value) {
+    public static InnerChlCode parseOf(String value) {
 
-        for (ChannelCode item : values())
+        for (InnerChlCode item : values())
             if (item.getValue().equals(value))
                 return item;
 

@@ -23,6 +23,7 @@ import com.zcbspay.platform.hz.realtime.business.message.dao.TChnPaymentSingleLo
 import com.zcbspay.platform.hz.realtime.business.message.dao.TxnsLogDAO;
 import com.zcbspay.platform.hz.realtime.business.message.enums.BusinessType;
 import com.zcbspay.platform.hz.realtime.business.message.enums.HZRspStatus;
+import com.zcbspay.platform.hz.realtime.business.message.enums.InnerChlCode;
 import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
@@ -91,7 +92,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId(), collectionChargesBean.getSenderOrgCode());
             logger.info("[saveRealCollectLog successful]");
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), collectionChargesBean.getSenderOrgCode());
+            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), collectionChargesBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_COLL.getValue());
             // 发送报文
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
             com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
@@ -158,7 +159,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
             ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId(), paymentBean.getSenderOrgCode());
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), paymentBean.getSenderOrgCode());
+            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), paymentBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_PAY.getValue());
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
             com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
             if (resSendMsg.isResultBool()) {
@@ -467,6 +468,11 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             }
         }
         return resultBean;
+    }
+
+    @Override
+    public void recordSendMsgErrInfo() {
+
     }
 
 }
