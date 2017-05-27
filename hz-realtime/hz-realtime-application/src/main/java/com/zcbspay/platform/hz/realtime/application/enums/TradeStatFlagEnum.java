@@ -22,7 +22,7 @@ package com.zcbspay.platform.hz.realtime.application.enums;
 public enum TradeStatFlagEnum {
 
 //	INITIAL("1000000"),
-//	READY("0100000"),
+	READY("0100000"),
 	PAYING("0010000"),
 	OVERTIME("0000010"),
 	FINISH_FAILED("0001001"),

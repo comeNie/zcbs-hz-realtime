@@ -12,7 +12,7 @@ public enum ErrorCodeBusHZ {
     NONE_PAY_LOG("THZB008", "实时代收付主流水信息缺失"),
     REPEAT_RESP("THZB009", "回执信息重复，拒绝本次请求"), 
     ORDER_STS_WRONG("THZB010", "实时代收/代付订单状态非法"),
-    CHL_SER_STS_WR("THZB011", "渠道流水状态非法"),
+    CHL_SER_STS_WR("THZB011", "核心交易流水状态非法"),
     RSP_NOT_MATCH("THZB012", "业务应答与原交易记录关键信息不匹配"),
     PAR_PARSE_FAIL("THZB013", "参数转换异常"),
     CONN_FAIL("THZB014", "网络未通，无法建立连接"),

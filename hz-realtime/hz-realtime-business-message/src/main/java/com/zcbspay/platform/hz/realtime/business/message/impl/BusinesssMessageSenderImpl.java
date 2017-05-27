@@ -28,6 +28,7 @@ import com.zcbspay.platform.hz.realtime.business.message.enums.OrgCode;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnCollectSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.ChnPaymentSingleLogDO;
 import com.zcbspay.platform.hz.realtime.business.message.pojo.TxnsLogDO;
+import com.zcbspay.platform.hz.realtime.business.message.sequence.SerialNumberService;
 import com.zcbspay.platform.hz.realtime.business.message.service.BusinesssMessageSender;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.BusinessRsltBean;
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.ResultBean;
@@ -73,6 +74,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
     private OrderPaymentSingleDAO orderPaymentSingleDAO;
     @Autowired
     private HzAgencyInfoDAO hzAgencyInfoDAO;
+    @Autowired
+    private SerialNumberService serialNumberService;
 
     @Override
     public ResultBean realTimeCollectionCharges(SingleCollectionChargesBean collectionChargesBean) {
@@ -80,6 +83,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         try {
             // 业务规则校验
             businessCheckColl(collectionChargesBean.getTxnseqno());
+            String payordno = serialNumberService.generateTranIden();
+            collectionChargesBean.setTxId(payordno);
             // CMT384报文组装
             MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT384.value(), collectionChargesBean.getSenderOrgCode());
             logger.info("[beanHead is]:" + beanHead);
@@ -92,7 +97,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId(), collectionChargesBean.getSenderOrgCode());
             logger.info("[saveRealCollectLog successful]");
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), collectionChargesBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_COLL.getValue());
+            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), collectionChargesBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_COLL.getValue(), payordno);
             // 发送报文
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
             com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
@@ -151,6 +156,8 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
         try {
             // 业务规则校验
             businessCheckPay(paymentBean.getTxnseqno());
+            String payordno = serialNumberService.generateTranIden();
+            paymentBean.setTxId(payordno);
             // CMT386报文组装
             MessageHeaderBean beanHead = MsgHeadAss.commMsgHeaderReq(MessageTypeEnum.CMT386.value(), paymentBean.getSenderOrgCode());
             MessageBean beanBody = RealTimePayAss.realtimePayMsgBodyReq(paymentBean);
@@ -159,7 +166,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
             ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId(), paymentBean.getSenderOrgCode());
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), paymentBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_PAY.getValue());
+            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), paymentBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_PAY.getValue(), payordno);
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
             com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
             if (resSendMsg.isResultBool()) {

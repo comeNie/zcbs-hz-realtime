@@ -60,7 +60,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             collectionChargesBean.setEndToEndIdentification(orderInfo.getDebtorconsign());
             collectionChargesBean.setSummary(orderInfo.getSummary());
             collectionChargesBean.setTxnseqno(orderInfo.getRelatetradetxn());
-            collectionChargesBean.setTxId(txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno()).getPayordno());
+            // collectionChargesBean.setTxId(txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno()).getPayordno());
             HzAgencyInfoDO hzAgencyInfoDO = hzAgencyInfoDAO.getHzAgencyInfoByMerIdBusTyp(orderInfo.getMerid(), BusinessType.REAL_TIME_COLL.getValue());
             collectionChargesBean.setSenderOrgCode(hzAgencyInfoDO.getChargingunit());
             collectionChargesBean.setPurposeCode(hzAgencyInfoDO.getBusisort());
@@ -96,7 +96,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             logger.error("【 no collection single log record to update!!!】");
             throw new HZRealBusException(ErrorCodeBusHZ.NONE_PAY_LOG.getValue(), ErrorCodeBusHZ.NONE_PAY_LOG.getDisplayName());
         }
-        if (!TradeStatFlagEnum.PAYING.getStatus().equals(txnsLogDO.getTradestatflag())) {
+        if (!TradeStatFlagEnum.READY.getStatus().equals(txnsLogDO.getTradestatflag())) {
             logger.error("【TTxnsLogDO status is wrong and it's rejected!!!】" + txnseqno);
             throw new HZRealBusException(ErrorCodeBusHZ.CHL_SER_STS_WR.getValue(), ErrorCodeBusHZ.CHL_SER_STS_WR.getDisplayName());
         }
@@ -120,7 +120,7 @@ public class ConcentrateTradeServiceImpl implements ConcentrateTradeService {
             paymentBean.setEndToEndIdentification(orderInfo.getDebtorconsign());
             paymentBean.setSummary(orderInfo.getSummary());
             paymentBean.setTxnseqno(orderInfo.getRelatetradetxn());
-            paymentBean.setTxId(txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno()).getPayordno());
+            // paymentBean.setTxId(txnsLogDAO.getTxnsLogByTxnseqno(tradeBean.getTxnseqno()).getPayordno());
             HzAgencyInfoDO hzAgencyInfoDO = hzAgencyInfoDAO.getHzAgencyInfoByMerIdBusTyp(orderInfo.getMerid(), BusinessType.REAL_TIME_PAY.getValue());
             paymentBean.setSenderOrgCode(hzAgencyInfoDO.getChargingunit());
             paymentBean.setPurposeCode(hzAgencyInfoDO.getBusisort());
