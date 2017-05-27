@@ -103,16 +103,15 @@ public class TxnsLogDAOImpl extends HibernateBaseDAOImpl<TxnsLogDO> implements T
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
-    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode, String payInst, String payordno) {
-        String hql = "update TxnsLogDO set payordno=?,payinst=?,payfirmerno=?,payordcomtime=?,tradestatflag=?,payordno=? where txnseqno=?";
+    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode, String payInst) {
+        String hql = "update TxnsLogDO set payordno=?,payinst=?,payfirmerno=?,payordcomtime=?,tradestatflag=? where txnseqno=?";
         Query query = getSession().createQuery(hql);
         query.setParameter(0, txid);
         query.setParameter(1, payInst);
         query.setParameter(2, senderOrgCode);
         query.setParameter(3, DateUtil.getCurrentDateTime());
-        query.setParameter(4, txnseqno);
-        query.setParameter(5, TradeStatFlagEnum.PAYING.getStatus());
-        query.setParameter(6, payordno);
+        query.setParameter(4, TradeStatFlagEnum.PAYING.getStatus());
+        query.setParameter(5, txnseqno);
         int rows = query.executeUpdate();
         logger.info("updatePayInfo() effect rows:" + rows);
     }

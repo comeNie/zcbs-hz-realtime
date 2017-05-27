@@ -82,4 +82,16 @@ public interface TChnPaymentSingleLogDAO extends BaseDAO<ChnPaymentSingleLogDO> 
 
     public void updateRealPayLogSendInfo(long tid, String status, String errCodeMsg);
 
+    /**
+     * 更新查询报文标识号
+     * 
+     * @param tid
+     * @param querymsgid
+     */
+    public void updateRealPayLogQryMsgId(long tid, String querymsgid);
+
+    public ChnPaymentSingleLogDO getPaySingleByQryMsgId(String queryMsgId);
+
+    public void updateRealPaymentLogRjtCommResp(CMS900Bean bean, String msgId);
+
 }

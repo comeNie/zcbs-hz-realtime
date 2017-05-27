@@ -38,6 +38,7 @@ import com.zcbspay.platform.hz.realtime.business.message.service.bean.TChnCollec
 import com.zcbspay.platform.hz.realtime.business.message.service.bean.TChnPaymentSingleLogVO;
 import com.zcbspay.platform.hz.realtime.business.message.service.enums.ErrorCodeBusHZ;
 import com.zcbspay.platform.hz.realtime.business.message.service.exception.HZRealBusException;
+import com.zcbspay.platform.hz.realtime.message.bean.CMS316Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT384Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.CMT386Bean;
 import com.zcbspay.platform.hz.realtime.message.bean.OrgnlTxBean;
@@ -97,7 +98,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.saveRealCollectLog(collectionChargesBean, bean.getMsgId(), beanHead.getComRefId(), collectionChargesBean.getSenderOrgCode());
             logger.info("[saveRealCollectLog successful]");
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), collectionChargesBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_COLL.getValue(), payordno);
+            txnsLogDAO.updatePayInfo(collDo.getTxnseqno(), collDo.getTxid(), collectionChargesBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_COLL.getValue());
             // 发送报文
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT384);
             com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
@@ -166,7 +167,7 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
             CMT386Bean bean = (CMT386Bean) beanBody.getMessageBean();
             ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.saveRealPaymentLog(paymentBean, bean.getMsgId(), beanHead.getComRefId(), paymentBean.getSenderOrgCode());
             // 更新交易流水支付信息
-            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), paymentBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_PAY.getValue(), payordno);
+            txnsLogDAO.updatePayInfo(payDo.getTxnseqno(), payDo.getTxid(), paymentBean.getSenderOrgCode(), InnerChlCode.REAL_TIME_PAY.getValue());
             MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMT386);
             com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
             if (resSendMsg.isResultBool()) {
@@ -235,6 +236,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
                     byte[] message = messageAssemble.assemble(beanHead, beanBody);
                     MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
+                    // 记录查询msgId
+                    CMS316Bean bean = (CMS316Bean) beanBody.getMessageBean();
+                    tChnCollectSingleLogDAO.updateRealCollLogQryMsgId(collSingle.getTid(), bean.getMsgId());
                     com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
                     if (resSendMsg.isResultBool()) {
                         logger.info("[sendMessage successful]");
@@ -274,6 +278,9 @@ public class BusinesssMessageSenderImpl implements BusinesssMessageSender {
                     MessageBean beanBody = BusStatQryAss.busStatusQryMsgBodyReq(orgMsgIde);
                     byte[] message = messageAssemble.assemble(beanHead, beanBody);
                     MessageBeanStr messageBean = new MessageBeanStr(message, MessageTypeEnum.CMS316);
+                    // 记录查询msgId
+                    CMS316Bean bean = (CMS316Bean) beanBody.getMessageBean();
+                    tChnPaymentSingleLogDAO.updateRealPayLogQryMsgId(paySingle.getTid(), bean.getMsgId());
                     com.zcbspay.platform.hz.realtime.message.bean.fe.service.bean.ResultBean resSendMsg = messageSend.sendMessage(messageBean);
                     if (resSendMsg.isResultBool()) {
                         logger.info("[sendMessage successful]");

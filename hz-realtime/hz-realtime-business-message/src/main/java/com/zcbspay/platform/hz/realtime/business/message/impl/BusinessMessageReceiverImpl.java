@@ -269,7 +269,24 @@ public class BusinessMessageReceiverImpl implements BusinessMessageReceiver {
         }
         else if (MessageTypeEnum.CMT386.value().equals(orgMsgType)) {
             tChnPaymentSingleLogDAO.updateRealPaymentLogCommResp(bean);
-        } 
+        }
+        else if (MessageTypeEnum.CMS316.value().equals(orgMsgType)) {
+            String queryMsgId = bean.getOrgnlMsgId().getOrgnlMsgId();
+            ChnCollectSingleLogDO collDo = tChnCollectSingleLogDAO.getCollSingleByQryMsgId(queryMsgId);
+            if (collDo != null) {
+                tChnCollectSingleLogDAO.updateRealCollectLogRjtCommResp(bean, collDo.getMsgid());
+            }
+            else {
+                ChnPaymentSingleLogDO payDo = tChnPaymentSingleLogDAO.getPaySingleByQryMsgId(queryMsgId);
+                if (payDo == null) {
+                    logger.error("【 no trade record to match query error response!!!】");
+                }
+                tChnPaymentSingleLogDAO.updateRealPaymentLogRjtCommResp(bean, payDo.getMsgid());
+            }
+        }
+        else {
+            logger.error("【 error original message type !!!】:" + orgMsgType);
+        }
         return new ResultBean(ReturnInfo.SUCCESS.getValue());
     }
 

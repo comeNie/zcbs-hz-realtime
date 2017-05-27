@@ -201,4 +201,45 @@ public class TChnCollectSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnCollect
         logger.info("updateRealCollLogSendInfo() effect rows:" + rows);
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateRealCollLogQryMsgId(long tid, String querymsgid) {
+        String hql = "update ChnCollectSingleLogDO set querymsgid = ? where tid=?";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, querymsgid);
+        query.setLong(1, tid);
+        int rows = query.executeUpdate();
+        logger.info("updateRealCollLogSendInfo() effect rows:" + rows);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChnCollectSingleLogDO getCollSingleByQryMsgId(String queryMsgId) {
+        String hql = "from ChnCollectSingleLogDO where querymsgid=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, queryMsgId);
+        return (ChnCollectSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateRealCollectLogRjtCommResp(CMS900Bean bean, String msgId) {
+        String hql = "update ChnCollectSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=?, rspstatus=? where msgid=?";
+
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, bean.getMsgId());
+        query.setString(1, bean.getRspnInf().getSts());
+        query.setString(2, bean.getRspnInf().getRjctcd());
+        query.setString(3, bean.getRspnInf().getRjctinf());
+        query.setString(4, DateUtil.getCurrentDateTime());
+        query.setString(5, HZRspStatus.REJECTED.getValue());
+        query.setString(6, msgId);
+
+        int rows = query.executeUpdate();
+        logger.info("updateRealCollectLogCommResp() effect rows:" + rows);
+
+    }
+
 }

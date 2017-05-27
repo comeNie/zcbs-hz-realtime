@@ -204,4 +204,46 @@ public class TChnPaymentSingleLogDAOImpl extends HibernateBaseDAOImpl<ChnPayment
 
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateRealPayLogQryMsgId(long tid, String querymsgid) {
+        String hql = "update ChnPaymentSingleLogDO set querymsgid = ? where tid=?";
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, querymsgid);
+        query.setLong(1, tid);
+        int rows = query.executeUpdate();
+        logger.info("updateRealPayLogSendInfo() effect rows:" + rows);
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ChnPaymentSingleLogDO getPaySingleByQryMsgId(String queryMsgId) {
+        String hql = "from ChnPaymentSingleLogDO where querymsgid=?";
+        Query query = getSession().createQuery(hql);
+        query.setString(0, queryMsgId);
+        return (ChnPaymentSingleLogDO) query.uniqueResult();
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    public void updateRealPaymentLogRjtCommResp(CMS900Bean bean, String msgId) {
+
+        String hql = "update ChnPaymentSingleLogDO set commsgid = ? , comstatus = ? ,comrejectcode=? ,comrejectinformation=? ,comdate=?, rspstatus=? where msgid=?";
+
+        Session session = getSession();
+        Query query = session.createQuery(hql);
+        query.setString(0, bean.getMsgId());
+        query.setString(1, bean.getRspnInf().getSts());
+        query.setString(2, bean.getRspnInf().getRjctcd());
+        query.setString(3, bean.getRspnInf().getRjctinf());
+        query.setString(4, DateUtil.getCurrentDateTime());
+        query.setString(5, HZRspStatus.REJECTED.getValue());
+        query.setString(6, msgId);
+
+        int rows = query.executeUpdate();
+        logger.info("updateRealPaymentLogCommResp() effect rows:" + rows);
+    }
+
 }

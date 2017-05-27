@@ -57,5 +57,5 @@ public interface TxnsLogDAO extends BaseDAO<TxnsLogDO> {
      * 
      * @param txid
      */
-    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode, String payInst, String payordno);
+    public void updatePayInfo(String txnseqno, String txid, String senderOrgCode, String payInst);
 }

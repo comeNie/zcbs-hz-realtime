@@ -97,4 +97,21 @@ public interface TChnCollectSingleLogDAO extends BaseDAO<ChnCollectSingleLogDO> 
      */
     public void updateRealCollLogSendInfo(long tid, String status, String errCodeMsg);
 
+    /**
+     * 更新查询报文标识号
+     * @param tid
+     * @param querymsgid
+     */
+    void updateRealCollLogQryMsgId(long tid, String querymsgid);
+    
+    /**
+     * 通过queryMsgId获取代收记录
+     * 
+     * @param msgId
+     * @return
+     */
+    public ChnCollectSingleLogDO getCollSingleByQryMsgId(String queryMsgId);
+
+    public void updateRealCollectLogRjtCommResp(CMS900Bean bean, String msgId);
+
 }
